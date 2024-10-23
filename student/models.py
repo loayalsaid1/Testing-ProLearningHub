@@ -13,6 +13,8 @@ class Users(models.Model):
     password_hash = models.CharField(max_length=200)
     role = models.CharField(max_length=50)
     profile_image = models.ImageField(upload_to='profile_images/')
+    reset_token = models.CharField(
+        max_length=32, blank=True, null=True)  # For password reset
 
     def __str__(self):
         return self.first_name + " " + self.last_name

@@ -128,3 +128,16 @@ STATICFILES_DIRS = []
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Media files
+MEDIA_URL = 'media/'
+MEDIA_ROOT = BASE_DIR/'media'
+
+# Email settings for sending emails through Gmail's SMTP server
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'          # SMTP server address
+EMAIL_PORT = 587                       # SMTP server port (587 for TLS)
+EMAIL_USE_TLS = True                   # Use TLS (Transport Layer Security)
+EMAIL_HOST_USER = 'georgekwm1@gmail.com'  # Your email address (sender)
+EMAIL_HOST_PASSWORD = 'your_email_password'  # Your email account's password
+DEFAULT_FROM_EMAIL = 'georgekwm1@gmail.com'  # Default from email address
