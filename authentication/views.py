@@ -145,4 +145,8 @@ def face(request):
 
 
 def me(request):
-    return render(request, 'authentication/dashboard.html')
+    if request.session.get('user_id') is None:
+        return redirect('login')
+    user = Users.objects.get(user_id=request.session.get('user_id'))
+    name = user.first_name + ' ' + user.last_name
+    return render(request, 'authentication/dashboard.html', {'name': name})
