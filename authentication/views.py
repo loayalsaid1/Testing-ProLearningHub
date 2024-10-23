@@ -14,6 +14,11 @@ def hash_password(password: str) -> bytes:
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
 
+def home(request):
+    """Home page"""
+    return render(request, 'authentication/index.html')
+
+
 def register(request):
     """Registers a user"""
     if request.method == 'POST':
@@ -26,11 +31,11 @@ def register(request):
 
         # Check in all neccessary fields are filled
         if not all([first_name, last_name, email, password, role]):
-            return render(request, 'authentication/register.html', {'error': 'All fields required'})
+            return render(request, 'authentication/register.html', {'Info': 'All fields required'})
 
         # Check if email is already registered
-        if Users.object.filter(email=email):
-            return render(request, 'authentication/register.html', {'error': 'Email already exists'})
+        if Users.objects.filter(email=email):
+            return render(request, 'authentication/register.html', {'Info': 'Email already exists'})
 
         # Hash the password
         password_hash = make_password(password)
@@ -44,7 +49,8 @@ def register(request):
                                         profile_image=profile_image)
         # Save user to the database
         new_user.save()
-        return render(request, 'authentication/register.html', {'success': 'User registration successfull'})
+        return render(request, 'authentication/register.html', {'Info': 'User registration successfull'})
+    return render(request, 'authentication/register.html')
 
 
 def login(request):
@@ -62,12 +68,12 @@ def login(request):
         # Checks if the email exist
         user = Users.objects.filter(email=email).first()
         if not user:
-            return render(request, 'authentication/login.html', {'error': 'Email not found please Register'})
+            return render(request, 'authentication/login.html', {'Info': 'Email not found please Register'})
         if user and check_password(password, user.password_hash):
             request.session['user_id'] = user.user_id
             return redirect('me')
         else:
-            return render(request, 'authentication/login.html', {'error': 'Invalid email or password'})
+            return render(request, 'authentication/login.html', {'Info': 'Invalid email or password'})
     return render(request, 'authentication/login.html')
 
 
@@ -81,7 +87,7 @@ def logout(request):
 
 
 def forgot_password(request):
-    pass
+    return (request, 'forgot_password.html')
 
 
 def password_reset_request(request):
@@ -109,24 +115,27 @@ def password_reset_request(request):
 
 
 def reset_password(request, token):
-    user = Users.objects.filter(reset_token=token).first()
-
-    if user is None:
-        # Token invalid
-        return render(request, 'authentication/invalid_token.html')
-
+    """Reset password"""
     if request.method == 'POST':
-        new_password = request.POST.get('new_password')
-        confirm_password = request.POST.get('confirm_password')
+        user = Users.objects.filter(reset_token=token).first()
 
-        if new_password == confirm_password:
-            password_hash = make_password(new_password)  # Set the new password
-            user.update(password_hash=password_hash)
-            user.reset_token = None  # Invalidate the reset token after use
-            user.save()
+        if user is None:
+            # Token invalid
+            return render(request, 'authentication/invalid_token.html')
 
-            # Redirect to login after successful reset
-            return redirect('login')
+        if request.method == 'POST':
+            new_password = request.POST.get('new_password')
+            confirm_password = request.POST.get('confirm_password')
+
+            if new_password == confirm_password:
+                password_hash = make_password(
+                    new_password)  # Set the new password
+                user.update(password_hash=password_hash)
+                user.reset_token = None  # Invalidate the reset token after use
+                user.save()
+
+                # Redirect to login after successful reset
+                return redirect('login')
 
     return render(request, 'authentication/reset_password.html', {'token': token})
 
