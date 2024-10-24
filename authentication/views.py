@@ -56,6 +56,8 @@ def register(request):
 def login(request):
     """Login a user"""
     # check if it is a post request
+    if request.session.get('user_id') is not None:
+        return redirect('me')
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
@@ -87,7 +89,7 @@ def logout(request):
 
 
 def forgot_password(request):
-    return (request, 'forgot_password.html')
+    return render(request, 'authentication/forgot_password.html')
 
 
 def password_reset_request(request):
@@ -106,12 +108,13 @@ def password_reset_request(request):
 
             # Send the email with the reset link
             reset_link = request.build_absolute_uri(
-                f'/reset-password/{reset_token}')
+                f'/auth/reset-password/{reset_token}')
 
             # Send the reset link to the user's email
             auth.send_password_reset_email(user, reset_link)
 
             return render(request, 'authentication/password_reset_sent.html')
+    return render(request, 'authentication/password_reset_request.html', {'Info': 'Email not registered'})
 
 
 def reset_password(request, token):
@@ -130,7 +133,7 @@ def reset_password(request, token):
             if new_password == confirm_password:
                 password_hash = make_password(
                     new_password)  # Set the new password
-                user.update(password_hash=password_hash)
+                user.password_hash = password_hash
                 user.reset_token = None  # Invalidate the reset token after use
                 user.save()
 
