@@ -24,6 +24,7 @@ urlpatterns = [
     # Authentication Endpoints
     path('auth/', include('authentication.urls')),
     path('lecturer/', include('tutor.urls', )),
-    path('student/', include('student.urls', ))
+    path('student/', include('student.urls', )),
+    path('api/', include('api.urls', ))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)\
     + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

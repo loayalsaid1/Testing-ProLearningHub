@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'student',
     'tutor',
     'authentication',
+    'api',
 ]
 
 MIDDLEWARE = [
@@ -145,3 +146,10 @@ EMAIL_USE_TLS = True                   # Use TLS (Transport Layer Security)
 EMAIL_HOST_USER = 'georgekwm1@gmail.com'  # Your email address (sender)
 EMAIL_HOST_PASSWORD = GOOGLE_APPS_KEY  # Your email account's password
 DEFAULT_FROM_EMAIL = 'georgekwm1@gmail.com'  # Default from email address
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    ),
+}
