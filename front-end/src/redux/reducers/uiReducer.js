@@ -39,7 +39,7 @@ export default function uiReducer(state = initialState, action = {}) {
           .set('isLoading', false)
           .set('isLoggedIn', true)
           .set('user', Map(user))
-          .set('loginError', false);
+          .setIn(['error', 'auth'], '')
       });
     }
 
