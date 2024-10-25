@@ -20,3 +20,13 @@ export const loginSuccess = (user) => {
 export const loginFailure = () => {
   return { type: actions.LOGIN_FAILURE };
 };
+
+export const setError = (errorType, errorMessage) => {
+  return {
+    type: actions.SET_ERROR,
+    payload: {
+      errorType,
+      errorMessage,
+    },
+  };
+};

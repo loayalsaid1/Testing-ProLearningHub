@@ -5,11 +5,24 @@ export const initialState = fromJS({
   isLoading: false,
   isLoggedIn: false,
   user: {},
-  loginError: false,
+  // Save different error messages for different error types
+  error: {
+    auth: '',
+  },
 });
 
 export default function uiReducer(state = initialState, action = {}) {
   switch (action.type) {
+    case actions.SET_ERROR: {
+      const { errorType, errorMessage } = action.payload;
+      return state.setIn(['error', errorType], errorMessage);
+    }
+
+    case actions.CLEAR_ERROR: {
+      const { errorType } = action.payload;
+      return state.setIn(['error', errorType], '');
+    }
+
     case actions.TOGGLE_LOADING: {
       return state.set('isLoading', !state.get('isLoading'));
     }
