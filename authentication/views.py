@@ -3,7 +3,7 @@ from django.http import JsonResponse
 # from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.hashers import make_password, check_password
 from django.utils.crypto import get_random_string
-from student.models import Users
+from student.models import *
 from .models import Auth
 import bcrypt
 
@@ -50,33 +50,46 @@ def register(request):
                                         profile_image=profile_image)
         # Save user to the database
         new_user.save()
+
+        if role == 'tutor':
+            tutor = Lecturer.objects.create(user=new_user)
+            tutor.save()
+        elif role == 'student':
+            student = Students.objects.create(user=new_user)
+            student.save()
         return render(request, 'authentication/register.html', {'Info': 'User registration successfull'})
     return render(request, 'authentication/register.html')
 
 
 def login(request):
     """Login a user"""
-    # check if it is a post request
-    if request.session.get('user_id') is not None:
-        return redirect('me')
+    # Check if user is already logged in
+    current_session = request.session.get('user_id')
+    if current_session:
+        return redirect('me')  # Redirect if user is already logged in
+    # Check if it is a POST request
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
 
-        # handles email or password not inserted
+        # Check if both email and password are provided
         if not email or not password:
-            return render(request,
-                          'authentication/login.html',
-                          {'error': 'Please enter both email and password'})
-        # Checks if the email exist
+            return render(request, 'authentication/login.html', {'error': 'Please enter both email and password'})
+
+        # Retrieve the user by email
         user = Users.objects.filter(email=email).first()
         if not user:
-            return render(request, 'authentication/login.html', {'Info': 'Email not found please Register'})
-        if user and check_password(password, user.password_hash):
+            return render(request, 'authentication/login.html', {'Info': 'Email not found, please register'})
+
+        # Check if the password is correct
+        if check_password(password, user.password_hash):
+            # Set the session and redirect to the user profile
             request.session['user_id'] = user.user_id
             return redirect('me')
         else:
             return render(request, 'authentication/login.html', {'Info': 'Invalid email or password'})
+
+    # Render login page if request is GET
     return render(request, 'authentication/login.html')
 
 
@@ -86,6 +99,18 @@ def logout(request):
     request.session.flush()
 
     # Redirects to login page
+    return redirect('login')
+
+
+def delete(request):
+    """Deletes user's account"""
+    if request.session.get('user_id') is not None:
+        user = Users.objects.filter(
+            user_id=request.session.get('user_id')).first()
+        if user:
+            user.delete()
+            return render(request, 'authentication/login.html',
+                          {'Info': f'The account of {user.first_name} {user.last_name} is deleted'})
     return redirect('login')
 
 
@@ -151,6 +176,11 @@ def face(request):
 def me(request):
     if request.session.get('user_id') is None:
         return redirect('login')
-    user = Users.objects.get(user_id=request.session.get('user_id'))
+    try:
+        user = Users.objects.get(user_id=request.session.get('user_id'))
+    except Users.DoesNotExist:
+        request.session.flush()
+        return redirect('login')
+
     name = user.first_name + ' ' + user.last_name
     return render(request, 'authentication/dashboard.html', {'name': name})

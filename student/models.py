@@ -1,4 +1,5 @@
 from django.db import models
+import uuid
 
 
 # Create your models here.
@@ -23,24 +24,25 @@ class Users(models.Model):
 class Lecturer(models.Model):
     lecturer_id = models.BigAutoField(auto_created=True, primary_key=True)
     user = models.OneToOneField(Users, on_delete=models.CASCADE)
-    department = models.CharField(max_length=100)
-    office_number = models.IntegerField()
+    department = models.CharField(max_length=100, null=True, blank=True)
+    office_number = models.IntegerField(null=True, blank=True)
 
 
 class Students(models.Model):
     student_id = models.BigAutoField(auto_created=True, primary_key=True)
     user = models.OneToOneField(Users, on_delete=models.CASCADE)
-    student_number = models.CharField(max_length=50)
-    date_of_birth = models.DateField()
-    gender = models.CharField(max_length=50)
-    address = models.CharField(max_length=200)
-    phone_number = models.CharField(max_length=50)
-    guardian_name = models.CharField(max_length=100)
-    guardian_phone_number = models.CharField(max_length=50)
-    guardian_email = models.EmailField()
-    guardian_address = models.CharField(max_length=200)
+    student_number = models.UUIDField(default=uuid.uuid4, editable=False)
+    date_of_birth = models.DateField(null=True, blank=True)
+    gender = models.CharField(max_length=50, null=True, blank=True)
+    address = models.CharField(max_length=200, null=True, blank=True)
+    phone_number = models.CharField(max_length=50, null=True, blank=True)
+    guardian_name = models.CharField(max_length=100, null=True, blank=True)
+    guardian_phone_number = models.CharField(
+        max_length=50, null=True, blank=True)
+    guardian_email = models.EmailField(null=True, blank=True)
+    guardian_address = models.CharField(max_length=200, null=True, blank=True)
     enrollment_year = models.DateTimeField(auto_now_add=True)
-    program_of_study = models.CharField(max_length=100)
+    program_of_study = models.CharField(max_length=100, null=True, blank=True)
 
     def __str__(self):
         return self.user.first_name + " " + self.user.last_name

@@ -28,9 +28,9 @@ class Auth:
         """Updates a user in the database."""
         pass
 
-    def delete_user(self, username):
+    def delete_user(self, user):
         """Deletes a user from the database."""
-        pass
+        user.objects.filter(user_id=request.get('user_id')).delete()
 
     def send_password_reset_email(self, user, reset_link):
         """Sends a password reset email to a user."""
