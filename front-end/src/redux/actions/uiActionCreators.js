@@ -24,7 +24,7 @@ export const loginFailure = (errorMessage) => (dispatch) => {
   dispatch(toggleLoading());
 };
 
-export const login = async (email, password) => {
+export const login = (email, password) => async (dispatch) => {
   dispatch(loginRequest());
   const request = new Request(`${DOMAIN}/auth/login`, {
     method: 'POST',
@@ -39,10 +39,10 @@ export const login = async (email, password) => {
     if (!response.ok) {
       switch (response.status) {
         case 401: {
-          throw new error('Please.. check again the email or the password!');
+          throw new Error('Please.. check again the email or the password!');
         }
         default: {
-          throw new error('Unexpected error occured!');
+          throw new Error('Unexpected error occured!');
         }
       }
     }
