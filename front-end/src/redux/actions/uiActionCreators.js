@@ -1,5 +1,7 @@
 import * as actions from './uiActionTypes';
 
+const DOMAIN = 'http://localhost:3001';
+
 export const toggleLoading = () => {
   return { type: actions.TOGGLE_LOADING };
 };
@@ -17,10 +19,41 @@ export const loginSuccess = (user) => {
   };
 };
 
-export const loginFailure = errorMessage => dispatch => {
-	dispatch(setError('auth', errorMessage));
-	dispatch(toggleLoading());
-}
+export const loginFailure = (errorMessage) => (dispatch) => {
+  dispatch(setError('auth', errorMessage));
+  dispatch(toggleLoading());
+};
+
+export const login = async (email, password) => {
+  dispatch(loginRequest());
+  const request = new Request(`${DOMAIN}/auth/login`, {
+    method: 'POST',
+    body: JSON.stringify({ email, password }),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  try {
+    const response = await fetch(request);
+    if (!response.ok) {
+      switch (response.status) {
+        case 401: {
+          throw new error('Please.. check again the email or the password!');
+        }
+        default: {
+          throw new error('Unexpected error occured!');
+        }
+      }
+    }
+
+    const data = await response.json();
+    dispatch(loginSuccess(data.user));
+  } catch (error) {
+    dispatch(loginFailure(error.message));
+    console.error(error.message);
+  }
+};
 
 export const setError = (errorType, errorMessage) => {
   return {
@@ -32,9 +65,9 @@ export const setError = (errorType, errorMessage) => {
   };
 };
 
-export const clearError = errorType => {
-	return {
-		type: actions.CLEAR_ERROR,
-		payload: {errorType}
-	}
-}
+export const clearError = (errorType) => {
+  return {
+    type: actions.CLEAR_ERROR,
+    payload: { errorType },
+  };
+};
