@@ -31,3 +31,10 @@ export const setError = (errorType, errorMessage) => {
     },
   };
 };
+
+export const clearError = errorType => {
+	return {
+		type: actions.CLEAR_ERROR,
+		payload: {errorType}
+	}
+}
