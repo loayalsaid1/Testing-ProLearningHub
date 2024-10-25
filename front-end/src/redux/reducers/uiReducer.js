@@ -43,12 +43,6 @@ export default function uiReducer(state = initialState, action = {}) {
       });
     }
 
-    case actions.LOGIN_FAILURE: {
-      return state.withMutations((mutableState) => {
-        return mutableState.set('isLoading', false).set('loginError', true);
-      });
-    }
-
     default: {
       return state;
     }

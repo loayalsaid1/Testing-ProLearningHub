@@ -17,9 +17,10 @@ export const loginSuccess = (user) => {
   };
 };
 
-export const loginFailure = () => {
-  return { type: actions.LOGIN_FAILURE };
-};
+export const loginFailure = errorMessage => dispatch => {
+	dispatch(setError('auth', errorMessage));
+	dispatch(toggleLoading());
+}
 
 export const setError = (errorType, errorMessage) => {
   return {
