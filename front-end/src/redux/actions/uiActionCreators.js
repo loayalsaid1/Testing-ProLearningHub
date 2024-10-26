@@ -42,7 +42,7 @@ export const login = (email, password) => async (dispatch) => {
           throw new Error('Please.. check again the email or the password!');
         }
         case 404: {
-          throw new Error('Oops, that\'s a 404!');
+          throw new Error("Oops, that's a 404!");
         }
         default: {
           throw new Error('Unexpected error occured!');
@@ -58,6 +58,11 @@ export const login = (email, password) => async (dispatch) => {
   }
 };
 
+export const logout = () => {
+  return {
+    type: actions.LOGOUT,
+  };
+};
 export const setError = (errorType, errorMessage) => {
   return {
     type: actions.SET_ERROR,

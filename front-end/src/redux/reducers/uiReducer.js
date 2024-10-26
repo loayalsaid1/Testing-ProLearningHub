@@ -43,6 +43,15 @@ export default function uiReducer(state = initialState, action = {}) {
       });
     }
 
+    case actions.LOGOUT: {
+      return state.withMutations( mutableState => {
+        return mutableState
+          .set('isLoading', false)
+          .set('isLoggedIn', false)
+          .set('user', {})
+          .setIn(['error', 'auth'], '')
+      })
+    }
     default: {
       return state;
     }
