@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { login } from '../../redux/actions/uiActionCreators';
+import { formLogin, googleLogin } from '../../redux/actions/uiActionCreators';
 
 export default function Login() {
 	const dispatch = useDispatch();
@@ -12,7 +12,7 @@ export default function Login() {
 		const email = event.target.email.value;
 		const password = event.target.password.value;
 
-		dispatch(login(email, password));
+		dispatch(formLogin(email, password));
 	}
 
 	return <>
