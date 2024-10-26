@@ -18,7 +18,9 @@ const toastMiddleware = (store) => (next) => (action) => {
 			toast.success('You are logged out!.. Bye!', {
 				icon: '👋'
 			});
+			return next(action);
 		}
+		
 		default: {
 			return next(action);
 		}

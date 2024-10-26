@@ -6,6 +6,7 @@ import { toggleName } from './redux/actions/helloActionCreators';
 import Login from './components/Login/Login';
 import { logout } from './redux/actions/uiActionCreators';
 import Spinner from './components/utilityComponents/Spinner';
+import { googleLogout } from '@react-oauth/google';
 
 function App() {
   const name = useSelector((state) => state.hello.get('name'));
@@ -13,6 +14,11 @@ function App() {
   const isLoggedIn = useSelector((state) => state.ui.get('isLoggedIn'));
   const dispatch = useDispatch();
 
+  const handleLogout = () => {
+    dispatch(logout());
+    googleLogout();
+  }
+  
   return (
     <div className="APP">
       {isLoading && <Spinner />}
@@ -26,7 +32,7 @@ function App() {
               Toggle name
             </button>
             <div>
-              <button type="button" onClick={() => dispatch(logout())}>
+              <button type="button" onClick={handleLogout}>
                 Logout
               </button>
             </div>
