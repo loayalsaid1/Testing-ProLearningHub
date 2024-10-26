@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import {toggleName } from './redux/actions/helloActionCreators'
 import Login from './components/Login/Login';
 import { logout } from './redux/actions/uiActionCreators';
+import Spinner from './components/utilityComponents/Spinner';
 
 function App() {
   const name = useSelector((state) => state.hello.get('name'));
@@ -13,7 +14,9 @@ function App() {
 
 
   return (
-    <div className="App">
+    <div className="APP">
+      { isLoading && <Spinner /> }
+      <header className="App-header">
         {!isLoggedIn 
         ? <Login />
         :(
@@ -26,7 +29,7 @@ function App() {
          </>
         )
         }
-
+      </header>
     </div>
   );
 }
