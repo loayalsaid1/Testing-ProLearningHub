@@ -24,8 +24,7 @@ export const loginFailure = (errorMessage) => (dispatch) => {
   dispatch(toggleLoading());
 };
 
-export const login = (email, password) => async (dispatch) => {
-  dispatch(loginRequest());
+export function formLogin(email, password) {
   const request = new Request(`${DOMAIN}/auth/login`, {
     method: 'POST',
     body: JSON.stringify({ email, password }),
@@ -33,6 +32,24 @@ export const login = (email, password) => async (dispatch) => {
       'Content-Type': 'application/json',
     },
   });
+
+  return login(request);
+}
+
+export function googleLogin(idToken) {
+  const request = new Request(`${DOMAIN}/auth/oauth/google`, {
+    method: 'POST',
+    body: JSON.stringify({ token: idToken }),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  return login(request);
+}
+
+const login = (request) => async (dispatch) => {
+  dispatch(loginRequest());
 
   try {
     const response = await fetch(request);
