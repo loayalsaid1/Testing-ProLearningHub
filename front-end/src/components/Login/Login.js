@@ -26,9 +26,15 @@ export default function Login() {
 	}
 
 	return <>
+	<h1>ProLearningHub</h1>
+	<p>Please login to continue</p>
 	<form onSubmit={handleSubmit}>
-		<input name='email' id='email' type='text' placeholder='email' />
-		<input name='password' id='password' type='password' placeholder='password' />
+		<label htmlFor='email'>Email</label>
+		<input name='email' id='email' type='text' placeholder='Here insert your mail please' />
+		<hr />
+		<label htmlFor='password'>Password</label>
+		<input name='password' id='password' type='password' placeholder='And here.. Your password!' />
+		<hr />
 		<button type='submit' disabled={isLoading}>Login</button>
 	</form>
 
