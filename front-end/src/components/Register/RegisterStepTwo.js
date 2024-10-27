@@ -33,7 +33,7 @@ export default function RegisterStepTwo({ setStep }) {
       <h1>Almost There</h1>
       <p>Please provide us with your personal information</p>
       <form>
-        <lable>
+        <label>
           First Name:
           <input
             id="firstName"
@@ -42,8 +42,8 @@ export default function RegisterStepTwo({ setStep }) {
             placeholder="insert your first name"
             required
           />
-        </lable>
-        <lable>
+        </label>
+        <label>
           Last Name:
           <input
             id="lastName"
@@ -52,7 +52,7 @@ export default function RegisterStepTwo({ setStep }) {
             placeholder="and your last name"
             required
           />
-        </lable>
+        </label>
         <IKContext
           publicKey={publicKey}
           urlEndpoint={urlEndpoint}
