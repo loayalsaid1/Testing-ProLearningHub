@@ -1,13 +1,10 @@
 import { createStore, applyMiddleware } from 'redux';
 import { thunk } from 'redux-thunk';
+import { composeWithDevTools } from '@redux-devtools/extension';
+import toastMiddleware from './middlewares/toastMiddleware';
 import rootReducer from './rootReducer';
-
-
-export default createStore(
-  rootReducer,
-  window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
-    ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__(applyMiddleware(thunk))
-    : applyMiddleware(thunk)
+const storeEnhancer = composeWithDevTools(
+  applyMiddleware(thunk, toastMiddleware)
 );
 
-
+export default createStore(rootReducer, storeEnhancer);

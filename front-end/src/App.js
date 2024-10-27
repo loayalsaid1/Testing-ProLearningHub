@@ -1,32 +1,45 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
 import { useDispatch, useSelector } from 'react-redux';
-import {toggleName } from './redux/actions/helloActionCreators'
+import { Toaster } from 'react-hot-toast';
+import './App.css';
+import { toggleName } from './redux/actions/helloActionCreators';
+import Login from './components/Login/Login';
+import { logout } from './redux/actions/uiActionCreators';
+import Spinner from './components/utilityComponents/Spinner';
+import { googleLogout } from '@react-oauth/google';
 
 function App() {
   const name = useSelector((state) => state.hello.get('name'));
+  const isLoading = useSelector((state) => state.ui.get('isLoading'));
+  const isLoggedIn = useSelector((state) => state.ui.get('isLoggedIn'));
   const dispatch = useDispatch();
 
-
+  const handleLogout = () => {
+    dispatch(logout());
+    googleLogout();
+  }
+  
   return (
-    <div className="App">
+    <div className="APP">
+      {isLoading && <Spinner />}
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <p>Hello: {name}</p>
-        <button type='button' onClick={() => dispatch(toggleName())}>Toggle name</button>
+        {!isLoggedIn ? (
+          <Login />
+        ) : (
+          <>
+            <p>Hello: {name}</p>
+            <button type="button" onClick={() => dispatch(toggleName())}>
+              Toggle name
+            </button>
+            <div>
+              <button type="button" onClick={handleLogout}>
+                Logout
+              </button>
+            </div>
+          </>
+        )}
 
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <Toaster reverseOrder={true} />
       </header>
     </div>
   );

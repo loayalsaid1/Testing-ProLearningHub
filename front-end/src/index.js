@@ -6,13 +6,17 @@ import App from './App';
 import store from './redux/store';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 import reportWebVitals from './reportWebVitals';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
+const CLIENT_ID = '967609803723-r2lcuagi67cn9ft4klu6h9mln2ts4t1j.apps.googleusercontent.com'
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
+    <GoogleOAuthProvider clientId={CLIENT_ID}>
     <Provider store={store}>
       <App />
     </Provider>
+    </GoogleOAuthProvider>
   </React.StrictMode>
 );
 
