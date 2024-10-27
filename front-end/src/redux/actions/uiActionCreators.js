@@ -96,7 +96,8 @@ export const clearError = (errorType) => {
     payload: { errorType },
   };
 };
-c
+
+
 export const registerRequest = () => {
   return {
     type: actions.REGISTER_REQUEST,
