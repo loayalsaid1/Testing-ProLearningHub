@@ -4,7 +4,7 @@ import Login from '../Login/Login';
 
 export default function Authintication() {
   const [type, setType] = useState('login');
-
+  
   return (
     <>
       {type === 'login' ? (
