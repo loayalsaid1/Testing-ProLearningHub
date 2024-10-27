@@ -119,7 +119,7 @@ export const register = (userData) => async (dispatch) => {
 
   const request = new Request(`${DOMAIN}/auth/register`, {
     method: 'POST',
-    body: JSON.stringify(userData),
+    body: JSON.stringify({userData}),
     headers: {
       'Content-Type': 'application/json',
     },

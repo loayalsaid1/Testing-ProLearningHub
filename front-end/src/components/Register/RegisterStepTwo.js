@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
 import ImageKit from "imagekit-javascript";
 import { register } from '../../redux/actions/uiActionCreators';
 
