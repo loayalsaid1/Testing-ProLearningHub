@@ -1,3 +1,5 @@
+import React from 'react';
+
 export default function RegisterStepOne({ setStep }) {
   return (
     <>
@@ -35,7 +37,9 @@ export default function RegisterStepOne({ setStep }) {
             new-password
           />
         </lable>
-        <button type="submit" value="Next" onClick={() => setStep(2)} >Next</button>
+        <button type="submit" value="Next" onClick={() => setStep(2)}>
+          Next
+        </button>
       </form>
     </>
   );
