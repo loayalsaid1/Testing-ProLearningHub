@@ -75,6 +75,7 @@ export default function RegisterStepTwo({
             onChange={handleChange}
           />
         </label>
+        <hr />
         <label>
           Last Name:
           <input
@@ -88,10 +89,12 @@ export default function RegisterStepTwo({
           />
         </label>
         {imageUrl && <img src={imageUrl} width="200" alt="Uploaded" />}
+        <hr />
         <label>
           Profile Picture:
           <input id='profilePicture' name="profilePicture" type="file" onChange={handleFileSelect}/>
-        </label>{' '}
+        </label>
+        <hr />
         <button type="submit" >Register</button>
       </form>
     </>

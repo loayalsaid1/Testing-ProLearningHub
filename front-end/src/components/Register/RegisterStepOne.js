@@ -30,6 +30,7 @@ export default function RegisterStepOne({ setStep, userData, handleInputChange }
             onChange={handleChange}
           />
         </label>
+        <hr />
         <label>
           Email:
           <input
@@ -42,6 +43,7 @@ export default function RegisterStepOne({ setStep, userData, handleInputChange }
             onChange={handleChange}
           />
         </label>
+        <hr />
         <label>
           Password:
           <input
@@ -54,6 +56,7 @@ export default function RegisterStepOne({ setStep, userData, handleInputChange }
             onChange={handleChange}
           />
         </label>
+        <hr />
         <button type="submit" value="Next">
           Next
         </button>
