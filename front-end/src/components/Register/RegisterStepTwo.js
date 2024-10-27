@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import ImageKit from "imagekit-javascript";
+import { register } from '../../redux/actions/uiActionCreators';
 
 const imagekit = new ImageKit({
   publicKey: "public_tTc9vCi5O7L8WVAQquK6vQWNx08=",
@@ -13,7 +14,7 @@ export default function RegisterStepTwo({
 }) {
   const [imageUrl, setImageUrl] = useState('');
   const [file, setFile] = useState(null);
-
+  const dispatch = useDispatch();
 
   function handleChange(event) {
     const { name, value } = event.target;
@@ -53,10 +54,9 @@ export default function RegisterStepTwo({
     if (file) {
       const { id, url } = await uploadImage(file);
       handleInputChange('profilePicture', { id, url });
-    }
-    console.log(userData);
+    }    
+    dispatch(register(userData))
   }
-
   return (
     <>
       <button onClick={() => setStep(1)}>Back</button>
