@@ -3,10 +3,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Toaster } from 'react-hot-toast';
 import './App.css';
 import { toggleName } from './redux/actions/helloActionCreators';
-import Login from './components/Login/Login';
 import { logout } from './redux/actions/uiActionCreators';
 import Spinner from './components/utilityComponents/Spinner';
 import { googleLogout } from '@react-oauth/google';
+import Authintication from './components/Authintication/Authintication';
 
 function App() {
   const name = useSelector((state) => state.hello.get('name'));
@@ -24,7 +24,7 @@ function App() {
       {isLoading && <Spinner />}
       <header className="App-header">
         {!isLoggedIn ? (
-          <Login />
+          <Authintication />
         ) : (
           <>
             <p>Hello: {name}</p>
