@@ -96,3 +96,21 @@ export const clearError = (errorType) => {
     payload: { errorType },
   };
 };
+c
+export const registerRequest = () => {
+  return {
+    type: actions.REGISTER_REQUEST,
+  }
+}
+
+
+export const registerFailure = (errorMessage) => {
+  return {type: actions.REGISTER_FAILURE, payload: {errorMessage}};
+}
+
+export const registerSuccess = (user) => {
+  return {
+    type: actions.REGISTER_SUCCESS,
+    payload: {user}
+  }
+}
