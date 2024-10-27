@@ -1,18 +1,10 @@
 import React, { useState } from 'react';
-import { IKContext, IKUpload } from 'imagekitio-react';
+import ImageKit from "imagekit-javascript";
 
-
-const urlEndpoint = 'https://ik.imagekit.io/loayalsaid1/proLearningHub';
-const publicKey = 'public_tTc9vCi5O7L8WVAQquK6vQWNx08=';
-const authenticator = () => {
-  return new Promise((resolve, reject) => {
-    // Fetch the authentication parameters from your backend
-    fetch('http://localhost:3000/auth/imagekit')
-      .then((response) => response.json())
-      .then((data) => resolve(data))
-      .catch((error) => reject(error));
-  });
-};
+const imagekit = new ImageKit({
+  publicKey: "public_tTc9vCi5O7L8WVAQquK6vQWNx08=",
+  urlEndpoint: "https://ik.imagekit.io/loayalsaid1/proLearningHub",
+});
 
 export default function RegisterStepTwo({
   setStep,
@@ -20,29 +12,51 @@ export default function RegisterStepTwo({
   handleInputChange,
 }) {
   const [imageUrl, setImageUrl] = useState('');
+  const [file, setFile] = useState(null);
 
-  const onSuccess = (res) => {
-    console.log(res.fileId)
-    handleInputChange('profilePicture', {
-      id: res.fileId,
-      url: res.url,
-    });
-    setImageUrl(res.url);
-  };
-
-  const onError = (err) => {
-    console.error('Error uploading image:', err);
-  };
 
   function handleChange(event) {
     const { name, value } = event.target;
     handleInputChange(name, value);
   }
 
-  function handleSubmit(event) {
+  function handleFileSelect(event) {
+
+    const file = event.target.files[0];
+    setFile(file);
+
+    const url = URL.createObjectURL(file);
+    setImageUrl(url);
+  }
+
+  async function uploadImage(file) {
+    try {
+      const response = await fetch("http://localhost:3000/auth/imagekit");
+      const authParams = await response.json();
+
+      const uploadResponse = await imagekit.upload({
+        file,
+        fileName: file.name,
+        ...authParams,
+      });
+
+      return { id: uploadResponse.fileId, url: uploadResponse.url };
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      console.log(3);
+      return { id: '', url: '' };
+    }
+  }
+
+  async function handleSubmit(event) {
     event.preventDefault();
+    if (file) {
+      const { id, url } = await uploadImage(file);
+      handleInputChange('profilePicture', { id, url });
+    }
     console.log(userData);
   }
+
   return (
     <>
       <button onClick={() => setStep(1)}>Back</button>
@@ -73,15 +87,11 @@ export default function RegisterStepTwo({
             onChange={handleChange}
           />
         </label>
-        <IKContext
-          publicKey={publicKey}
-          urlEndpoint={urlEndpoint}
-          authenticator={authenticator}
-        >
-          <h1>Upload Image</h1>
-          <IKUpload onError={onError} onSuccess={onSuccess} />
-          {imageUrl && <img src={imageUrl} width="200" alt="Uploaded" />}
-        </IKContext>{' '}
+        {imageUrl && <img src={imageUrl} width="200" alt="Uploaded" />}
+        <label>
+          Profile Picture:
+          <input id='profilePicture' name="profilePicture" type="file" onChange={handleFileSelect}/>
+        </label>{' '}
         <button type="submit" >Register</button>
       </form>
     </>
