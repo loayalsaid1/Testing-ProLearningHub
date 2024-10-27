@@ -4,13 +4,31 @@ import RegisterStepTwo from './RegisterStepTwo';
 
 export default function Register({setType}) {
   const [step, setStep] = useState(1);
+  const [userData, setUserData] = useState({
+    username: '',
+    email: '',
+    password: '',
+    firstName: '',
+    lastName: '',
+    profilePicture: {
+      id: '',
+      url: '',
+    }
+ });
+
+ function handleInputChange(field, value) {
+   setUserData((prevState) => ({
+    ...prevState,
+    [field]: value
+  }))
+ }
 
   return (
     <>
       {step === 1 ? (
-        <RegisterStepOne setStep={setStep} />
+        <RegisterStepOne setStep={setStep} userData={userData} handleInputChange={handleInputChange} />
       ) : (
-        <RegisterStepTwo setStep={setStep} />
+        <RegisterStepTwo setStep={setStep} userData={userData} handleInputChange={handleInputChange} />
       )}
 			<p>Have an account already?</p>
       <button onClick={() => setType('login')}>Login</button>
