@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import RegisterStepOne from './RegisterStepOne';
 import RegisterStepTwo from './RegisterStepTwo';
 
-export default function Register() {
+export default function Register({setType}) {
   const [step, setStep] = useState(1);
 
   return (
@@ -12,10 +12,8 @@ export default function Register() {
       ) : (
         <RegisterStepTwo setStep={setStep} />
       )}
-
-      <p>
-        Already have an account? <a href="/login">Login</a>
-      </p>
+			<p>Have an account already?</p>
+      <button onClick={() => setType('login')}>Login</button>
     </>
   );
 }

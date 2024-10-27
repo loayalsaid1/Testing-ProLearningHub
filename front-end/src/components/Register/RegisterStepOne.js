@@ -35,7 +35,7 @@ export default function RegisterStepOne({ setStep }) {
             new-password
           />
         </lable>
-        <button type="submit" value="Next" onClick={() => setStep(2)} />
+        <button type="submit" value="Next" onClick={() => setStep(2)} >Next</button>
       </form>
     </>
   );

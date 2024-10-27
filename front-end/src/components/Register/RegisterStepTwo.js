@@ -26,7 +26,7 @@ export default function RegisterStepTwo({ setStep }) {
           />
         </lable>
         <input id="profilePicture" name="profilePicture" type="file" />
-        <button type="submit" value="Register" />
+        <button type="submit">Register</button>
       </form>
     </>
   );

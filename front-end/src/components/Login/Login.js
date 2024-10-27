@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { formLogin, googleLogin, loginFailure } from '../../redux/actions/uiActionCreators';
 import { GoogleLogin } from '@react-oauth/google';
 
-export default function Login() {
+export default function Login({ setType }) {
 	const dispatch = useDispatch();
 	const isLoading = useSelector((state) => state.ui.get('isLoading'));
 
@@ -37,6 +37,8 @@ export default function Login() {
 		<hr />
 		<button type='submit' disabled={isLoading}>Login</button>
 	</form>
+
+	<button type="button" onClick={() => setType('register')}>Register</button>
 
 	<GoogleLogin
   onSuccess={handleGoogleLoginSuccess}
