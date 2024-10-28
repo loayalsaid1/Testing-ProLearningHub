@@ -114,7 +114,7 @@ export const registerSuccess = (user) => {
   };
 };
 
-const formRegister = (userData) => {
+export const formRegister = (userData) => {
   const request = new Request(`${DOMAIN}/auth/register`, {
     method: 'POST',
     body: JSON.stringify({userData}),
@@ -126,7 +126,7 @@ const formRegister = (userData) => {
   return register(request);
 }
 
-const googleRegister = (idToken) => {
+export const googleRegister = (idToken) => {
   const request = new Request(`${DOMAIN}/auth/oauth/googleRegister`, {
     method: 'POST',
     body: JSON.stringify({token: idToken}),

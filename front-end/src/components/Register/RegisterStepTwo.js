@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import ImageKit from "imagekit-javascript";
-import { register, setError, toggleLoading } from '../../redux/actions/uiActionCreators';
+import { formRegister,  setError, toggleLoading } from '../../redux/actions/uiActionCreators';
 
 const imagekit = new ImageKit({
   publicKey: "public_tTc9vCi5O7L8WVAQquK6vQWNx08=",
@@ -59,7 +59,7 @@ export default function RegisterStepTwo({
       const { id, url } = await uploadImage(file);
       handleInputChange('profilePicture', { id, url });
     }    
-    dispatch(register(userData))
+    dispatch(formRegister(userData))
   }
   return (
     <>
