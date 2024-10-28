@@ -114,9 +114,7 @@ export const registerSuccess = (user) => {
   };
 };
 
-export const register = (userData) => async (dispatch) => {
-  dispatch(registerRequest());
-
+const formRegister = (userData) => {
   const request = new Request(`${DOMAIN}/auth/register`, {
     method: 'POST',
     body: JSON.stringify({userData}),
@@ -124,6 +122,24 @@ export const register = (userData) => async (dispatch) => {
       'Content-Type': 'application/json',
     },
   });
+
+  return register(request);
+}
+
+const googleRegister = (idToken) => {
+  const request = new Request(`${DOMAIN}/auth/oauth/googleRegister`, {
+    method: 'POST',
+    body: JSON.stringify({token: idToken}),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  return register(request);
+}
+
+export const register = (request) => async (dispatch) => {
+  dispatch(registerRequest());
 
   try {
     const response = await fetch(request);
