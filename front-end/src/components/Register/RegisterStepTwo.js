@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import ImageKit from "imagekit-javascript";
-import { register } from '../../redux/actions/uiActionCreators';
+import { register, toggleLoading } from '../../redux/actions/uiActionCreators';
 
 const imagekit = new ImageKit({
   publicKey: "public_tTc9vCi5O7L8WVAQquK6vQWNx08=",
@@ -33,6 +33,7 @@ export default function RegisterStepTwo({
 
   async function uploadImage(file) {
     try {
+      dispatch(toggleLoading())
       const response = await fetch("http://localhost:3000/auth/imagekit");
       const authParams = await response.json();
 
@@ -41,11 +42,11 @@ export default function RegisterStepTwo({
         fileName: file.name,
         ...authParams,
       });
-
+      dispatch(toggleLoading())
       return { id: uploadResponse.fileId, url: uploadResponse.url };
     } catch (error) {
       console.error("Error uploading image:", error);
-      console.log(3);
+      dispatch(toggleLoading())
       return { id: '', url: '' };
     }
   }
