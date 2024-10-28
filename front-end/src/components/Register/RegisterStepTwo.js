@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import ImageKit from "imagekit-javascript";
-import { register, toggleLoading } from '../../redux/actions/uiActionCreators';
+import { register, setError, toggleLoading } from '../../redux/actions/uiActionCreators';
 
 const imagekit = new ImageKit({
   publicKey: "public_tTc9vCi5O7L8WVAQquK6vQWNx08=",
@@ -47,6 +47,7 @@ export default function RegisterStepTwo({
       return { id: uploadResponse.fileId, url: uploadResponse.url };
     } catch (error) {
       console.error("Error uploading image:", error);
+      dispatch(setError('auth', 'Error uploading the profile image!'));
       dispatch(toggleLoading())
       return { id: '', url: '' };
     }
