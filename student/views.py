@@ -1,5 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
+from django.db.models import Q
+
 # from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.hashers import make_password, check_password
 from django.utils.crypto import get_random_string
@@ -31,26 +33,38 @@ def courses(request):
     pass
 
 
-def chat(request, user_id):
-    receiver = get_object_or_404(Users, id=user_id)
+def chat(request):
+    all_users = Users.objects.all()
+    current_user = request.session.get('user_id')
+    return render(request, 'student/chat_display.html', {'all_users': all_users, 'current_user': current_user})
+
+
+def message(request, user_id):
+    receiver = get_object_or_404(Users, user_id=user_id)
     session = request.session.get('user_id')
     sender = Users.objects.filter(user_id=session).first()
     if request.method == 'POST':
-        content = request.POST('message')
+        content = request.POST['message']
         if content:
             Chats.objects.create(
-                sender=sender, receiver=receiver, content=content)
-            return redirect('chat', user_id=user_id)
-    return render(request, 'send_message.html', {'receiver': receiver})
+                sender=sender, receiver=receiver, message=content)
+            messages = Chats.objects.filter((Q(sender=sender) & Q(receiver=receiver))
+                                            | (Q(sender=receiver) & Q(receiver=sender))).order_by('timestamp')
+            return render(request, 'student/chat.html', {'messages': messages, 'receiver': receiver})
+            # return redirect('chat', user_id=user_id)
+    return render(request, 'student/chat.html', {'receiver': receiver})
 
 
-def chat_details(request, user_id):
-    receiver = get_object_or_404(Users, id=user_id)
-    session = request.session.get('user_id')
-    sender = Users.objects.filter(user_id=session).first()
-    message = Chats.objects.filter((Q(sender=sender) & Q(receiver=receiver))
-                                   | (Q(sender=receiver) & Q(receiver=sender))).order_by('timestamp')
-    return render(request, 'student/chat.html', {'message': message, 'receiver': receiver})
+# def chat_details(request, user_id):
+#     if request.method == 'POST':
+#         receiver = get_object_or_404(Users, id=user_id)
+#         session = request.session.get('user_id')
+#         sender = Users.objects.filter(user_id=session).first()
+#         messages = Chats.objects.filter((Q(sender=sender) & Q(receiver=receiver))
+#                                         | (Q(sender=receiver) & Q(receiver=sender))).order_by('timestamp')
+#         return render(request, 'student/chat.html', {'messages': messages, 'receiver': receiver})
+#     return render(request, 'student/chat_details.html')
+
 # def chat(request, user_id):
 #     current_user_id = request.session.get('user_id')
 #     if current_user_id:
