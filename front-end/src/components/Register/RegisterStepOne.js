@@ -1,7 +1,11 @@
 import React from 'react';
-
+import { GoogleLogin } from '@react-oauth/google';
+import { googleRegister } from '../../redux/actions/uiActionCreators'
+import { useDispatch } from 'react-redux';
+import { registerFailure } from '../../redux/actions/uiActionCreators';
 export default function RegisterStepOne({ setStep, userData, handleInputChange }) {
-
+  const dispatch = useDispatch();
+  
   function handleSubmit(e) {
     e.preventDefault();
     setStep(2);
@@ -12,10 +16,29 @@ export default function RegisterStepOne({ setStep, userData, handleInputChange }
     handleInputChange(name, value);
   }
 
+  function handleGoogleRegisterSuccess(token) {
+    dispatch(googleRegister(token.credential));
+  }
+
+  function handleGoogleRegisterFailure(error) {
+    dispatch(registerFailure(error.message))
+  }
+
   return (
     <>
       <h1>Welcome to ProLearningHub</h1>
       <p>Create a new accoutn to whatever nice text is here 🙂</p>
+      <GoogleLogin
+        onSuccess={handleGoogleRegisterSuccess}
+        onError={handleGoogleRegisterFailure}
+        theme="filled_blue"
+        size="large"
+        shape="circle"
+        text="signup_with"
+        logo_alignment="left"
+        width="300"
+      />
+      <p>Or fill this form</p>
       <form onSubmit={handleSubmit} >
         <label>
           Username:

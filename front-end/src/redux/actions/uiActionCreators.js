@@ -134,7 +134,6 @@ export const googleRegister = (idToken) => {
       'Content-Type': 'application/json',
     },
   });
-
   return register(request);
 }
 
