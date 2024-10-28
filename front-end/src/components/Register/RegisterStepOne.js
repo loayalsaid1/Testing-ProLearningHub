@@ -52,7 +52,7 @@ export default function RegisterStepOne({ setStep, userData, handleInputChange }
             type="password"
             value={userData.password}
             placeholder="And.. a password"
-            new-password
+            new-password="true"
             onChange={handleChange}
           />
         </label>

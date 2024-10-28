@@ -133,17 +133,17 @@ export const register = (userData) => async (dispatch) => {
       switch (response.status) {
         case 409: {
           const { message } = data
-          dispatch(setError('auth', message));
+          throw new Error(message);
         }
         case 404: {
           throw new Error("Oops, that's a 404!");
         }
         default: {
-          throw new Error('Unexpected error occured!');
+          console.error(data);
+          throw new Error(`Unexpected ${response.status} error occured!`);
         }
       }
     }
-
     dispatch(registerSuccess(data.user));
 
   } catch (error) {

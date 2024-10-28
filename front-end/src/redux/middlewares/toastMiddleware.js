@@ -20,6 +20,11 @@ const toastMiddleware = (store) => (next) => (action) => {
 			});
 			return next(action);
 		}
+		case actions.REGISTER_FAILURE: {
+			const {errorMessage} = action.payload;
+			toast.error(errorMessage);
+			return next(action);
+		}
 		case actions.REGISTER_SUCCESS: {
 			toast.success('You are registered!.. Happy Learning!', {
 				icon: '👋'
