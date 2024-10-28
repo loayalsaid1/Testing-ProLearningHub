@@ -10,10 +10,6 @@ export default function Register({setType}) {
     password: '',
     firstName: '',
     lastName: '',
-    profilePicture: {
-      id: '',
-      url: '',
-    }
  });
 
  function handleInputChange(field, value) {

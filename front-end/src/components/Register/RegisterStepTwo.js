@@ -57,12 +57,24 @@ export default function RegisterStepTwo({
 
   async function handleSubmit(event) {
     event.preventDefault();
+  
     if (file) {
-      const { id, url } = await uploadImage(file);
-      handleInputChange('profilePicture', { id, url });
-    }    
-    dispatch(formRegister(userData))
+      try {
+        dispatch(toggleLoading());
+        const { id, url } = await uploadImage(file);
+        
+        dispatch(formRegister({...userData, pictureId: id, pictureURL: url}));
+
+      } catch (error) {
+        console.error("Error uploading image:", error);
+        dispatch(setError('auth', 'Error uploading the profile image!'));
+        return;
+      }
+    } else {
+      dispatch(formRegister(userData));
+    }
   }
+
   return (
     <>
       <button onClick={() => setStep(1)}>Back</button>
