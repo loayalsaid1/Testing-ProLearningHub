@@ -28,6 +28,9 @@ class Lecturer(models.Model):
     department = models.CharField(max_length=100, null=True, blank=True)
     office_number = models.IntegerField(null=True, blank=True)
 
+    def __str__(self):
+        return self.user.first_name + " " + self.user.last_name
+
 
 class Students(models.Model):
     student_id = models.BigAutoField(auto_created=True, primary_key=True)
@@ -52,11 +55,11 @@ class Students(models.Model):
 class Courses(models.Model):
     course_id = models.BigAutoField(auto_created=True, primary_key=True)
     course_name = models.CharField(max_length=100)
-    course_code = models.CharField(max_length=100)
-    course_description = models.TextField()
-    course_credit = models.IntegerField()
-    course_level = models.CharField(max_length=100)
-    course_department = models.CharField(max_length=100)
+    course_code = models.CharField(max_length=100, null=True, blank=True)
+    course_description = models.TextField(null=True, blank=True)
+    course_credit = models.IntegerField(null=True, blank=True)
+    course_level = models.CharField(max_length=100, null=True, blank=True)
+    course_department = models.CharField(max_length=100, null=True, blank=True)
     lecturer = models.ForeignKey(Lecturer, on_delete=models.CASCADE)
 
 

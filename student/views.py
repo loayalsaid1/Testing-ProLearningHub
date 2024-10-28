@@ -5,7 +5,7 @@ from django.db.models import Q
 # from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.hashers import make_password, check_password
 from django.utils.crypto import get_random_string
-from .models import Chats, Students, Courses, Users
+from student.models import *
 from authentication.models import Auth
 # from .models import Student
 # from .forms import StudentForm
@@ -53,6 +53,34 @@ def message(request, user_id):
             return render(request, 'student/chat.html', {'messages': messages, 'receiver': receiver})
             # return redirect('chat', user_id=user_id)
     return render(request, 'student/chat.html', {'receiver': receiver})
+
+
+def enrollment(request):
+    session_id = request.session.get('user_id')
+    user = Users.objects.get(user_id=session_id)
+    if user.role == 'tutor':
+        lecturer = Lecturer.objects.filter(user_id=session_id).first()
+        assigned_courses = Courses.objects.filter(
+            lecturer_id=lecturer.lecturer_id)
+        return render(request, 'student/enrollment.html', {'assigned_courses': assigned_courses})
+    else:
+        student = Students.objects.filter(user_id=session_id).first()
+        enrolled_courses = Enrollments.objects.filter(
+            student_id=student.student_id)
+        return render(request, 'student/enrollment.html', {'enrolled_courses': enrolled_courses})
+
+
+def select_career(request, user_id):
+    current_user = request.session.get('user_id')
+    student = Students.objects.filter(user_id=current_user).first()
+    student_id = student.student_id
+    if request.method == 'POST':
+        career = request.POST['career']
+        if career:
+            courses = Courses.objects.filter(course_department=career)
+            for course in courses:
+                Enrollments.objects.create(
+                    student_id=student_id, course_id=course.course_id)
 
 
 # def chat_details(request, user_id):
