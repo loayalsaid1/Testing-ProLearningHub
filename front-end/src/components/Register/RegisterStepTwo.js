@@ -33,6 +33,8 @@ export default function RegisterStepTwo({
   }
 
   async function uploadImage(file) {
+    let id = '';
+    let url = '';
     try {
       dispatch(toggleLoading())
       const response = await fetch("http://localhost:3000/auth/imagekit");
@@ -43,14 +45,14 @@ export default function RegisterStepTwo({
         fileName: file.name,
         ...authParams,
       });
-      dispatch(toggleLoading())
-      return { id: uploadResponse.fileId, url: uploadResponse.url };
+      id = uploadResponse.fileId;
+      url = uploadResponse.url; 
     } catch (error) {
       console.error("Error uploading image:", error);
       dispatch(setError('auth', 'Error uploading the profile image!'));
-      dispatch(toggleLoading())
-      return { id: '', url: '' };
     }
+    dispatch(toggleLoading())
+    return {id, url}
   }
 
   async function handleSubmit(event) {
