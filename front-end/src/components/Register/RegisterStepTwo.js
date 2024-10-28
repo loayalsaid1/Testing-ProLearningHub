@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import ImageKit from "imagekit-javascript";
 import { register, toggleLoading } from '../../redux/actions/uiActionCreators';
 
@@ -16,6 +16,7 @@ export default function RegisterStepTwo({
   const [imageUrl, setImageUrl] = useState('');
   const [file, setFile] = useState(null);
   const dispatch = useDispatch();
+  const isLoading = useSelector(state => state.ui.get('isLoading'));
 
   function handleChange(event) {
     const { name, value } = event.target;
@@ -97,7 +98,7 @@ export default function RegisterStepTwo({
           <input id='profilePicture' name="profilePicture" type="file" onChange={handleFileSelect}/>
         </label>
         <hr />
-        <button type="submit" >Register</button>
+        <button type="submit" disabled={isLoading} >Register</button>
       </form>
     </>
   );
