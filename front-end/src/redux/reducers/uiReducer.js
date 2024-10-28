@@ -54,7 +54,7 @@ export default function uiReducer(state = initialState, action = {}) {
     }
 
     case actions.REGISTER_REQUEST: {
-      return state.set('isLoading', 'true');
+      return state.set('isLoading', true);
     }
 
     case actions.REGISTER_FAILURE: {
@@ -72,7 +72,7 @@ export default function uiReducer(state = initialState, action = {}) {
           .set('isLoading', false)
           .setIn(['error', 'auth'], '')
           .set('isLoggedIn', true)
-          .set('user', action.payload);
+          .set('user', action.payload.user);
       });
     }
 
