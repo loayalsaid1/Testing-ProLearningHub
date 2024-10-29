@@ -13,5 +13,7 @@ urlpatterns = [
          views.FacialRecognitionListView.as_view(), name='api_facial_recognitions'),
     path('chats/', views.ChatListView.as_view()),
     path('enrollments/', views.EnrollmentListView.as_view(), name='api_enrollments'),
+    path("course/details/<int:course_id>",
+         views.course_detail_view, name="course_detail_view"),
 ]
 # PATH:api/views.py

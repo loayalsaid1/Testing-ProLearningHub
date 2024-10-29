@@ -75,7 +75,7 @@ def select_career(request, user_id):
     student = Students.objects.filter(user_id=current_user).first()
     student_id = student.student_id
     if request.method == 'POST':
-        career = request.POST['career']
+        career = request.POST.get('career')
         if career:
             courses = Courses.objects.filter(course_department=career)
             for course in courses:
