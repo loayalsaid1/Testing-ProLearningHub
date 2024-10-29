@@ -6,6 +6,8 @@ from student.models import *
 
 
 class UserSerializer(serializers.ModelSerializer):
+    profile_image = serializers.ImageField(required=False)
+
     class Meta:
         model = Users
         fields = '__all__'
