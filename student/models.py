@@ -27,6 +27,7 @@ class Lecturer(models.Model):
     user = models.OneToOneField(Users, on_delete=models.CASCADE)
     department = models.CharField(max_length=100, null=True, blank=True)
     office_number = models.IntegerField(null=True, blank=True)
+    annoucement = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return self.user.first_name + " " + self.user.last_name

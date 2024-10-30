@@ -10,6 +10,14 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Users
+        exclude = ['password_hash', 'reset_token']
+
+
+class UserPostSerializer(serializers.ModelSerializer):
+    profile_image = serializers.ImageField(required=False)
+
+    class Meta:
+        model = Users
         fields = '__all__'
 
 
