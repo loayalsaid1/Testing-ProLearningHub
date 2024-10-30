@@ -1,10 +1,17 @@
 import { Map } from 'immutable';
 import * as actions from '../actions/lecturesActionTypes';
 
+/**
+ * Next there must be away to keep the data in sync..
+ * may be just long polling.. or here setting a typestamp for when was last
+ * time fetch and with intervals.. check if data changed..
+ * or something outside the scope of redux.. which is utelising websotckets
+ * to ping react when a change happens
+ */
 export const initialState = Map({
   isLoading: false,
   lectureError: null,
-  lectures: [],
+  lectures: {},
 });
 
 export default function lecturesReducer(state = intialState, action = {}) {
@@ -22,12 +29,12 @@ export default function lecturesReducer(state = intialState, action = {}) {
     }
 
     case actions.LECTURE_SUCCESS: {
+      const { lectureData } = action.payload;
       return state.withMutations((state) => {
-        const { lectureData } = action.payload;
         return state
           .set('isLoading', false)
           .set('lectureError', null)
-          .update('lectures', (lectures) => lectures.concat([lectureData]));
+          .setIn(['lectures', lectureData.id], lectureData);
       });
     }
 
