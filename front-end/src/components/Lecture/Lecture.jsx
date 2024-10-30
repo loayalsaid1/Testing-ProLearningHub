@@ -21,10 +21,10 @@ export default function Lecture({ lectureId }) {
     if (!lectureData) {
       dispatch(getLectureById(lectureId));
     }
-  }, [lectureId]);
+  }, [dispatch, lectureData, lectureId]);
 
   if (!lectureData) {
-    return <h1>Loading</h1>;
+    return <h1>Loading ...</h1>;
   }
 
   const videoId = extractVideoId(lectureData.get('videoLink'));
@@ -57,7 +57,10 @@ export default function Lecture({ lectureId }) {
     <>
       <h1>{lectureData.get('title')}</h1>
       <p>{lectureData.get('description')}</p>
-      <iframe src={`https://www.youtube.com/embed/${videoId}`}></iframe>
+      <iframe
+        title={lectureData.get('title')}
+        src={`https://www.youtube.com/embed/${videoId}`}
+      ></iframe>
 
       <details>
         <summary>Lecture</summary>
