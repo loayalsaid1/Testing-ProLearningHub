@@ -6,7 +6,7 @@ export default function Loading() {
 
 	React.useEffect(() => {
 		const timer = setInterval(() => {
-			setNumDots((prev) => (prev === 3 ? 0 : prev + 1));
+			setNumDots((prev) => (prev === 5 ? 0 : prev + 1));
 		}, 500);
 		return () => clearInterval(timer);
 	}, []);
@@ -14,7 +14,7 @@ export default function Loading() {
 	return (
 		<div>
 			<h1>
-				Loading {'.'.repeat(numDots)}
+				Loading{'.'.repeat(numDots)}
 			</h1>
 		</div>
 	);
