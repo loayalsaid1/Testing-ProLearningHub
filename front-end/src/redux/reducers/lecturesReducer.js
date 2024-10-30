@@ -14,7 +14,7 @@ export const initialState = Map({
   lectures: {},
 });
 
-export default function lecturesReducer(state = intialState, action = {}) {
+export default function lecturesReducer(state = initialState, action = {}) {
   switch (action.type) {
     case actions.LECTURE_REQUEST: {
       return state.set('isLoading', true);

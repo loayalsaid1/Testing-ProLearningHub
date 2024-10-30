@@ -12,15 +12,15 @@ import { getLectureById } from '../../redux/actions/lecturesThunks';
  */
 export default function Lecture({ lectureId }) {
   const lectureData = useSelector((state) =>
-    state.lectures.getIn(['lectures', lectureID])
+    state.lectures.getIn(['lectures', lectureId])
   );
   const dispatch = useDispatch();
-
+  
   useEffect(() => {
-    const videoId = extractVideoId(lectureData.get('videoLink'));
     dispatch(getLectureById(lectureId));
   }, [dispatch, lectureId, lectureData]);
-
+  
+  const videoId = extractVideoId(lectureData.get('videoLink'));
   const demos = lectureData
     .get('demos')
     .map((demo, index) => (

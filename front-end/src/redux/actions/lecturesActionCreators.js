@@ -30,7 +30,7 @@ export const lectureSuccess = (lectureData) => ({
 });
 
 export const lectureFailure = (errorMessage) => ({
-  type: actions.lectureFailure,
+  type: actions.LECTURE_FAILURE,
   payload: {
     errorMessage,
   },
