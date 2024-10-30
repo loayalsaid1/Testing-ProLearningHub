@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'tutor',
     'authentication',
     'api',
+    'social_django',
 ]
 
 MIDDLEWARE = [
@@ -155,3 +156,14 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
     ),
 }
+
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.google.GoogleOAuth2',  # Add Google OAuth2 backend
+    'django.contrib.auth.backends.ModelBackend',  # Default authentication
+)
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '778678866766-0g4c4f0g9g6g7g8g9g0g7g8g7g8g7g.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'GOCSPX-7g8g'
+
+LOGIN_REDIRECT_URL = 'auth/me/'
+LOGOUT_REDIRECT_URL = 'auth/'
+# LOGIN_URL = '/login/'

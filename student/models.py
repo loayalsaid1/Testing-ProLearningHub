@@ -81,10 +81,10 @@ class Course_Resources(models.Model):
 class Enrollments(models.Model):
     enrollment_id = models.BigAutoField(auto_created=True, primary_key=True)
     student = models.ForeignKey(Students, on_delete=models.CASCADE)
-    course = models.CharField(max_length=100)
-    semester = models.CharField(max_length=50)
-    year = models.CharField(max_length=50)
-    grade = models.CharField(max_length=50)
+    course = models.CharField(max_length=100, null=True, blank=True)
+    semester = models.CharField(max_length=50, null=True, blank=True)
+    year = models.CharField(max_length=50, null=True, blank=True)
+    grade = models.CharField(max_length=50, null=True, blank=True)
     course_id = models.ForeignKey(Courses, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -102,6 +102,30 @@ class Facial_Recognition(models.Model):
         return self.user.first_name + " " + self.user.last_name + " - " + str(self.attempt_time)
 
 
+class Forum(models.Model):
+    forum_id = models.BigAutoField(auto_created=True, primary_key=True)
+    course = models.ForeignKey(Courses, on_delete=models.CASCADE)
+    title = models.CharField(max_length=100)
+    description = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    creator = models.ForeignKey(Users, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.title + " - " + self.course.course_name
+
+
+class Thread(models.Model):
+    thread_id = models.BigAutoField(auto_created=True, primary_key=True)
+    forum = models.ForeignKey(Forum, on_delete=models.CASCADE)
+    user = models.ForeignKey(Users, on_delete=models.CASCADE)
+    title = models.CharField(max_length=100)
+    description = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title + " - " + self.forum.title
+
+
 class Chats(models.Model):
 
     chat_id = models.BigAutoField(auto_created=True, primary_key=True)
@@ -109,6 +133,7 @@ class Chats(models.Model):
         Users, on_delete=models.CASCADE, related_name='sender')
     receiver = models.ForeignKey(
         Users, on_delete=models.CASCADE, related_name='receiver')
+    thread = models.ForeignKey(Thread, on_delete=models.CASCADE)
     message = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
 

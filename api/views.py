@@ -31,9 +31,35 @@ def register(request):
     serializer = UserPostSerializer(data=request.data)
     if serializer.is_valid():
         password = serializer.validated_data.get('password_hash')
+        email = serializer.validated_data.get('email')
+        user = Users.objects.get(email=email)
+        if user is not None:
+            return Response({'message': 'User already exists'}, status=status.HTTP_400_BAD_REQUEST)
+
         serializer.save(password_hash=make_password(password))
+
+        if serializer.validated_data.get('role') == 'tutor':
+            tutor = Lecturer.objects.create(user=user)
+            tutor.save()
+        elif serializer.validated_data.get('role') == 'student':
+            student = Students.objects.create(user=user)
+            student.save()
+
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def login(request):
+    serializer = UserLoginSerializer(data=request.data)
+    if serializer.is_valid():
+        email = serializer.validated_data.get('email')
+        password = serializer.validated_data.get('password_hash')
+        user = Users.objects.filter(email=email).first()
+        if user and check_password(password, user.password_hash):
+            request.session['user_id'] = user.user_id
+            return Response({'message': 'Login successful'}, status=status.HTTP_200_OK)
+        return Response({'message': 'Invalid email or password'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class StudentListView(APIView):
