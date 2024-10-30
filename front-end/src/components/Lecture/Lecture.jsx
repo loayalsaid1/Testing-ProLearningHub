@@ -1,7 +1,7 @@
 import React from 'react';
 import { extractVideoId } from '../../utils/utilFunctions';
 
-export default function Lecture({ lectureID }) {
+export default function Lecture({ lectureId }) {
   const videoId = extractVideoId('https://youtu.be/F9-yqoS7b8w');
   return (
     <>
