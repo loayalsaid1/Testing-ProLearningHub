@@ -14,18 +14,25 @@ export default function Lecture({ lectureId }) {
   const lectureData = useSelector((state) =>
     state.lectures.getIn(['lectures', lectureId])
   );
+
   const dispatch = useDispatch();
-  
+
   useEffect(() => {
-    dispatch(getLectureById(lectureId));
-  }, [dispatch, lectureId, lectureData]);
-  
+    if (!lectureData) {
+      dispatch(getLectureById(lectureId));
+    }
+  }, [lectureId]);
+
+  if (!lectureData) {
+    return <h1>Loading</h1>;
+  }
+
   const videoId = extractVideoId(lectureData.get('videoLink'));
   const demos = lectureData
     .get('demos')
     .map((demo, index) => (
       <li key={index}>
-        <a href={demo.url}>{demo.title}</a>
+        <a href={demo.get('url')}>{demo.get('title')}</a>
       </li>
     ))
     .toJS();
@@ -33,7 +40,7 @@ export default function Lecture({ lectureId }) {
     .get('shorts')
     .map((short, index) => (
       <li key={index}>
-        <a href={short.url}>{short.title}</a>
+        <a href={short.get('url')}>{short.get('title')}</a>
       </li>
     ))
     .toJS();
@@ -41,15 +48,15 @@ export default function Lecture({ lectureId }) {
     .get('quizzez')
     .map((quizzez, index) => (
       <li key={index}>
-        <a href={quizzez.url}>{quizzez.title}</a>
+        <a href={quizzez.get('url')}>{quizzez.get('title')}</a>
       </li>
     ))
     .toJS();
 
   return (
     <>
-      <h1>{lectureData.title}</h1>
-      <p>{lectureData.description}</p>
+      <h1>{lectureData.get('title')}</h1>
+      <p>{lectureData.get('description')}</p>
       <iframe src={`https://www.youtube.com/embed/${videoId}`}></iframe>
 
       <details>
@@ -59,12 +66,11 @@ export default function Lecture({ lectureId }) {
             <a href={lectureData.get('audioLink')}>Audio</a>
           </li>
           <li>
-            <a href={lectureData.get('Notes')}>Notes</a>
+            <a href={lectureData.get('notes')}>Notes</a>
           </li>
-          //{' '}
-          <li>
-            <a href={lectureData.get('')}>Video</a>
-          </li>
+          {/* <li>
+            <a href={lectureData.get('video')}>video</a>
+          </li> */}
           <li>
             <a href={lectureData.get('slides')}>Slides</a>
           </li>
@@ -73,10 +79,10 @@ export default function Lecture({ lectureId }) {
             {demos.length === 0 ? <p>No Demos</p> : <ol>{demos}</ol>}
           </details>
           <li>
-            <a>transcript</a>
+            <a href={lectureData.get('transcript')}>transcript</a>
           </li>
           <li>
-            <a>subtitles</a>
+            <a href={lectureData.get('subtitles')}>subtitles</a>
           </li>
         </ul>
       </details>
