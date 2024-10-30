@@ -20,7 +20,7 @@ function App() {
     dispatch(logout());
     googleLogout();
   }
-  const [view, setView]  = useState('a'); 
+  const [view, setView]  = useState('dashboard'); 
   
   return (
     <div className="APP">

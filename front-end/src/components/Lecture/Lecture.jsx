@@ -2,6 +2,8 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { extractVideoId } from '../../utils/utilFunctions';
 import { getLectureById } from '../../redux/actions/lecturesThunks';
+import Loading from '../utilityComponents/Loading';
+
 
 /**
  * Next there must be away to keep the data in sync..
@@ -24,9 +26,10 @@ export default function Lecture({ lectureId }) {
   }, [dispatch, lectureData, lectureId]);
 
   if (!lectureData) {
-    return <h1>Loading ...</h1>;
+    return <>
+      <Loading />;
+    </>
   }
-
   const videoId = extractVideoId(lectureData.get('videoLink'));
   const demos = lectureData
     .get('demos')
