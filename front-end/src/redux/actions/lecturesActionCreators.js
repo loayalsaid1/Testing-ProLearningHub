@@ -22,7 +22,7 @@ export const lectureRequest = () => ({
   type: actions.LECTURE_REQUEST,
 });
 
-export const lectureSeccess = (lectureData) => ({
+export const lectureSuccess = (lectureData) => ({
   type: actions.LECTURE_SUCCESS,
   payload: {
     lectureData,
