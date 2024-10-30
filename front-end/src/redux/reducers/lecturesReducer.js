@@ -1,4 +1,4 @@
-import { Map } from 'immutable';
+import { fromJS, Map } from 'immutable';
 import * as actions from '../actions/lecturesActionTypes';
 
 /**
@@ -34,7 +34,7 @@ export default function lecturesReducer(state = initialState, action = {}) {
         return state
           .set('isLoading', false)
           .set('lectureError', null)
-          .setIn(['lectures', lectureData.id], lectureData);
+          .setIn(['lectures', lectureData.id], fromJS(lectureData));
       });
     }
 
