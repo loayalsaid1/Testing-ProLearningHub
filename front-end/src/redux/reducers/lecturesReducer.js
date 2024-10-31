@@ -12,6 +12,7 @@ export const initialState = Map({
   isLoading: false,
   lectureError: null,
   lectures: {},
+  sections: [],
 });
 
 export default function lecturesReducer(state = initialState, action = {}) {
