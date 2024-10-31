@@ -10,19 +10,18 @@ export default function LectureEntry({
   tags = [],
 }) {
   // Just remporarily for now. It will be a selector from the state
-  const [role, setRole] = useState('Student');
+  const [role] = useState('student');
   const [showOptions, setShowOptions] = useState(false);
 
   return (
     <div>
       <div>
         <Presentation />
-        <Presentation size={28} strokeWidth={1.75} />
       </div>
       <div>
         {/* That title will be a link to the lecture page.. */}
         {/* for now.. just toast the lecture ID */}
-        <h3 onClick={() => toast(`Lecture ID: ${id}`)}>{title}</h3>
+        <h4 onClick={() => toast(`Lecture ID: ${id}`)}>{title}</h4>
         <p>{description}</p>
         <div>
           {tags.map((tag, index) => (

@@ -1,5 +1,4 @@
 import React from 'react';
-import LectureEntry from './LectureEntry';
 import Section from './Section';
 
 export default function Lectures() {
@@ -24,7 +23,7 @@ export default function Lectures() {
       {/* Sections */}
       <div>
 				{mockSections.map(section => {
-					return <section key={section.title} {...section} />
+					return <Section key={section.title} {...section} />
 				})}
       </div>
     </>
