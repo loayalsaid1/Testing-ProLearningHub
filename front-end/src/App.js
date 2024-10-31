@@ -7,13 +7,14 @@ import { logout } from './redux/actions/uiActionCreators';
 import Spinner from './components/utilityComponents/Spinner';
 import { googleLogout } from '@react-oauth/google';
 import Authintication from './components/Authintication/Authintication';
-import Lecture from './components/Lecture/Lecture';
+import Lectures from './components/Lectures/Lectures';
+
 
 function App() {
   const name = useSelector((state) => state.hello.get('name'));
   const isLoading = useSelector((state) => state.ui.get('isLoading'));
-  const isLoggedIn = useSelector((state) => state.ui.get('isLoggedIn'));
-  // const isLoggedIn = true;
+  // const isLoggedIn = useSelector((state) => state.ui.get('isLoggedIn'));
+  const isLoggedIn = true;
   const dispatch = useDispatch();
 
   const handleLogout = () => {
@@ -22,6 +23,13 @@ function App() {
   }
   const [view, setView]  = useState('dashboard'); 
   
+  /**
+   * This is messy nwo because... I'm not making the routing now.. 
+   * i'm making individual views for now first.. and this is my test field. now
+   * It's time is coming
+   * 
+   * BTW.. I'm not sure this approach is the best or not
+   */
   return (
     <div className="APP">
       {isLoading && <Spinner />}
@@ -42,17 +50,17 @@ function App() {
                   </button>
                 </div>
                 <div>
-                  <button type="button" onClick={() => setView('pages')}>
-                    Show pages
+                  <button type="button" onClick={() => setView('sections')}>
+                    Show sections
                   </button>
                 </div>
               </>
             ) : (
               <>
-                <Lecture lectureId="testId" />
                 <button type="button" onClick={() => setView('dashboard')}>
                   Go to dashboard
                 </button>
+                <Lectures />
               </>
             )}
 
