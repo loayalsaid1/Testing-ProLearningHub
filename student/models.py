@@ -27,7 +27,6 @@ class Lecturer(models.Model):
     user = models.OneToOneField(Users, on_delete=models.CASCADE)
     department = models.CharField(max_length=100, null=True, blank=True)
     office_number = models.IntegerField(null=True, blank=True)
-    annoucement = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return self.user.first_name + " " + self.user.last_name
@@ -142,3 +141,29 @@ class Chats(models.Model):
 
     def __str__(self):
         return self.sender.first_name + " " + self.sender.last_name + " - " + self.receiver.first_name + " " + self.receiver.last_name
+
+
+class Announcement(models.Model):
+    announcement_id = models.BigAutoField(auto_created=True, primary_key=True)
+    lecturer = models.ForeignKey(
+        Lecturer, on_delete=models.CASCADE, related_name='announcements')
+    # assuming a Course model exists
+    course = models.ForeignKey(Courses, on_delete=models.CASCADE)
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+
+class Comment(models.Model):
+    comment_id = models.BigAutoField(auto_created=True, primary_key=True)
+    announcement = models.ForeignKey(
+        Announcement, on_delete=models.CASCADE, related_name='comments')
+    student = models.ForeignKey(Students, on_delete=models.CASCADE)
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Comment by {self.student} on {self.announcement}"

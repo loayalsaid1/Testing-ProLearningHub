@@ -28,9 +28,14 @@ class ChatsAdmin(admin.ModelAdmin):
     list_display = ('chat_id', 'thread')
 
 
+class AnnouncementAdmin(admin.ModelAdmin):
+    list_display = ('announcement_id', 'lecturer', 'course')
+
+
 admin.site.register(models.Users, UsersAdmin)
 admin.site.register(models.Students, StudentsAdmin)
 admin.site.register(models.Course_Resources, CourseResourcesAdmin)
 admin.site.register(models.Forum, ForumAdmin)
 admin.site.register(models.Thread, ThreadAdmin)
 admin.site.register(models.Chats, ChatsAdmin)
+admin.site.register(models.Announcement, AnnouncementAdmin)

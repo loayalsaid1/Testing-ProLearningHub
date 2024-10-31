@@ -70,6 +70,12 @@ def login(request):
         return Response({'message': 'Invalid email or password'}, status=status.HTTP_400_BAD_REQUEST)
 
 
+@api_view(['POST'])
+def logout(request):
+    request.session.flush()
+    return Response({'message': 'Logout successful'}, status=status.HTTP_200_OK)
+
+
 class StudentListView(APIView):
     def get(self, request):
         students = Students.objects.all()
@@ -157,18 +163,18 @@ class EnrollmentListView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class ChatListView(APIView):
-    def get(self, request):
-        chats = Chats.objects.all()
-        serializer = ChatsSerializer(chats, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+# class ChatListView(APIView):
+#     def get(self, request):
+#         chats = Chats.objects.all()
+#         serializer = ChatsSerializer(chats, many=True)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def post(self, request):
-        serializer = ChatsSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     def post(self, request):
+#         serializer = ChatsSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])
