@@ -39,19 +39,43 @@ export default function uiReducer(state = initialState, action = {}) {
           .set('isLoading', false)
           .set('isLoggedIn', true)
           .set('user', Map(user))
-          .setIn(['error', 'auth'], '')
+          .setIn(['error', 'auth'], '');
       });
     }
 
     case actions.LOGOUT: {
-      return state.withMutations( mutableState => {
+      return state.withMutations((mutableState) => {
         return mutableState
           .set('isLoading', false)
           .set('isLoggedIn', false)
           .set('user', {})
-          .setIn(['error', 'auth'], '')
-      })
+          .setIn(['error', 'auth'], '');
+      });
     }
+
+    case actions.REGISTER_REQUEST: {
+      return state.set('isLoading', true);
+    }
+
+    case actions.REGISTER_FAILURE: {
+      const { errorMessage } = action.payload;
+      return state.withMutations((mutableState) => {
+        return mutableState
+          .set('isLoading', false)
+          .setIn(['error', 'auth'], errorMessage);
+      });
+    }
+
+    case actions.REGISTER_SUCCESS: {
+      return state.withMutations((mutableState) => {
+        return mutableState
+          .set('isLoading', false)
+          .setIn(['error', 'auth'], '')
+          .set('isLoggedIn', true)
+          .set('user', action.payload.user);
+      });
+    }
+
     default: {
       return state;
     }

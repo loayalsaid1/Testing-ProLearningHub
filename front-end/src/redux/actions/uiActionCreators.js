@@ -96,3 +96,73 @@ export const clearError = (errorType) => {
     payload: { errorType },
   };
 };
+
+export const registerRequest = () => {
+  return {
+    type: actions.REGISTER_REQUEST,
+  };
+};
+
+export const registerFailure = (errorMessage) => {
+  return { type: actions.REGISTER_FAILURE, payload: { errorMessage } };
+};
+
+export const registerSuccess = (user) => {
+  return {
+    type: actions.REGISTER_SUCCESS,
+    payload: { user },
+  };
+};
+
+export const formRegister = (userData) => {
+  const request = new Request(`${DOMAIN}/auth/register`, {
+    method: 'POST',
+    body: JSON.stringify({userData}),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  return register(request);
+}
+
+export const googleRegister = (idToken) => {
+  const request = new Request(`${DOMAIN}/auth/oauth/googleRegister`, {
+    method: 'POST',
+    body: JSON.stringify({token: idToken}),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  return register(request);
+}
+
+export const register = (request) => async (dispatch) => {
+  dispatch(registerRequest());
+
+  try {
+    const response = await fetch(request);
+    const data = await response.json();
+
+    if (!response.ok) {
+      switch (response.status) {
+        case 409: {
+          const { message } = data
+          throw new Error(message);
+        }
+        case 404: {
+          throw new Error("Oops, that's a 404!");
+        }
+        default: {
+          console.error(data);
+          throw new Error(`Unexpected ${response.status} error occured!`);
+        }
+      }
+    }
+    dispatch(registerSuccess(data.user));
+
+  } catch (error) {
+    console.error(error);
+    dispatch(registerFailure(error.message));    
+  }
+};

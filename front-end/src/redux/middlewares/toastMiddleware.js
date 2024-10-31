@@ -1,26 +1,44 @@
 import toast from 'react-hot-toast';
-import * as actions from '../actions/uiActionTypes';
+import * as uiActions from '../actions/uiActionTypes';
+import * as lecturesActions from '../actions/lecturesActionTypes';
+
 
 const toastMiddleware = (store) => (next) => (action) => {
 	switch (action.type) {
-		case actions.SET_ERROR: {
+		case uiActions.SET_ERROR: {
 			const { errorMessage } = action.payload;
 			toast.error(errorMessage);
 			return next(action);
 		}
 
-		case actions.LOGIN_SUCCESS: {
+		case uiActions.LOGIN_SUCCESS: {
 			toast.success('You are logged in!, Welcome!');
 			return next(action);
 		}
 
-		case actions.LOGOUT: {
+		case uiActions.LOGOUT: {
 			toast.success('You are logged out!.. Bye!', {
 				icon: '👋'
 			});
 			return next(action);
 		}
-		
+		case uiActions.REGISTER_FAILURE: {
+			const {errorMessage} = action.payload;
+			toast.error(errorMessage);
+			return next(action);
+		}
+		case uiActions.REGISTER_SUCCESS: {
+			toast.success('You are registered!.. Happy Learning!', {
+				icon: '👋'
+			});
+			return next(action);
+		}
+
+		case lecturesActions.LECTURE_FAILURE: {
+			toast.error(action.payload.errorMessage);
+			return next(action);
+		}
+
 		default: {
 			return next(action);
 		}
