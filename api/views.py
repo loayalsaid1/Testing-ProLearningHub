@@ -8,6 +8,8 @@ from rest_framework.views import APIView
 from django.db.models import Q
 from django.http import JsonResponse, HttpResponseForbidden
 from django.contrib.auth.hashers import make_password, check_password
+from social_django.utils import psa
+from django.contrib.auth import login
 from .models import *
 
 # Create your views here.
@@ -74,6 +76,28 @@ def login(request):
 def logout(request):
     request.session.flush()
     return Response({'message': 'Logout successful'}, status=status.HTTP_200_OK)
+
+
+@psa('social:complete')
+def google_login_complete(request, backend):
+    user = request.user
+    if user.is_authenticated:
+        login(request, user)  # Log in the user
+        # Customize the JSON response as needed
+        return JsonResponse({
+            'status': 'success',
+            'message': 'User logged in successfully.',
+            'user_id': user.id,
+            'email': user.email,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'role': user.role  # Example: Lecturer or Student
+        })
+    else:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Authentication failed.'
+        }, status=400)
 
 
 class StudentListView(APIView):
