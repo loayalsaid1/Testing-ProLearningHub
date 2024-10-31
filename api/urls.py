@@ -36,5 +36,10 @@ urlpatterns = [
          views.comments_in_forum_by_course, name="comments_in_forum_by_course"),
     path("course/<int:course_id>/forum/<int:forum_id>/comment/<int:chat_id>",
          views.comment_in_forum_by_course, name="comment_in_forum_by_course"),
+    path("course/<int:course_id>/anouncements",
+         views.announcements, name="announcements"),
+    path("course/<int:course_id>/comment",
+         views.comment, name="comment"),
+
 ]
 # PATH:api/views.py

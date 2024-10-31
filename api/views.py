@@ -221,6 +221,23 @@ def comment_in_forum_by_course(request, course_id, forum_id, chat_id):
     return Response(new_data, status=status.HTTP_200_OK)
 
 
+@api_view(['GET'])
+def announcements(request, course_id):
+    course = Courses.objects.filter(course_id=course_id).first()
+    announcement = Announcement.objects.filter(course=course)
+    serializer = AnnouncementSerializer(announcement, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def comment(request, course_id):
+    course = Courses.objects.filter(course_id=course_id).first()
+    announcement = Announcement.objects.filter(course=course)
+    comments = Comment.objects.filter(announcement=announcement)
+    serializer = CommentSerializer(comments, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 def course_detail_view(request, course_id):
     course = get_object_or_404(Courses, course_id=course_id)
     lecturer = {
