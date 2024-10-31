@@ -61,7 +61,8 @@ class Courses(models.Model):
     course_credit = models.IntegerField(null=True, blank=True)
     course_level = models.CharField(max_length=100, null=True, blank=True)
     course_department = models.CharField(max_length=100, null=True, blank=True)
-    lecturer = models.ForeignKey(Lecturer, on_delete=models.CASCADE)
+    lecturer = models.ForeignKey(
+        Lecturer, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return f"{self.course_name}  ({self.course_code})"
@@ -71,7 +72,8 @@ class Course_Resources(models.Model):
     resource_id = models.BigAutoField(auto_created=True, primary_key=True)
     course = models.ForeignKey(Courses, on_delete=models.CASCADE)
     resource_name = models.CharField(max_length=100)
-    resource_file = models.FileField(upload_to='course_resources/')
+    resource_file = models.FileField(
+        upload_to='course_resources/', null=True, blank=True)
     upload_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

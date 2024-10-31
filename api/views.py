@@ -26,6 +26,13 @@ class UserListView(APIView):
     #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class UserIdView(APIView):
+    def get(self, request, user_id):
+        users = Users.objects.filter(user_id=user_id)
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 @api_view(['POST'])
 def register(request):
     serializer = UserPostSerializer(data=request.data)
@@ -68,26 +75,12 @@ class StudentListView(APIView):
         serializer = StudentSerializer(students, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def post(self, request):
-        serializer = StudentSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 class LecturerListView(APIView):
     def get(self, request):
         lecturer = Lecturer.objects.all()
         serializer = LecturerSerializer(lecturer, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def post(self, request):
-        serializer = LecturerSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CoursesListView(APIView):
