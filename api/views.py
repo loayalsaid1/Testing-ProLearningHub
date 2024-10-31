@@ -188,19 +188,31 @@ def forum_by_course(request, course_id, forum_id):
 
 
 @api_view(['GET'])
-def forum_by_course(request, course_id):
+def comments_in_forum_by_course(request, course_id, forum_id):
     course = Courses.objects.filter(course_id=course_id).first()
-    forum = Forum.objects.filter(course=course)
-    serializer = ForumSerializer(forum, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    forum = Forum.objects.filter(
+        course=course) & Forum.objects.filter(forum_id=forum_id)
+    threads = Thread.objects.filter(forum=forum)
+    new_data = []
+    for thread in threads:
+        comments = Chats.objects.filter(thread=thread)
+        serializer = ChatsSerializer(comments, many=True)
+        new_data.append(serializer.data)
+    return Response(new_data, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
-def forum_by_course(request, course_id):
+def comment_in_forum_by_course(request, course_id, forum_id, chat_id):
     course = Courses.objects.filter(course_id=course_id).first()
-    forum = Forum.objects.filter(course=course)
-    serializer = ForumSerializer(forum, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    forum = Forum.objects.filter(
+        course=course) & Forum.objects.filter(forum_id=forum_id)
+    threads = Thread.objects.filter(forum=forum)
+    new_data = []
+    for thread in threads:
+        comments = Chats.objects.filter(Q(thread=thread) & Q(chat_id=chat_id))
+        serializer = ChatsSerializer(comments, many=True)
+        new_data.append(serializer.data)
+    return Response(new_data, status=status.HTTP_200_OK)
 
 
 def course_detail_view(request, course_id):

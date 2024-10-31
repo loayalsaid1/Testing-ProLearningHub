@@ -109,7 +109,7 @@ class Forum(models.Model):
     forum_id = models.BigAutoField(auto_created=True, primary_key=True)
     course = models.ForeignKey(Courses, on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
-    description = models.TextField()
+    description = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(Users, on_delete=models.CASCADE)
 
@@ -122,7 +122,7 @@ class Thread(models.Model):
     forum = models.ForeignKey(Forum, on_delete=models.CASCADE)
     user = models.ForeignKey(Users, on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
-    description = models.TextField()
+    description = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
