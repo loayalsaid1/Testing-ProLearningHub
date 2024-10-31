@@ -3,7 +3,7 @@ import * as actionCreators from './lecturesActionCreators';
 const DOMAIN = 'http://localhost:3000';
 
 export const getLectureById = (lectureId) => async (dispatch) => {
-  dispatch(actionCreators.lectureRequest);
+  dispatch(actionCreators.lectureRequest());
 
   try {
     const response = await fetch(`${DOMAIN}/courses/testId/lectures/testId`);

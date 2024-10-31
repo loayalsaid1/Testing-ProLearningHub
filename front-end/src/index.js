@@ -11,13 +11,13 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 const CLIENT_ID = '967609803723-r2lcuagi67cn9ft4klu6h9mln2ts4t1j.apps.googleusercontent.com'
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
+  // <React.StrictMode>
     <GoogleOAuthProvider clientId={CLIENT_ID}>
     <Provider store={store}>
       <App />
     </Provider>
     </GoogleOAuthProvider>
-  </React.StrictMode>
+  // </React.StrictMode>
 );
 
 // If you want your app to work offline and load faster, you can change

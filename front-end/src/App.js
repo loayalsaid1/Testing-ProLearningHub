@@ -12,8 +12,8 @@ import Lecture from './components/Lecture/Lecture';
 function App() {
   const name = useSelector((state) => state.hello.get('name'));
   const isLoading = useSelector((state) => state.ui.get('isLoading'));
-  // const isLoggedIn = useSelector((state) => state.ui.get('isLoggedIn'));
-  const isLoggedIn = true;
+  const isLoggedIn = useSelector((state) => state.ui.get('isLoggedIn'));
+  // const isLoggedIn = true;
   const dispatch = useDispatch();
 
   const handleLogout = () => {
