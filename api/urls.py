@@ -26,11 +26,13 @@ urlpatterns = [
     path("course/details/<int:course_id>",
          views.course_detail_view, name="course_detail_view"),
 
-    path("course/<int:course_id>/forum", views.forum, name="forum"),
-    path("course/<int:course_id>/forum/<int:post_id>", views.forum, name="forum"),
-    path("course/<int:course_id>/forum/<int:post_id>/comment",
-         views.forum, name="forum"),
-    path("course/<int:course_id>/forum/<int:post_id>/comment/<int:comment_id>",
+    path("course/<int:course_id>/forum",
+         views.forums_by_course, name="forums_by_course"),
+    path("course/<int:course_id>/forum/<int:forum_id>",
+         views.forum_by_course, name="forum_by_course"),
+    path("course/<int:course_id>/forum/<int:forum_id>/comment",
+         views.forum, name="comments_in_forum_by_course"),
+    path("course/<int:course_id>/forum/<int:forum_id>/comment/<int:comment_id>",
          views.forum, name="forum"),
 ]
 # PATH:api/views.py

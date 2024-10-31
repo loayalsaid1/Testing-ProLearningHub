@@ -171,7 +171,36 @@ class ChatListView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-def forum(request)
+@api_view(['GET'])
+def forums_by_course(request, course_id):
+    course = Courses.objects.filter(course_id=course_id).first()
+    forum = Forum.objects.filter(course=course)
+    serializer = ForumSerializer(forum, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def forum_by_course(request, course_id, forum_id):
+    forum_of_course = get_object_or_404(
+        Forum, course_id=course_id, forum_id=forum_id)
+    serializer = ForumSerializer(forum_of_course, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def forum_by_course(request, course_id):
+    course = Courses.objects.filter(course_id=course_id).first()
+    forum = Forum.objects.filter(course=course)
+    serializer = ForumSerializer(forum, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def forum_by_course(request, course_id):
+    course = Courses.objects.filter(course_id=course_id).first()
+    forum = Forum.objects.filter(course=course)
+    serializer = ForumSerializer(forum, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 def course_detail_view(request, course_id):
