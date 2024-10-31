@@ -5,6 +5,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework import viewsets
 from rest_framework.views import APIView
+from django.db.models import Q
 from django.http import JsonResponse, HttpResponseForbidden
 from django.contrib.auth.hashers import make_password, check_password
 from .models import *
@@ -111,6 +112,23 @@ class CourseResourcesListView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@api_view(['GET'])
+def resources_by_course(request, course_id, resource_id):
+    course = get_object_or_404(Courses, course_id=course_id)
+    resource = Course_Resources.objects.filter(
+        Q(course=course) & Q(resource_id=resource_id))
+    serializer = CoursesResourcesSerializer(resource, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def all_resource_by_course(request, course_id):
+    course = get_object_or_404(Courses, course_id=course_id)
+    resource = Course_Resources.objects.filter(course=course)
+    serializer = CoursesResourcesSerializer(resource, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class FacialRecognitionListView(APIView):
     def get(self, request):
         facial = Facial_Recognition.objects.all()
@@ -151,6 +169,9 @@ class ChatListView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+def forum(request)
 
 
 def course_detail_view(request, course_id):

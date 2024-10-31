@@ -70,3 +70,15 @@ class EnrollmentsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Enrollments
         fields = '__all__'
+
+
+class ForumSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Forum
+        fields = '__all__'
+
+
+class ThreadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Thread
+        fields = '__all__'
