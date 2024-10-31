@@ -51,6 +51,27 @@ export default function lecturesReducer(state = initialState, action = {}) {
       return state.set('lectureError', false);
     }
 
+    case actions.SECTIONS_REQUEST: {
+      return state.set('isLoading', true);
+    }
+
+    case actions.SECTIONS_FAILURE: {
+      return state.withMutations((state) => {
+        return state
+          .set('isLoading', false)
+          .set('lectureError', action.payload.errorMessage);
+      });
+    }
+
+    case actions.SECTIONS_SUCCESS: {
+      return state.withMutations((state) => {
+        return state
+          .set('isLoading', false)
+          .set('lectureError', null)
+          .set('sections'.fromJS(action.payload.sections));
+      });
+    }
+
     default: {
       return state;
     }
