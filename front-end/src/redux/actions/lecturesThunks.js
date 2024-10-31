@@ -12,10 +12,30 @@ export const getLectureById = (lectureId) => async (dispatch) => {
     if (!response.ok) {
       throw new Error(data.message);
     }
-		dispatch(actionCreators.lectureSuccess(data.lectureData));
+    dispatch(actionCreators.lectureSuccess(data.lectureData));
   } catch (error) {
     console.error(error.message);
     dispatch(actionCreators.lectureFailure(error.message));
   }
+};
 
+// I feel some sort of inconsistency here.. Because.. i'm requesting lectures
+// and calling the things Lectures.. but i'm getting lectures into sections
+// I donnt' know
+export const getCourseLectures = (courseId) => async (dispatch) => {
+  dispatch(actionCreators.sectionsRequest());
+
+  try {
+    const response = await fetch(`${DOMAIN}/courses/testId/lectures`);
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message);
+    }
+
+    dispatch(actionCreators.sectionsSuccess(data.lectures));
+  } catch (error) {
+    console.error(error);
+    dispatch(actionCreators.sectionsFailure(error.message));
+  }
 };
