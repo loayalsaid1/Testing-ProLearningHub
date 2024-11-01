@@ -7,13 +7,14 @@ import { logout } from './redux/actions/uiActionCreators';
 import Spinner from './components/utilityComponents/Spinner';
 import { googleLogout } from '@react-oauth/google';
 import Authintication from './components/Authintication/Authintication';
-import Lecture from './components/Lecture/Lecture';
+// import Lecture from './components/Lecture/Lecture';
+import Test from './components/Test/Test';
 
 function App() {
   const name = useSelector((state) => state.hello.get('name'));
   const isLoading = useSelector((state) => state.ui.get('isLoading'));
-  const isLoggedIn = useSelector((state) => state.ui.get('isLoggedIn'));
-  // const isLoggedIn = true;
+  // const isLoggedIn = useSelector((state) => state.ui.get('isLoggedIn'));
+  const isLoggedIn = true;
   const dispatch = useDispatch();
 
   const handleLogout = () => {
@@ -49,7 +50,7 @@ function App() {
               </>
             ) : (
               <>
-                <Lecture lectureId="testId" />
+                <Test />
                 <button type="button" onClick={() => setView('dashboard')}>
                   Go to dashboard
                 </button>
