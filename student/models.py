@@ -28,6 +28,9 @@ class Lecturer(models.Model):
     department = models.CharField(max_length=100, null=True, blank=True)
     office_number = models.IntegerField(null=True, blank=True)
 
+    def __str__(self):
+        return self.user.first_name + " " + self.user.last_name
+
 
 class Students(models.Model):
     student_id = models.BigAutoField(auto_created=True, primary_key=True)
@@ -52,29 +55,38 @@ class Students(models.Model):
 class Courses(models.Model):
     course_id = models.BigAutoField(auto_created=True, primary_key=True)
     course_name = models.CharField(max_length=100)
-    course_code = models.CharField(max_length=100)
-    course_description = models.TextField()
-    course_credit = models.IntegerField()
-    course_level = models.CharField(max_length=100)
-    course_department = models.CharField(max_length=100)
-    lecturer = models.ForeignKey(Lecturer, on_delete=models.CASCADE)
+    course_code = models.CharField(max_length=100, null=True, blank=True)
+    course_description = models.TextField(null=True, blank=True)
+    course_credit = models.IntegerField(null=True, blank=True)
+    course_level = models.CharField(max_length=100, null=True, blank=True)
+    course_department = models.CharField(max_length=100, null=True, blank=True)
+    lecturer = models.ForeignKey(
+        Lecturer, on_delete=models.CASCADE, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.course_name}  ({self.course_code})"
 
 
 class Course_Resources(models.Model):
     resource_id = models.BigAutoField(auto_created=True, primary_key=True)
     course = models.ForeignKey(Courses, on_delete=models.CASCADE)
     resource_name = models.CharField(max_length=100)
-    resource_file = models.FileField(upload_to='course_resources/')
+    resource_file = models.FileField(
+        upload_to='course_resources/', null=True, blank=True)
+    resource_link = models.URLField(max_length=200, null=True, blank=True)
     upload_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.resource_name}  ({self.course.course_code})"
 
 
 class Enrollments(models.Model):
     enrollment_id = models.BigAutoField(auto_created=True, primary_key=True)
     student = models.ForeignKey(Students, on_delete=models.CASCADE)
-    course = models.CharField(max_length=100)
-    semester = models.CharField(max_length=50)
-    year = models.CharField(max_length=50)
-    grade = models.CharField(max_length=50)
+    course = models.CharField(max_length=100, null=True, blank=True)
+    semester = models.CharField(max_length=50, null=True, blank=True)
+    year = models.CharField(max_length=50, null=True, blank=True)
+    grade = models.CharField(max_length=50, null=True, blank=True)
     course_id = models.ForeignKey(Courses, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -92,6 +104,30 @@ class Facial_Recognition(models.Model):
         return self.user.first_name + " " + self.user.last_name + " - " + str(self.attempt_time)
 
 
+class Forum(models.Model):
+    forum_id = models.BigAutoField(auto_created=True, primary_key=True)
+    course = models.ForeignKey(Courses, on_delete=models.CASCADE)
+    title = models.CharField(max_length=100)
+    description = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    creator = models.ForeignKey(Users, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.title + " - " + self.course.course_name
+
+
+class Thread(models.Model):
+    thread_id = models.BigAutoField(auto_created=True, primary_key=True)
+    forum = models.ForeignKey(Forum, on_delete=models.CASCADE)
+    user = models.ForeignKey(Users, on_delete=models.CASCADE)
+    title = models.CharField(max_length=100)
+    description = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title + " - " + self.forum.title
+
+
 class Chats(models.Model):
 
     chat_id = models.BigAutoField(auto_created=True, primary_key=True)
@@ -99,8 +135,35 @@ class Chats(models.Model):
         Users, on_delete=models.CASCADE, related_name='sender')
     receiver = models.ForeignKey(
         Users, on_delete=models.CASCADE, related_name='receiver')
+    thread = models.ForeignKey(Thread, on_delete=models.CASCADE)
     message = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.sender.first_name + " " + self.sender.last_name + " - " + self.receiver.first_name + " " + self.receiver.last_name
+
+
+class Announcement(models.Model):
+    announcement_id = models.BigAutoField(auto_created=True, primary_key=True)
+    lecturer = models.ForeignKey(
+        Lecturer, on_delete=models.CASCADE, related_name='announcements')
+    # assuming a Course model exists
+    course = models.ForeignKey(Courses, on_delete=models.CASCADE)
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+
+class Comment(models.Model):
+    comment_id = models.BigAutoField(auto_created=True, primary_key=True)
+    announcement = models.ForeignKey(
+        Announcement, on_delete=models.CASCADE, related_name='comments')
+    student = models.ForeignKey(Students, on_delete=models.CASCADE)
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Comment by {self.student} on {self.announcement}"

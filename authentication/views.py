@@ -177,10 +177,13 @@ def me(request):
     if request.session.get('user_id') is None:
         return redirect('login')
     try:
-        user = Users.objects.get(user_id=request.session.get('user_id'))
+        user = Users.objects.filter(
+            user_id=request.session.get('user_id')).first()
     except Users.DoesNotExist:
         request.session.flush()
         return redirect('login')
 
-    name = user.first_name + ' ' + user.last_name
-    return render(request, 'authentication/dashboard.html', {'name': name})
+    # name = f"{user.first_name}  {user.last_name}"
+    # if name is None:
+    #     return redirect('login')
+    return render(request, 'authentication/dashboard.html')

@@ -12,5 +12,30 @@ class StudentsAdmin(admin.ModelAdmin):
     list_display = ('student_id', 'user')
 
 
+class CourseResourcesAdmin(admin.ModelAdmin):
+    list_display = ('resource_name', 'course')
+
+
+class ForumAdmin(admin.ModelAdmin):
+    list_display = ('forum_id', 'title', 'course')
+
+
+class ThreadAdmin(admin.ModelAdmin):
+    list_display = ('thread_id', 'forum', 'title')
+
+
+class ChatsAdmin(admin.ModelAdmin):
+    list_display = ('chat_id', 'thread')
+
+
+class AnnouncementAdmin(admin.ModelAdmin):
+    list_display = ('announcement_id', 'lecturer', 'course')
+
+
 admin.site.register(models.Users, UsersAdmin)
 admin.site.register(models.Students, StudentsAdmin)
+admin.site.register(models.Course_Resources, CourseResourcesAdmin)
+admin.site.register(models.Forum, ForumAdmin)
+admin.site.register(models.Thread, ThreadAdmin)
+admin.site.register(models.Chats, ChatsAdmin)
+admin.site.register(models.Announcement, AnnouncementAdmin)

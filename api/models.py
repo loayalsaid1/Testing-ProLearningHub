@@ -10,7 +10,23 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Users
+        exclude = ['password_hash', 'reset_token']
+
+
+class UserPostSerializer(serializers.ModelSerializer):
+    profile_image = serializers.ImageField(required=False)
+
+    class Meta:
+        model = Users
         fields = '__all__'
+
+
+class UserLoginSerializer(serializers.ModelSerializer):
+    profile_image = serializers.ImageField(required=False)
+
+    class Meta:
+        model = Users
+        fields = ['email', 'password_hash', 'profile_image']
 
 
 class StudentSerializer(serializers.ModelSerializer):
@@ -53,4 +69,28 @@ class ChatsSerializer(serializers.ModelSerializer):
 class EnrollmentsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Enrollments
+        fields = '__all__'
+
+
+class ForumSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Forum
+        fields = '__all__'
+
+
+class ThreadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Thread
+        fields = '__all__'
+
+
+class AnnouncementSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Announcement
+        fields = '__all__'
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
         fields = '__all__'
