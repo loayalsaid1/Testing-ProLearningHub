@@ -30,7 +30,7 @@ GOOGLE_APPS_KEY = os.getenv('GOOGLE_APPS_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'georgekwm1.pythonanywhere.com']
 
 
 # Application definition

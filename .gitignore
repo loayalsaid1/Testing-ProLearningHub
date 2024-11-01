@@ -2,3 +2,4 @@ newenv/
 .venv/
 *.pyc
 node_modules/
+*.cpython-312.pyc
