@@ -33,7 +33,7 @@ export const getCourseLectures = (courseId) => async (dispatch) => {
       throw new Error(data.message);
     }
 
-    dispatch(actionCreators.sectionsSuccess(data.lectures));
+    dispatch(actionCreators.sectionsSuccess(data.sections));
   } catch (error) {
     console.error(error);
     dispatch(actionCreators.sectionsFailure(error.message));
