@@ -23,6 +23,13 @@ function App() {
   }
   const [view, setView]  = useState('dashboard'); 
   
+  /**
+   * This is messy nwo because... I'm not making the routing now.. 
+   * i'm making individual views for now first.. and this is my test field. now
+   * It's time is coming
+   * 
+   * BTW.. I'm not sure this approach is the best or not
+   */
   return (
     <div className="APP">
       {isLoading && <Spinner />}
@@ -43,8 +50,8 @@ function App() {
                   </button>
                 </div>
                 <div>
-                  <button type="button" onClick={() => setView('pages')}>
-                    Show pages
+                  <button type="button" onClick={() => setView('sections')}>
+                    Show sections
                   </button>
                 </div>
               </>
@@ -54,6 +61,7 @@ function App() {
                 <button type="button" onClick={() => setView('dashboard')}>
                   Go to dashboard
                 </button>
+                {/* <Lectures /> */}
               </>
             )}
 

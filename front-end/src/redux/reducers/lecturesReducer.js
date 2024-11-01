@@ -1,4 +1,4 @@
-import { fromJS, Map } from 'immutable';
+import { fromJS } from 'immutable';
 import * as actions from '../actions/lecturesActionTypes';
 
 /**
@@ -8,10 +8,11 @@ import * as actions from '../actions/lecturesActionTypes';
  * or something outside the scope of redux.. which is utelising websotckets
  * to ping react when a change happens
  */
-export const initialState = Map({
+export const initialState = fromJS({
   isLoading: false,
   lectureError: null,
   lectures: {},
+  sections: [],
 });
 
 export default function lecturesReducer(state = initialState, action = {}) {
@@ -48,6 +49,27 @@ export default function lecturesReducer(state = initialState, action = {}) {
 
     case actions.CLEAR_LECTURE_ERROR: {
       return state.set('lectureError', false);
+    }
+
+    case actions.SECTIONS_REQUEST: {
+      return state.set('isLoading', true);
+    }
+
+    case actions.SECTIONS_FAILURE: {
+      return state.withMutations((state) => {
+        return state
+          .set('isLoading', false)
+          .set('lectureError', action.payload.errorMessage);
+      });
+    }
+
+    case actions.SECTIONS_SUCCESS: {
+      return state.withMutations((state) => {
+        return state
+          .set('isLoading', false)
+          .set('lectureError', null)
+          .set('sections', fromJS(action.payload.sections));
+      });
     }
 
     default: {
