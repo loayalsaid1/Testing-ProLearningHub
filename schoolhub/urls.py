@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
+from api import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -25,6 +26,9 @@ urlpatterns = [
     path('auth/', include('authentication.urls')),
     path('lecturer/', include('tutor.urls', )),
     path('student/', include('student.urls', )),
-    path('api/', include('api.urls', ))
+    path('api/', include('api.urls', )),
+    path('oauth/', include('social_django.urls', namespace='social')),
+    path('oauth/complete/google-oauth2/',
+         views.google_login_complete, name='google_login')
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)\
     + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

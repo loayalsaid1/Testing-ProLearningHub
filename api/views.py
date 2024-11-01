@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from rest_framework.decorators import action, api_view
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
@@ -11,6 +11,9 @@ from django.contrib.auth.hashers import make_password, check_password
 from social_django.utils import psa
 from django.contrib.auth import login
 from .models import *
+from authentication.models import Auth
+from django.utils.crypto import get_random_string
+
 
 # Create your views here.
 
@@ -78,21 +81,48 @@ def logout(request):
     return Response({'message': 'Logout successful'}, status=status.HTTP_200_OK)
 
 
+@api_view(['POST'])
+def reset_password(request):
+    auth = Auth()
+    serializer = UserResetPasswordSerializer(data=request.data)
+    if serializer.is_valid():
+        email = serializer.validated_data.get('email')
+        user = Users.objects.filter(email=email).first()
+        if user:
+            # Generate a password reset token and send it to the user's email
+            token = user.generate_token()
+            user.send_password_reset_email(token)
+            return Response({'message': 'Password reset link sent to your email'}, status=status.HTTP_200_OK)
+        return Response({'message': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)
+
+# def custom_redirect(backend, user, response, *args, **kwargs):
+#     if backend.name == 'google-oauth2':
+#         return redirect('google_login')
+
+
 @psa('social:complete')
-def google_login_complete(request, backend):
-    user = request.user
-    if user.is_authenticated:
-        login(request, user)  # Log in the user
+def google_login_complete(request, backend=None):
+    social_user = request.backend.do_auth(request.GET.get('code'))
+    if social_user and social_user.is_active:
+        try:
+            user = Users.objects.get(email=social_user.email)
+            request.session['user_id'] = user.user_id
+            return JsonResponse({
+                'status': 'success',
+                'message': 'User logged in successfully.',
+                'user_id': user.id,
+                'email': user.email,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'role': user.role  # Example: Lecturer or Student
+            })
+        except Users.DoesNotExist:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'User does not exist.'
+            }, status=404)
         # Customize the JSON response as needed
-        return JsonResponse({
-            'status': 'success',
-            'message': 'User logged in successfully.',
-            'user_id': user.id,
-            'email': user.email,
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-            'role': user.role  # Example: Lecturer or Student
-        })
+
     else:
         return JsonResponse({
             'status': 'error',
@@ -262,6 +292,7 @@ def comment(request, course_id):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+@api_view(['GET'])
 def course_detail_view(request, course_id):
     course = get_object_or_404(Courses, course_id=course_id)
     lecturer = {

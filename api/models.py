@@ -29,6 +29,14 @@ class UserLoginSerializer(serializers.ModelSerializer):
         fields = ['email', 'password_hash', 'profile_image']
 
 
+class UserResetPasswordSerializer(serializers.ModelSerializer):
+    profile_image = serializers.ImageField(required=False)
+
+    class Meta:
+        model = Users
+        fields = ['email', 'password_hash', 'profile_image']
+
+
 class StudentSerializer(serializers.ModelSerializer):
 
     class Meta:

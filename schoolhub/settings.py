@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+import logging
 from pathlib import Path
 import os
 
@@ -29,7 +30,7 @@ GOOGLE_APPS_KEY = os.getenv('GOOGLE_APPS_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 
 # Application definition
@@ -161,9 +162,60 @@ AUTHENTICATION_BACKENDS = (
     'social_core.backends.google.GoogleOAuth2',  # Add Google OAuth2 backend
     'django.contrib.auth.backends.ModelBackend',  # Default authentication
 )
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '778678866766-0g4c4f0g9g6g7g8g9g0g7g8g7g8g7g.apps.googleusercontent.com'
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'GOCSPX-7g8g'
 
-LOGIN_REDIRECT_URL = 'auth/me/'
-LOGOUT_REDIRECT_URL = 'auth/'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
+    'openid',
+    'https://www.googleapis.com/auth/userinfo.email',
+    'https://www.googleapis.com/auth/userinfo.profile'
+]
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_REDIRECT_URI = 'http://127.0.0.1:8000/oauth/complete/google-oauth2/'
+SOCIAL_AUTH_REDIRECT_IS_HTTPS = False
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ''
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''
+# if you are using HTTPS, set this to True
+SOCIAL_AUTH_REDIRECT_IS_HTTPS = False
+SOCIAL_AUTH_GOOGLE_OAUTH2_IGNORE_DEFAULT_SCOPE = False
+SOCIAL_AUTH_GOOGLE_OAUTH2_USE_UNIQUE_USER_ID = True
+SOCIAL_AUTH_FIELDS_STORED_IN_SESSION = ['state']
+# SOCIAL_AUTH_PIPELINE = [
+#     # Default pipeline steps
+#     'social_core.pipeline.social_auth.social_details',
+#     'social_core.pipeline.social_auth.social_uid',
+#     'social_core.pipeline.social_auth.auth_allowed',
+#     'social_core.pipeline.social_auth.social_user',
+#     'social_core.pipeline.user.get_username',
+#     'social_core.pipeline.user.create_user',
+#     # Custom pipeline step after user creation
+#     # 'api.views.custom_redirect',
+# ]
+# SOCIAL_AUTH_GOOGLE_OAUTH2_AUTH_EXTRA_ARGUMENTS = {'state': ''}
+CSRF_COOKIE_SECURE = False
+LOGIN_REDIRECT_URL = '/oauth/complete/google-oauth2/'
+LOGOUT_REDIRECT_URL = '/'
 # LOGIN_URL = '/login/'
+# SOCIAL_AUTH_OAUTH2_IGNORE_STATE = True
+
+
+# Configure logging settings
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'console': {
+#             'level': 'DEBUG',
+#             'class': 'logging.StreamHandler',
+#         },
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['console'],
+#             'level': 'INFO',  # General Django logging level
+#         },
+#         'social_django': {
+#             'handlers': ['console'],
+#             'level': 'DEBUG',  # Enables debug-level logs for social_django
+#             'propagate': True,
+#         },
+#     },
+# }
