@@ -1,7 +1,22 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import {
+  selectcourseSectionsJS,
+  selectLecturesIsLoading,
+} from '../../redux/selectors/lecturesSelectors';
+import Loading from '../utilityComponents/Loading';
 import Section from './Section';
+import { getCourseLectures } from '../../redux/actions/lecturesThunks';
 
 export default function Lectures() {
+  const isLoading = useSelector(selectLecturesIsLoading);
+  const sections = useSelector(selectcourseSectionsJS);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(getCourseLectures());
+  }, [dispatch]);
+
   return (
     <>
       <h1>Lectures</h1>
@@ -21,121 +36,17 @@ export default function Lectures() {
         </button>
       </div>
       {/* Sections */}
-      <div>
-				{mockSections.map(section => {
-					return <Section key={section.title} {...section} />
-				})}
-      </div>
+      {isLoading ? (
+        <Loading />
+      ) : !sections.length ? (
+        <p>No sections found</p>
+      ) : (
+        <div>
+          {sections.map((section) => {
+            return <Section key={section.title} {...section} />;
+          })}
+        </div>
+      )}
     </>
   );
 }
-
-const mockSections = [
-  {
-    title: 'Low Level Programming',
-    lectures: [
-      {
-        id: 'cs50-lecture-0',
-        title: 'CS50 Lecture 0: Introduction',
-        description:
-          'This lecture covers the basics of computing and how the internet works',
-        tags: ['basics', 'internet'],
-      },
-      {
-        id: 'cs50-lecture-1',
-        title: 'CS50 Lecture 1: C',
-        description:
-          'This lecture covers the basics of the C programming language',
-        tags: ['c', 'programming'],
-      },
-      {
-        id: 'cs50-lecture-2',
-        title: 'CS50 Lecture 2: Arrays',
-        description: 'This lecture covers the basics of arrays in C',
-        tags: ['arrays', 'c'],
-      },
-    ],
-  },
-  {
-    title: 'Data Structures and Algorithms',
-    lectures: [
-      {
-        id: 'cs50-lecture-3',
-        title: 'CS50 Lecture 3: Algorithms',
-        description: 'This lecture covers the basics of algorithms',
-        tags: ['algorithms', 'dsa'],
-      },
-      {
-        id: 'cs50-lecture-4',
-        title: 'CS50 Lecture 4: Searching, Sorting',
-        description: 'This lecture covers searching and sorting algorithms',
-        tags: ['searching', 'sorting', 'algorithms'],
-      },
-      {
-        id: 'cs50-lecture-5',
-        title: 'CS50 Lecture 5: Memory, Pointers',
-        description: 'This lecture covers memory and pointers in C',
-        tags: ['memory', 'pointers', 'c'],
-      },
-    ],
-  },
-  {
-    title: 'High Level Programming',
-    lectures: [
-      {
-        id: 'cs50-lecture-6',
-        title: 'CS50 Lecture 6: Python',
-        description:
-          'This lecture covers the basics of the Python programming language',
-        tags: ['python', 'programming'],
-      },
-      {
-        id: 'cs50-lecture-7',
-        title: 'CS50 Lecture 7: Object Oriented Programming',
-        description:
-          'This lecture covers object oriented programming in Python',
-        tags: ['oop', 'python'],
-      },
-      {
-        id: 'cs50-lecture-8',
-        title: 'CS50 Lecture 8: File I/O',
-        description: 'This lecture covers file input and output in Python',
-        tags: ['file i/o', 'python'],
-      },
-    ],
-  },
-  {
-    title: 'Frontend Development',
-    lectures: [
-      {
-        id: 'cs50-lecture-9',
-        title: 'CS50 Lecture 9: HTML, CSS',
-        description: 'This lecture covers the basics of HTML and CSS',
-        tags: ['html', 'css', 'frontend'],
-      },
-      {
-        id: 'cs50-lecture-10',
-        title: 'CS50 Lecture 10: JavaScript',
-        description: 'This lecture covers the basics of JavaScript',
-        tags: ['javascript', 'frontend'],
-      },
-      {
-        id: 'cs50-lecture-11',
-        title: 'CS50 Lecture 11: React',
-        description: 'This lecture covers the basics of React',
-        tags: ['react', 'frontend'],
-      },
-    ],
-  },
-  {
-    title: 'Backend Development',
-    lectures: [
-      {
-        id: 'cs50-lecture-12',
-        title: 'CS50 Lecture 12: Flask',
-        description: 'This lecture covers the basics of Flask',
-        tags: ['flask', 'backend'],
-      },
-    ],
-  },
-];
