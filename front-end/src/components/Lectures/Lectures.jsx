@@ -7,6 +7,7 @@ import {
 import Loading from '../utilityComponents/Loading';
 import Section from './Section';
 import { getCourseLectures } from '../../redux/actions/lecturesThunks';
+import SearchField from '../sharedComponents/SearchField';
 
 export default function Lectures() {
   const isLoading = useSelector(selectLecturesIsLoading);
@@ -24,17 +25,7 @@ export default function Lectures() {
         Lectures or the course organized by Whatever criteria /time or chapters
         or topeic ?!
       </p>
-      <div>
-        <input
-          type="search"
-          placeholder="Search the content of the course"
-          name="search"
-          id="search"
-        />
-        <button type="button">
-          <i>&#x1F50E;&#xFE0E;</i>
-        </button>
-      </div>
+      <SearchField placeholder='Search the content of the course' />
       {/* Sections */}
       {isLoading ? (
         <Loading />
