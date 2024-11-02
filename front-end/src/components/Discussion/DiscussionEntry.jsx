@@ -42,10 +42,9 @@ export default function DiscussionEntry({ content }) {
         </button>
 				{/* Here should be a link to replies component for this entry */}
         <button onClick={() => toast(content.get('id') + 'replies button')}>
-          {content.get('replies')} <MessagesSquare />
+          {content.get('repliesCount')} <MessagesSquare />
         </button>
       </div>
     </div>
   );
 }
-
