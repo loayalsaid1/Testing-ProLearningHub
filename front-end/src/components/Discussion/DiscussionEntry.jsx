@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {CircleArrowUp, Dot, MessagesSquare} from 'lucide-react';
+import {CircleArrowUp, Dot, MessagesSquare} from  'lucide-react';
 import { formatDate } from '../../utils/utilFunctions';
 import toast from 'react-hot-toast';
 
@@ -27,9 +27,9 @@ export default function DiscussionEntry({ content }) {
       <div>
         <h3>{content.get('title')}</h3>
         <div>
-          <p>{content.getIn(['user', 'name'])}</p>
+          <span>{content.getIn(['user', 'name'])}</span>
           <Dot />
-          <p>{date}</p>
+          <span>{date}</span>
         </div>
       </div>
       <div>
