@@ -2,7 +2,7 @@ import { fromJS } from 'immutable';
 import * as actions from '../actions/discussionsActionTypes';
 
 export const initialState = fromJS({
-  lecturesDiscussions: [],
+  lecturesDiscussions: {},
   isLoading: false,
   discussionsError: null,
 });
