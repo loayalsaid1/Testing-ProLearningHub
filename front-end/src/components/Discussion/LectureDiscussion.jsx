@@ -15,19 +15,21 @@ export default function LectureDiscussion({ lectureId = '' }) {
     setAskNewQuestion(false);
   }
 
+  const entries = mockLectureDiscussionEntries;
   return (
     <div>
       <h2>Lecture Discussion</h2>
       <SearchField placeholder="Search lecture questions" />
       <div>
         {
-          mockLectureDiscussionEntries.map(entry => {
+          entries.map(entry => {
             return <DiscussionEntry key={entry.id} content={entry} />
           })
         }
       </div>
       {/* Depeneding on there is more or not */}
-      <button type="button">See more</button>
+      {/* It's a mistaeke to not do pagenation in teh backend for now.*/}
+      {entries.size > 10 && <button type="button">See more</button>}
       <div>
         {askNewQuestion ? (
           <DiscussionEntryEditor onPublish={handlePublishQuestion} />
