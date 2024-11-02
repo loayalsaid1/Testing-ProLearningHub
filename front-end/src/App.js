@@ -8,7 +8,8 @@ import Spinner from './components/utilityComponents/Spinner';
 import { googleLogout } from '@react-oauth/google';
 import Authintication from './components/Authintication/Authintication';
 // import Lecture from './components/Lecture/Lecture';
-import Test from './components/Test/Test';
+// import Test from './components/Test/Test';
+import LectureDiscussion from './components/Discussion/LectureDiscussion';
 
 function App() {
   const name = useSelector((state) => state.hello.get('name'));
@@ -57,7 +58,8 @@ function App() {
               </>
             ) : (
               <>
-                <Test />
+                {/* <Test /> */}
+                <LectureDiscussion lectureId='testId' />
                 <button type="button" onClick={() => setView('dashboard')}>
                   Go to dashboard
                 </button>
