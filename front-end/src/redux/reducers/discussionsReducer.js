@@ -1,7 +1,7 @@
 import { fromJS } from 'immutable';
 
 export const initialState = fromJS({
-  lecturesDiscussions: {},
+  lecturesDiscussions: [],
   isLoading: false,
   discussionsError: null,
 });
