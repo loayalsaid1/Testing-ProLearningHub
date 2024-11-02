@@ -64,7 +64,7 @@ def add_resource(request, course_id):
 
 # Edit/update a resource detail
 def edit_resource(request, resource_id):
-        ''' A view to Update a Resource '''
+    ''' A view to Update a Resource '''
     resource = get_object_or_404(Course_Resources, pk=resource_id)
     if request.method == "POST":
         form = CourseResourceForm(
