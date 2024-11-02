@@ -18,10 +18,13 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
+from .views import main_home_view
 from api import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('',main_home_view, name='main_home'),  # HTML homepage
+
     # Authentication Endpoints
     path('auth/', include('authentication.urls')),
     path('lecturer/', include('tutor.urls', )),
