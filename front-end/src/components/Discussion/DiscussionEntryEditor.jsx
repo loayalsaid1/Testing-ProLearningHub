@@ -3,7 +3,7 @@ import TextEditor from '../TextEditor/TextEditor';
 
 export default function DiscussionEntryEditor({ onPublish }) {
 	const [details, setDetails] = useState('');
-	const [files, setFiles] = userState([]);
+	const [files, setFiles] = useState([]);
 	const editorPlaceholder = 'Optionally.. Add elaboration to your question if you need to';
 
 	// That would be the setting the dtails with the correct urls not the temp ones
@@ -16,6 +16,7 @@ export default function DiscussionEntryEditor({ onPublish }) {
 		 * call the publish thing passed as props
 		 */
 		// Upload images 
+		const title = e.target.elements.title.value;
 		onPublish(title, details)
 	}
 
