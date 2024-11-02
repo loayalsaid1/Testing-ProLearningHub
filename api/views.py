@@ -17,6 +17,9 @@ from django.utils.crypto import get_random_string
 
 # Create your views here.
 
+def home_view(request):
+    return JsonResponse({"message": "Welcome to School Hub Api page"})
+
 
 class UserListView(APIView):
     def get(self, request):

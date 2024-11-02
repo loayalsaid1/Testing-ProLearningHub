@@ -2,8 +2,10 @@ from django.urls import path, include
 from . import views
 
 urlpatterns = [
+    path('', views.home_view.as_view(), name='home'),  # Home page URL
+    # other URLs...
     path('users/', views.UserListView.as_view(),
-         name='api_users'),  # {'get': 'list'}
+         name='api_users'),
     path('user/<int:user_id>', views.UserIdView.as_view(), name='api_user_by_id'),
     path('register/', views.register, name='api_register'),
     path('reset_password/', views.register, name='api_reset_password'),
@@ -39,4 +41,3 @@ urlpatterns = [
          views.comment, name="comment"),
 
 ]
-# PATH:api/views.py
