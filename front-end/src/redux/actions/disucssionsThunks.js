@@ -13,7 +13,11 @@ export const getLectureDiscussions = (lectureId) => async (dispatch) => {
 			throw new Error(data.message);
 		}
 
-		dispatch(discussionsActions.lectureDiscussionSuccess(data));
+		dispatch(discussionsActions.lectureDiscussionSuccess({
+			entries: data,
+			lectureId
+		}));
+		
 	}	catch (error) {
 		console.error(error.message);
 		dispatch(discussionsActions.lectureDiscussionFailure(data.message));

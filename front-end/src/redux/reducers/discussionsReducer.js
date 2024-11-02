@@ -33,11 +33,13 @@ export const discussionsReducer = (state = initialState, action = {}) => {
     }
 
     case actions.LECTURE_DISCUSSION_SUCCESS: {
+      const {lectureId, entries } = action.payload;
+
       return state.withMutations( state => {
         state
           .set('discussionsError', null)
           .set('isLoading', false)
-          .set('lecturesDiscussions', fromJS(action.payload.entries));
+          .setIn(['lecturesDiscussions', lectureId] , fromJS(entries) );
       });
     }
 
