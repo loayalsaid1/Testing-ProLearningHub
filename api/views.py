@@ -93,11 +93,44 @@ def reset_password(request):
         user = Users.objects.filter(email=email).first()
         if user:
             # Generate a password reset token and send it to the user's email
-            token = user.generate_token()
-            user.send_password_reset_email(token)
+            token = auth.generate_token()
+            reset_link = request.build_absolute_uri(
+                f'/api/reset_token/{token}')
+            auth.send_password_reset_email(user, reset_link)
+            # Saves the token to the database
+            user.reset_token = token
+            user.save()
             return Response({'message': 'Password reset link sent to your email'}, status=status.HTTP_200_OK)
         return Response({'message': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)
 
+
+@api_view(['GET', 'POST'])
+def reset_token(request, token):
+    if request.method == 'POST':
+        # Gets the JSON format new password and confirmed password
+        new_password = request.data.get('new_password')
+        confirm_password = request.data.get('confirm_password')
+
+        # If both passwords are not the same, returns a JSON error message with a 404 status
+        if new_password != confirm_password:
+            return Response({'message': 'Passwords do not match'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Gets user with corresponding reset token
+        user = Users.objects.filter(reset_token=token).first()
+
+        # Encrypts the input password, clean the reset token and saves it to the database
+        user.password_hash = make_password(new_password)
+        user.reset_token = None
+        user.save()
+        return Response({'message': 'New password created'}, status=status.HTTP_201_CREATED)
+    # Gets user with corresponding reset token
+    user = Users.objects.filter(reset_token=token).first()
+    if user:
+        # if user is valid serializes the user data and return a JSON response
+        serializer = UserResetTokenSerializer(user, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    return Response({'message': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
 # def custom_redirect(backend, user, response, *args, **kwargs):
 #     if backend.name == 'google-oauth2':
 #         return redirect('google_login')

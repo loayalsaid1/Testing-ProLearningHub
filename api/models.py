@@ -30,11 +30,19 @@ class UserLoginSerializer(serializers.ModelSerializer):
 
 
 class UserResetPasswordSerializer(serializers.ModelSerializer):
+    # profile_image = serializers.ImageField(required=False)
+
+    class Meta:
+        model = Users
+        fields = ['email']
+
+
+class UserResetTokenSerializer(serializers.ModelSerializer):
     profile_image = serializers.ImageField(required=False)
 
     class Meta:
         model = Users
-        fields = ['email', 'password_hash', 'profile_image']
+        exclude = ['reset_token']
 
 
 class StudentSerializer(serializers.ModelSerializer):
