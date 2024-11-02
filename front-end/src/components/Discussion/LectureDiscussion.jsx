@@ -1,10 +1,17 @@
 import React, { useState } from 'react';
 import SearchField from '../sharedComponents/SearchField';
+import DiscussionEntryEditor from './DiscussionEntryEditor';
 
 export default function LectureDiscussion({ lectureId = '' }) {
   const [askNewQuestion, setAskNewQuestion] = useState(false);
   if (!lectureId)
     return <p>Am I hijacked? Where Am I rendered... no lectureID givin</p>;
+
+  const handlePublishQuestion = (title, details) => {
+    console.log('title => ', title)
+    console.log('details with the real file urls =>  ', details)
+    setAskNewQuestion(false);
+  }
 
   return (
     <div>
@@ -22,7 +29,7 @@ export default function LectureDiscussion({ lectureId = '' }) {
       <button type="button">See more</button>
       <div>
         {askNewQuestion ? (
-          <h3>Editor with public button here</h3>
+          <DiscussionEntryEditor onPublish={handlePublishQuestion} />
         ) : (
           // or a button?
           <p onClick={() => setAskNewQuestion(true)}>Ask a new question</p>
