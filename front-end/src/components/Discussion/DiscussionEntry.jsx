@@ -17,7 +17,7 @@ export default function DiscussionEntry({ content }) {
 
   const date = formatDate(content.get('updatedAt'));
   return (
-    <div id={content.get('id')}>
+    <div data-id={content.get('id')}>
       <div>
         <img
           src={content.getIn(['user', 'pictureThumbnail'])}
