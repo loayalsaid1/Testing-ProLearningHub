@@ -8,7 +8,7 @@ import Spinner from './components/utilityComponents/Spinner';
 import { googleLogout } from '@react-oauth/google';
 import Authintication from './components/Authintication/Authintication';
 // import Lecture from './components/Lecture/Lecture';
-// import Test from './components/Test/Test';
+import Test from './components/TextEditor/TextEditor';
 import LectureDiscussion from './components/Discussion/LectureDiscussion';
 
 function App() {
@@ -23,6 +23,8 @@ function App() {
     googleLogout();
   }
   const [view, setView]  = useState('dashboard'); 
+  const [value, setValue] = useState('');
+  const [files, setFiles] = useState([]);
   
   /**
    * This is messy nwo because... I'm not making the routing now.. 
@@ -58,8 +60,9 @@ function App() {
               </>
             ) : (
               <>
-                {/* <Test /> */}
-                <LectureDiscussion lectureId='testId' />
+                <Test value={value} setValue={setValue} files={files} setFiles={setFiles}  />
+                <button type="button" onClick={() => console.log(value, files)}>Check dataa</button>
+                {/* <LectureDiscussion lectureId='testId' /> */}
                 <button type="button" onClick={() => setView('dashboard')}>
                   Go to dashboard
                 </button>
