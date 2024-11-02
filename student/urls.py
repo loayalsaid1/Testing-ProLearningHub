@@ -1,6 +1,8 @@
 from django.urls import path
 from . import views
 
+''' Students Endpoint and Urls '''
+
 urlpatterns = [
     path('resources/<int:course_id>', views.resources, name='resources'),
     path('courses/', views.courses, name='courses'),
