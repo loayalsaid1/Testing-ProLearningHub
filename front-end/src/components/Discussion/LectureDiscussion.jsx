@@ -6,6 +6,8 @@ import DiscussionEntry from './DiscussionEntry';
 
 export default function LectureDiscussion({ lectureId = '' }) {
   const [askNewQuestion, setAskNewQuestion] = useState(false);
+  const [limit, setLimit] = useState(10);
+
   if (!lectureId)
     return <p>Am I hijacked? Where Am I rendered... no lectureID givin</p>;
 
@@ -22,14 +24,15 @@ export default function LectureDiscussion({ lectureId = '' }) {
       <SearchField placeholder="Search lecture questions" />
       <div>
         {
-          entries.map(entry => {
+          entries.slice(0, limit).map(entry => {
             return <DiscussionEntry key={entry.id} content={entry} />
           })
         }
       </div>
       {/* Depeneding on there is more or not */}
       {/* It's a mistaeke to not do pagenation in teh backend for now.*/}
-      {entries.size > 10 && <button type="button">See more</button>}
+      {entries.size > 10 && entries.size >= limit && <button type="button" onClick={() => setLimit(limit + 10)}>See more</button>}
+      {limit > 10 && <button type="button" onClick={() => setLimit(limit - 10)}>See less</button>}
       <div>
         {askNewQuestion ? (
           <DiscussionEntryEditor onPublish={handlePublishQuestion} />
