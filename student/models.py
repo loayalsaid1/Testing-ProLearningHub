@@ -122,7 +122,7 @@ class Thread(models.Model):
     user = models.ForeignKey(Users, on_delete=models.CASCADE)
     title = models.CharField(max_length=100,  null=True, blank=True)
     description = models.TextField(null=True, blank=True)
-    upvote = models.IntegerField(default=0)
+    upvotes = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -137,7 +137,7 @@ class Chats(models.Model):
     receiver = models.ForeignKey(
         Users, on_delete=models.CASCADE, related_name='receiver')
     thread = models.ForeignKey(Thread, on_delete=models.CASCADE)
-    upvote = models.IntegerField(default=0)
+    upvotes = models.IntegerField(default=0)
     message = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
 

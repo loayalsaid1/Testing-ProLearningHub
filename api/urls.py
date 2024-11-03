@@ -38,7 +38,9 @@ urlpatterns = [
          views.comment_in_forum_by_course, name="comment_in_forum_by_course"),
     path("course/<int:course_id>/anouncements",
          views.announcements, name="announcements"),
-    path("course/<int:course_id>/comment",
-         views.comment, name="comment"),
+    path("course/<int:course_id>/comment", views.comment, name="comment"),
+    path("thread/<int:thread_id>/upvote",
+         views.thread_upvote, name="thread_upvote"),
+    path("chat/<int:chat_id>/upvote", views.chat_upvote, name="chat_upvote"),
 
 ]

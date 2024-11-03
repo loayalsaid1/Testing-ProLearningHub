@@ -38,11 +38,11 @@ class UserResetPasswordSerializer(serializers.ModelSerializer):
 
 
 class UserResetTokenSerializer(serializers.ModelSerializer):
-    profile_image = serializers.ImageField(required=False)
+    # profile_image = serializers.ImageField(required=False)
 
     class Meta:
         model = Users
-        exclude = ['reset_token']
+        fields = ['reset_token']
 
 
 class StudentSerializer(serializers.ModelSerializer):

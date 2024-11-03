@@ -329,6 +329,22 @@ def comment(request, course_id):
 
 
 @api_view(['GET'])
+def thread_upvote(request, thread_id):
+    thread = get_object_or_404(Thread, thread_id=thread_id)
+    thread.upvotes += 1
+    thread.save()
+    return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def chat_upvote(request, chat_id):
+    chat = get_object_or_404(Chats, chat_id=chat_id)
+    chat.upvotes += 1
+    chat.save()
+    return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
 def course_detail_view(request, course_id):
     course = get_object_or_404(Courses, course_id=course_id)
     lecturer = {
