@@ -20,6 +20,6 @@ export const getLectureDiscussions = (lectureId) => async (dispatch) => {
 		
 	}	catch (error) {
 		console.error(error.message);
-		dispatch(discussionsActions.lectureDiscussionFailure(data.message));
+		dispatch(discussionsActions.lectureDiscussionFailure(error.message));
 	}
 }
