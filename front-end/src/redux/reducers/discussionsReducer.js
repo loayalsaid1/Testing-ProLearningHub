@@ -7,7 +7,7 @@ export const initialState = fromJS({
   discussionsError: null,
 });
 
-export const discussionsReducer = (state = initialState, action = {}) => {
+export default function discussionsReducer (state = initialState, action = {}) {
   switch (action.type) {
     case actions.SET_DISCUSSIONS_ERROR: {
       return state.set('discussionsError, action.payload.errorMessage');
