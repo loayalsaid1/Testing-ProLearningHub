@@ -21,8 +21,9 @@ export default function LectureDiscussion({ lectureId = '' }) {
   useEffect(() => {
     // This is not completely right. as still the logic to force reload or by real time pinging
     // when data changes .. considering Offline or PWA use for example with saving the state.
-    if (!entries || !entries.size) dispatch(getLectureDiscussions(lectureId));
-  }, [dispatch, entries, lectureId]);
+    // if (!entries || !entries.size) dispatch(getLectureDiscussions(lectureId));
+    dispatch(getLectureDiscussions(lectureId));
+  }, [dispatch, lectureId]);
 
   if (!lectureId)
     return <p>Am I hijacked? Where Am I rendered... no lectureID givin</p>;
