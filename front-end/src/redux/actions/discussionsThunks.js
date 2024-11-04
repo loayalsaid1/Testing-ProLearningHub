@@ -101,3 +101,38 @@ export const getGeneralDiscussion = () => async (dispatch, getState) => {
     );
   }
 };
+
+
+export const addGeneralDiscussionEntry =
+  (title, details) => async (dispatch, getState) => {
+    dispatch(discussionsActions.generalDiscussionEntryRequest());
+
+    const userId = getState().ui.getIn(['user', 'id']) || 'testId';
+    const courseId = getState().ui.getIn(['course', 'id']) || 'testId';
+    const response = await toast.promise(
+      fetch(`${DOMAIN}/courses/${courseId}/general_discussion`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          title,
+          body: details,
+        }),
+      }),
+      {
+        loading: 'Sending your Entry',
+        success: 'Your Entry has been sent',
+        error: 'Error sending your question',
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message);
+    }
+
+    dispatch(discussionsActions.generalDiscussionEntrySuccess(data));
+  };
