@@ -73,16 +73,16 @@ export const generalDiscussionSuccess = (entries) => ({
 
 
 export const generalDiscussionEntryRequest = () => ({
-  type: actions.generalDiscussionEntryRequest,
+  type: actions.GENERAL_DISCUSSION_ENTRY_REQUEST,
 })
 
 export const generalDiscussionEntryFailure = (errorMessage) => ({
-  type: actions.generalDiscussionEntryFailure,
+  type: actions.GENERAL_DISCUSSION_ENTRY_FAILURE,
   payload: {errorMessage},
 })
 
 export const generalDiscussionEntrySuccess = (entry) => ({
-  type: actions.generalDiscussionEntrySuccess,
+  type: actions.GENERAL_DISCUSSION_ENTRY_SUCCESS,
   payload: {
     entry
   }
