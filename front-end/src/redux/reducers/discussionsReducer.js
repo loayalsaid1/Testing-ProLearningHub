@@ -3,7 +3,7 @@ import * as actions from '../actions/discussionsActionTypes';
 
 export const initialState = fromJS({
   lecturesDiscussions: {},
-  courseGeneralDiscussions: [],
+  courseGeneralDiscussion: [],
   isLoading: false,
   discussionsError: null,
 });
@@ -87,7 +87,7 @@ export default function discussionsReducer(state = initialState, action = {}) {
         state
           .set('isLoading', false)
           .set('discussionsError', null)
-          .set('courseGeneralDiscussions', fromJS(entries));
+          .set('courseGeneralDiscussion', fromJS(entries));
       });
     }
 
