@@ -39,7 +39,14 @@ export const addLectureDiscussionEntry = (lectureId, title, details) => async (d
 				title,
 				body: details
 			})
-		}),
+		})
+		.then(response => {
+			const data = response.json();
+			if (!response.ok) {
+				throw new Error(data.message);
+			}
+			return data;
+			}),
 		{
 			loading: 'Sending your Entry',
 			success: 'Your Entry has been sent',
@@ -48,12 +55,8 @@ export const addLectureDiscussionEntry = (lectureId, title, details) => async (d
 	)
 
 	try {
-		const response = await promise;
-		const data = await response.json();
+		const data = await promise;
 
-		if (!response.ok) {
-			throw new Error(data.message);
-		}
 		dispatch(discussionsActions.addDiscussionEntrySuccess({
 			lectureId,
 			entry: data,
