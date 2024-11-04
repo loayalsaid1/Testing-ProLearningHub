@@ -70,3 +70,20 @@ export const generalDiscussionSuccess = (entries) => ({
     entries,
   }
 })
+
+
+export const generalDiscussionEntryRequest = () => ({
+  type: actions.generalDiscussionEntryRequest,
+})
+
+export const generalDiscussionEntryFailure = (errorMessage) => ({
+  type: actions.generalDiscussionEntryFailure,
+  payload: {errorMessage},
+})
+
+export const generalDiscussionEntrySuccess = (entry) => ({
+  type: actions.generalDiscussionEntrySuccess,
+  payload: {
+    entry
+  }
+})
