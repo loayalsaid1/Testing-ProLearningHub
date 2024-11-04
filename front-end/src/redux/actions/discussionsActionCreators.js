@@ -33,3 +33,22 @@ export const lectureDiscussionSuccess = (response) => ({
     lectureId: response.lectureId
   },
 });
+
+export const addDiscussionEntryRequest = () => ({
+  type: actions.ADD_DISCUSSION_ENTRY_REQUEST,
+})
+
+export const addDiscussionEntryFailure = (errorMessage) => ({
+  type: actions.ADD_DISCUSSION_ENTRY_FAILURE,
+  payload: {
+    errorMessage
+  }
+})
+
+export const addDiscussionEntrySuccess = ({lectureId, entry}) => ({
+  type: actions.ADD_DISCUSSION_ENTRY_SUCCESS,
+  payload: {
+    lectureId,
+    entry
+  }
+})
