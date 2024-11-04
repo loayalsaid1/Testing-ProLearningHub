@@ -3,6 +3,7 @@ import * as actions from '../actions/discussionsActionTypes';
 
 export const initialState = fromJS({
   lecturesDiscussions: {},
+  courseGeneralDiscussions: [],
   isLoading: false,
   discussionsError: null,
 });
