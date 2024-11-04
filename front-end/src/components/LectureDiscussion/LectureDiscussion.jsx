@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Loading from '../utilityComponents/Loading';
 import SearchField from '../sharedComponents/SearchField';
-import DiscussionEntryEditor from './DiscussionEntryEditor';
-import DiscussionEntry from './DiscussionEntry';
+import DiscussionEntryEditor from '../DiscussionEntry/DiscussionEntryEditor';
+import DiscussionEntry from '../DiscussionEntry/DiscussionEntry';
 import { getLectureDiscussions, addLectureDiscussionEntry } from '../../redux/actions/discussionsThunks';
 import {
   selectDiscussionsIsLoading,
