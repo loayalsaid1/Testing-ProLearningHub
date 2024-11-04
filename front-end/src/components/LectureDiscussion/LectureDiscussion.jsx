@@ -2,9 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Loading from '../utilityComponents/Loading';
 import SearchField from '../sharedComponents/SearchField';
-import DiscussionEntryEditor from '../DiscussionEntry/DiscussionEntryEditor';
-import DiscussionEntry from '../DiscussionEntry/DiscussionEntry';
-import { getLectureDiscussions, addLectureDiscussionEntry } from '../../redux/actions/discussionsThunks';
+import DiscussionEntryEditor from '../DiscussionEntries/DiscussionEntryEditor';
+import DiscussionEntries from '../DiscussionEntries/DiscussionEntries';
+import {
+  getLectureDiscussions,
+  addLectureDiscussionEntry,
+} from '../../redux/actions/discussionsThunks';
 import {
   selectDiscussionsIsLoading,
   makeLectureDiscussionsSelector,
@@ -12,7 +15,6 @@ import {
 
 export default function LectureDiscussion({ lectureId = '' }) {
   const [askNewQuestion, setAskNewQuestion] = useState(false);
-  const [limit, setLimit] = useState(10);
   const dispatch = useDispatch();
   const isLoading = useSelector(selectDiscussionsIsLoading);
   const entries = useSelector(makeLectureDiscussionsSelector(lectureId));
@@ -38,24 +40,8 @@ export default function LectureDiscussion({ lectureId = '' }) {
       <SearchField placeholder="Search lecture questions" />
       {isLoading ? (
         <Loading />
-      ) : !entries || !entries.size ? (
-        <h2> No Discussion for this lecture</h2>
       ) : (
-        <div>
-          {entries.slice(0, limit).map((entry, index) => (
-            <DiscussionEntry key={index} content={entry} />
-          ))}
-          {limit < entries.size && (
-            <button type="button" onClick={() => setLimit(limit + 10)}>
-              See more
-            </button>
-          )}
-          {limit > 10 && (
-            <button type="button" onClick={() => setLimit(limit - 10)}>
-              See less
-            </button>
-          )}
-        </div>
+        <DiscussionEntries entries={entries} chunkSize={10} />
       )}
       <div>
         {askNewQuestion ? (
