@@ -52,3 +52,5 @@ export const addDiscussionEntrySuccess = ({lectureId, entry}) => ({
     entry
   }
 })
+
+export const generalDiscussion
