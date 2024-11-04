@@ -52,3 +52,38 @@ export const addDiscussionEntrySuccess = ({lectureId, entry}) => ({
     entry
   }
 })
+
+export const generalDiscussionRequest = () => ({
+  type: actions.GENERAL_DISCUSSION_REQUEST
+})
+
+export const generalDiscussionFailure = (errorMessage) => ({
+  type: actions.GENERAL_DISCUSSION_FAILURE,
+  payload: {
+    errorMessage
+  }
+})
+
+export const generalDiscussionSuccess = (entries) => ({
+  type: actions.GENERAL_DISCUSSION_SUCCESS,
+  payload: {
+    entries,
+  }
+})
+
+
+export const generalDiscussionEntryRequest = () => ({
+  type: actions.GENERAL_DISCUSSION_ENTRY_REQUEST,
+})
+
+export const generalDiscussionEntryFailure = (errorMessage) => ({
+  type: actions.GENERAL_DISCUSSION_ENTRY_FAILURE,
+  payload: {errorMessage},
+})
+
+export const generalDiscussionEntrySuccess = (entry) => ({
+  type: actions.GENERAL_DISCUSSION_ENTRY_SUCCESS,
+  payload: {
+    entry
+  }
+})

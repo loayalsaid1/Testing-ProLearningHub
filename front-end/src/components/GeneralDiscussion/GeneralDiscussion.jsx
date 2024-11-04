@@ -4,44 +4,42 @@ import Loading from '../utilityComponents/Loading';
 import SearchField from '../sharedComponents/SearchField';
 import DiscussionEntryEditor from '../DiscussionEntries/DiscussionEntryEditor';
 import DiscussionEntries from '../DiscussionEntries/DiscussionEntries';
+import { addGeneralDiscussionEntry, getGeneralDiscussion } from '../../redux/actions/discussionsThunks';
 import {
-  getLectureDiscussions,
-  addLectureDiscussionEntry,
-} from '../../redux/actions/discussionsThunks';
-import {
+  selectCourseGeneralDiscussion,
   selectDiscussionsIsLoading,
-  makeLectureDiscussionsSelector,
 } from '../../redux/selectors/DiscussionsSelectors';
 
-export default function LectureDiscussion({ lectureId = '' }) {
+
+export default function LectureDiscussion() {
   const [askNewQuestion, setAskNewQuestion] = useState(false);
-  const dispatch = useDispatch();
   const isLoading = useSelector(selectDiscussionsIsLoading);
-  const entries = useSelector(makeLectureDiscussionsSelector(lectureId));
+	const entries = useSelector(selectCourseGeneralDiscussion);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     // This is not completely right. as still the logic to force reload or by real time pinging
     // when data changes .. considering Offline or PWA use for example with saving the state.
-    // if (!entries || !entries.size) dispatch(getLectureDiscussions(lectureId));
-    dispatch(getLectureDiscussions(lectureId));
-  }, [dispatch, lectureId]);
-
-  if (!lectureId)
-    return <p>Am I hijacked? Where Am I rendered... no lectureID givin</p>;
+    // if (!entries || !entries.size) dispatch(addGeneralDiscussion);
+    dispatch(getGeneralDiscussion());
+  }, [dispatch]);
 
   const handlePublishQuestion = (title, details) => {
-    dispatch(addLectureDiscussionEntry(lectureId, title, details));
+		console.log(title)
+		console.log(details);
+    dispatch(addGeneralDiscussionEntry(title, details));
     setAskNewQuestion(false);
   };
 
   return (
     <div>
-      <h2>Lecture Discussion</h2>
-      <SearchField placeholder="Search lecture questions" />
+      <h2>General Discussion</h2>
+			<p>Course Disucsison forum or whatever text fits here</p>
+      <SearchField placeholder="Search general course questions" />
       {isLoading ? (
         <Loading />
       ) : (
-        <DiscussionEntries entries={entries} chunkSize={10} />
+        <DiscussionEntries entries={entries} chunkSize={15} />
       )}
       <div>
         {askNewQuestion ? (

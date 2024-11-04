@@ -3,13 +3,12 @@ import * as actions from '../actions/discussionsActionTypes';
 
 export const initialState = fromJS({
   lecturesDiscussions: {},
+  courseGeneralDiscussion: [],
   isLoading: false,
-  // currently to disable the entry form if it's submitted once
-  isEntryBeingSent: false,
   discussionsError: null,
 });
 
-export default function discussionsReducer (state = initialState, action = {}) {
+export default function discussionsReducer(state = initialState, action = {}) {
   console.log(action);
   switch (action.type) {
     case actions.SET_DISCUSSIONS_ERROR: {
@@ -28,21 +27,21 @@ export default function discussionsReducer (state = initialState, action = {}) {
     }
 
     case actions.LECTURE_DISCUSSION_FAILURE: {
-      return state.withMutations( state => {
+      return state.withMutations((state) => {
         state
           .set('isLoading', false)
           .set('discussionsError', action.payload.errorMessage);
-      })
+      });
     }
 
     case actions.LECTURE_DISCUSSION_SUCCESS: {
-      const {entries, lectureId} = action.payload;
+      const { entries, lectureId } = action.payload;
 
-      return state.withMutations( state => {
+      return state.withMutations((state) => {
         state
           .set('discussionsError', null)
           .set('isLoading', false)
-          .setIn(['lecturesDiscussions', lectureId] , fromJS(entries) );
+          .setIn(['lecturesDiscussions', lectureId], fromJS(entries));
       });
     }
 
@@ -51,20 +50,68 @@ export default function discussionsReducer (state = initialState, action = {}) {
     }
 
     case actions.ADD_DISCUSSION_ENTRY_FAILURE: {
-      return state.withMutations( state => {
+      return state.withMutations((state) => {
         state
           .set('isEntryBeingSent', false)
           .set('discussionsError', action.payload.errorMessage);
-      })
+      });
     }
 
     case actions.ADD_DISCUSSION_ENTRY_SUCCESS: {
-      const {lectureId, entry} = action.payload;
-      return state.withMutations( state => {
+      const { lectureId, entry } = action.payload;
+      return state.withMutations((state) => {
         state
           .set('isEntryBeingSent', false)
           .set('discussionsError', null)
-          .updateIn(['lecturesDiscussions', lectureId], entries => entries.unshift(fromJS(entry)));
+          .updateIn(['lecturesDiscussions', lectureId], (entries) =>
+            entries.unshift(fromJS(entry))
+          );
+      });
+    }
+
+    case actions.GENERAL_DISCUSSION_REQUEST: {
+      return state.set('isLoading', true);
+    }
+
+    case actions.GENERAL_DISCUSSION_FAILURE: {
+      return state.withMutations((state) => {
+        state
+          .set('isLoading', false)
+          .set('discussionsError', action.payload.errorMessage);
+      });
+    }
+
+    case actions.GENERAL_DISCUSSION_SUCCESS: {
+      const { entries } = action.payload;
+      return state.withMutations((state) => {
+        state
+          .set('isLoading', false)
+          .set('discussionsError', null)
+          .set('courseGeneralDiscussion', fromJS(entries));
+      });
+    }
+
+    case actions.GENERAL_DISCUSSION_ENTRY_REQUEST: {
+      return state.set('isEntryBeingSent', true);
+    }
+
+    case actions.GENERAL_DISCUSSION_ENTRY_FAILURE: {
+      return state.withMutations((state) => {
+        state
+          .set('isLoading', false)
+          .set('discussionsError', action.payload.errorMessage);
+      });
+    }
+
+    case actions.GENERAL_DISCUSSION_ENTRY_SUCCESS: {
+      const { entry } = action.payload;
+      return state.withMutations((state) => {
+        state
+          .set('isLoading', false)
+          .set('discussionsError', null)
+          .updateIn(['courseGeneralDiscussion'], (entries) =>
+            entries.unshift(fromJS(entry))
+          );
       });
     }
 
@@ -72,4 +119,4 @@ export default function discussionsReducer (state = initialState, action = {}) {
       return state;
     }
   }
-};
+}
