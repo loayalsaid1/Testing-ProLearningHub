@@ -10,14 +10,11 @@ import {
 
 import {fromJS} from 'immutable';
 
-export default function LectureDiscussion({ courseId = '' }) {
+export default function LectureDiscussion() {
   const [askNewQuestion, setAskNewQuestion] = useState(false);
   const isLoading = useSelector(selectDiscussionsIsLoading);
 	const entries = mockDiscussion;
-
-  if (!courseId)
-    return <p>Am I hijacked? Where Am I rendered... no CourseId givin</p>;
-
+  
   const handlePublishQuestion = (title, details) => {
 		console.log(title)
 		console.log(details);
