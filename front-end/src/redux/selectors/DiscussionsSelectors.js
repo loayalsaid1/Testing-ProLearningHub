@@ -1,8 +1,8 @@
 import { createSelector } from 'reselect';
 
-export const selectDiscussionsIsLoading = (state) => state.lectures.get('isLoading');
+export const selectDiscussionsIsLoading = (state) => state.discussions.get('isLoading');
 
-const selectLecturesDiscussions = (state) => state.discussions.get('lecturesDisussions');
+const selectLecturesDiscussions = (state) => state.discussions.get('lecturesDiscussions');
 
 export const makeLecutreDiscussionsSelector = (lectureId) => {
 	createSelector([selectLecturesDiscussions], (lecturesDiscussions) => {
