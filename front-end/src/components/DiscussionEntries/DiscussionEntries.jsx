@@ -12,29 +12,34 @@ import DiscussionEntry from './DiscussionEntry';
  *
  * @return {React.ReactElement}
  */
-export default function DiscussionEntries(entries, chunkSize) {
-  const [limit, setLimit] = useState(chunkSize);
+export default function DiscussionEntries({ entries, chunkSize }) {
+	const [limit, setLimit] = useState(chunkSize);
 
-  return !entries || !entries.size ? (
+  return (
     <>
-      <h2> No Discussion entries Yet..</h2>
-      <p>Feel free to add one...</p>
+      {!entries || !entries.size ? (
+        <>
+          <h2> No Discussion entries Yet..</h2>
+          <p>Feel free to add one...</p>
+        </>
+      ) : (
+        <div>
+          {entries.slice(0, limit).map((entry, index) => (
+            <DiscussionEntry key={index} content={entry} />
+          ))}
+          {limit < entries.size && (
+            <button type="button" onClick={() => setLimit(limit + chunkSize)}>
+              See more
+            </button>
+          )}
+          {limit > chunkSize && (
+            <button type="button" onClick={() => setLimit(limit - chunkSize)}>
+              See less
+            </button>
+          )}
+        </div>
+      )}
     </>
-  ) : (
-    <div>
-      {entries.slice(0, limit).map((entry, index) => (
-        <DiscussionEntry key={index} content={entry} />
-      ))}
-      {limit < entries.size && (
-        <button type="button" onClick={() => setLimit(limit + chunkSize)}>
-          See more
-        </button>
-      )}
-      {limit > chunkSize && (
-        <button type="button" onClick={() => setLimit(limit - chunkSize)}>
-          See less
-        </button>
-      )}
-    </div>
   );
 }
+
