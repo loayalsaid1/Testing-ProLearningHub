@@ -4,7 +4,7 @@ import Loading from '../utilityComponents/Loading';
 import SearchField from '../sharedComponents/SearchField';
 import DiscussionEntryEditor from '../DiscussionEntries/DiscussionEntryEditor';
 import DiscussionEntries from '../DiscussionEntries/DiscussionEntries';
-import { getGeneralDiscussion } from '../../redux/actions/discussionsThunks';
+import { addGeneralDiscussionEntry, getGeneralDiscussion } from '../../redux/actions/discussionsThunks';
 import {
   selectCourseGeneralDiscussion,
   selectDiscussionsIsLoading,
@@ -27,6 +27,7 @@ export default function LectureDiscussion() {
   const handlePublishQuestion = (title, details) => {
 		console.log(title)
 		console.log(details);
+    dispatch(addGeneralDiscussionEntry(title, details));
     setAskNewQuestion(false);
   };
 
