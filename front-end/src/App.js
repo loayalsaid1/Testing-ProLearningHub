@@ -8,7 +8,7 @@ import Spinner from './components/utilityComponents/Spinner';
 import { googleLogout } from '@react-oauth/google';
 import Authintication from './components/Authintication/Authintication';
 // import Lecture from './components/Lecture/Lecture';
-import Test from './components/TextEditor/TextEditor';
+import TextEditor from './components/TextEditor/TextEditor';
 import LectureDiscussion from './components/Discussion/LectureDiscussion';
 
 function App() {
@@ -60,9 +60,9 @@ function App() {
               </>
             ) : (
               <>
-                <Test value={value} setValue={setValue} files={files} setFiles={setFiles}  />
-                <button type="button" onClick={() => console.log(value, files)}>Check dataa</button>
-                {/* <LectureDiscussion lectureId='testId' /> */}
+                {/* <TextEditor value={value} setValue={setValue} files={files} setFiles={setFiles}  />
+                <button type="button" onClick={() => console.log(value, files)}>Check dataa</button> */}
+                <LectureDiscussion lectureId='testId' />
                 <button type="button" onClick={() => setView('dashboard')}>
                   Go to dashboard
                 </button>

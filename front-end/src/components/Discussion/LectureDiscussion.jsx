@@ -8,7 +8,7 @@ import DiscussionEntry from './DiscussionEntry';
 export default function LectureDiscussion({ lectureId = '' }) {
   const [askNewQuestion, setAskNewQuestion] = useState(false);
   const [limit, setLimit] = useState(10);
-  const isLoading = true;
+  const isLoading = false;
 
   if (!lectureId)
     return <p>Am I hijacked? Where Am I rendered... no lectureID givin</p>;
@@ -19,6 +19,7 @@ export default function LectureDiscussion({ lectureId = '' }) {
     setAskNewQuestion(false);
   }
 
+  // const entries = mockLectureDiscussionEntries;
   const entries = mockLectureDiscussionEntries;
   return (
     <div>
@@ -26,7 +27,7 @@ export default function LectureDiscussion({ lectureId = '' }) {
       <SearchField placeholder="Search lecture questions" />
       {isLoading ? (
         <Loading />
-      ) : (
+      ) : !entries || !entries.size ?(<h2> No Discussion for this lecture</h2>)  : (
         <div>
           {entries.slice(0, limit).map((entry) => (
             <DiscussionEntry key={entry.id} content={entry} />
