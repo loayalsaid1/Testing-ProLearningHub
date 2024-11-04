@@ -161,6 +161,7 @@ REST_FRAMEWORK = {
 AUTHENTICATION_BACKENDS = (
     'social_core.backends.google.GoogleOAuth2',  # Add Google OAuth2 backend
     'django.contrib.auth.backends.ModelBackend',  # Default authentication
+
 )
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
@@ -169,53 +170,21 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
     'https://www.googleapis.com/auth/userinfo.profile'
 ]
 
-SOCIAL_AUTH_GOOGLE_OAUTH2_REDIRECT_URI = 'http://127.0.0.1:8000/oauth/complete/google-oauth2/'
+SOCIAL_AUTH_GOOGLE_OAUTH2_REDIRECT_URI = 'http://127.0.0.1:8000/auth/google/callback/'
+# SOCIAL_AUTH_GOOGLE_OAUTH2_REDIRECT_URI = 'http://127.0.0.1:8000/oauth/complete/google-oauth2/'
 SOCIAL_AUTH_REDIRECT_IS_HTTPS = False
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ''
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''
 # if you are using HTTPS, set this to True
-SOCIAL_AUTH_REDIRECT_IS_HTTPS = False
 SOCIAL_AUTH_GOOGLE_OAUTH2_IGNORE_DEFAULT_SCOPE = False
 SOCIAL_AUTH_GOOGLE_OAUTH2_USE_UNIQUE_USER_ID = True
-SOCIAL_AUTH_FIELDS_STORED_IN_SESSION = ['state']
-# SOCIAL_AUTH_PIPELINE = [
-#     # Default pipeline steps
-#     'social_core.pipeline.social_auth.social_details',
-#     'social_core.pipeline.social_auth.social_uid',
-#     'social_core.pipeline.social_auth.auth_allowed',
-#     'social_core.pipeline.social_auth.social_user',
-#     'social_core.pipeline.user.get_username',
-#     'social_core.pipeline.user.create_user',
-#     # Custom pipeline step after user creation
-#     # 'api.views.custom_redirect',
-# ]
-# SOCIAL_AUTH_GOOGLE_OAUTH2_AUTH_EXTRA_ARGUMENTS = {'state': ''}
+# SOCIAL_AUTH_FIELDS_STORED_IN_SESSION = ['state']
+# SOCIAL_AUTH_GOOGLE_OAUTH2_AUTH_EXTRA_ARGUMENTS = {'state': 'random_value'}
+SOCIAL_AUTH_GOOGLE_OAUTH2_AUTH_EXTRA_ARGUMENTS = {
+    'redirect_uri': 'http://127.0.0.1:8000/auth/google/callback/'}
+
 CSRF_COOKIE_SECURE = False
-LOGIN_REDIRECT_URL = '/oauth/complete/google-oauth2/'
+LOGIN_REDIRECT_URL = '/auth/me'
 LOGOUT_REDIRECT_URL = '/'
 # LOGIN_URL = '/login/'
 # SOCIAL_AUTH_OAUTH2_IGNORE_STATE = True
-
-
-# Configure logging settings
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'handlers': {
-#         'console': {
-#             'level': 'DEBUG',
-#             'class': 'logging.StreamHandler',
-#         },
-#     },
-#     'loggers': {
-#         'django': {
-#             'handlers': ['console'],
-#             'level': 'INFO',  # General Django logging level
-#         },
-#         'social_django': {
-#             'handlers': ['console'],
-#             'level': 'DEBUG',  # Enables debug-level logs for social_django
-#             'propagate': True,
-#         },
-#     },
-# }

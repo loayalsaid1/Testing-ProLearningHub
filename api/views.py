@@ -1,3 +1,6 @@
+import requests
+import secrets
+import logging
 from django.shortcuts import render, get_object_or_404, redirect
 from rest_framework.decorators import action, api_view
 from rest_framework.permissions import IsAuthenticated
@@ -6,16 +9,19 @@ from rest_framework.response import Response
 from rest_framework import viewsets
 from rest_framework.views import APIView
 from django.db.models import Q
-from django.http import JsonResponse, HttpResponseForbidden
+from django.http import JsonResponse, HttpResponseForbidden, HttpResponseRedirect
 from django.contrib.auth.hashers import make_password, check_password
 from social_django.utils import psa
 from django.contrib.auth import login
 from .models import *
 from authentication.models import Auth
 from django.utils.crypto import get_random_string
-
+from social_django.utils import load_strategy, load_backend
+from social_core.exceptions import AuthMissingParameter, AuthForbidden
+from django.conf import settings
 
 # Create your views here.
+
 
 def home_view(request):
     return JsonResponse({"message": "Welcome to School Hub Api page"})
@@ -131,39 +137,63 @@ def reset_token(request, token):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     return Response({'message': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
+
 # def custom_redirect(backend, user, response, *args, **kwargs):
 #     if backend.name == 'google-oauth2':
 #         return redirect('google_login')
 
 
-@psa('social:complete')
-def google_login_complete(request, backend=None):
-    social_user = request.backend.do_auth(request.GET.get('code'))
-    if social_user and social_user.is_active:
-        try:
-            user = Users.objects.get(email=social_user.email)
-            request.session['user_id'] = user.user_id
-            return JsonResponse({
-                'status': 'success',
-                'message': 'User logged in successfully.',
-                'user_id': user.id,
-                'email': user.email,
-                'first_name': user.first_name,
-                'last_name': user.last_name,
-                'role': user.role  # Example: Lecturer or Student
-            })
-        except Users.DoesNotExist:
-            return JsonResponse({
-                'status': 'error',
-                'message': 'User does not exist.'
-            }, status=404)
-        # Customize the JSON response as needed
+def google_login(request):
+    """Initiates Google OAuth2 login"""
+    # Redirect to the Google OAuth2 backend's start endpoint
+    return HttpResponseRedirect('/oauth/login/google-oauth2/')
 
+
+logger = logging.getLogger(__name__)
+
+
+@api_view(['GET'])
+def google_callback(request):
+
+    code = request.GET.get('code')
+    if not code:
+        print(f'Token: {code}')
+        return Response({'message': 'No code'}, status=status.HTTP_400_BAD_REQUEST)
+
+     # Exchange authorization code for an access token
+    token_response = requests.post(
+        'https://oauth2.googleapis.com/token',
+        data={
+            'code': code,
+            'client_id': f'{settings.SOCIAL_AUTH_GOOGLE_OAUTH2_KEY}',
+            'client_secret': f'{settings.SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET}',
+            # Must match your redirect URI
+            'redirect_uri': 'http://127.0.0.1:8000/auth/google/callback/',
+            'grant_type': 'authorization_code'
+        }
+    )
+    token_json = token_response.json()
+    print(f'Response: {token_json}')
+    access_token = token_json.get('access_token')
+    print(f'Acces Token: {access_token}')
+
+    if access_token:
+        # Now use the access token to fetch user info
+        user_info_response = requests.get(
+            'https://www.googleapis.com/oauth2/v3/userinfo',
+            headers={'Authorization': f'Bearer {access_token}'}
+        )
+
+        user_info = user_info_response.json()
+        email = user_info.get('email')
+    if email:
+        user = Users.objects.filter(email=email).first()
+        request.session['user_id'] = user.user_id
+        return redirect('me')
+        # Now you can use the email for your application logic
+        # return Response({'message': f'{email}'}, status=status.HTTP_200_OK)
     else:
-        return JsonResponse({
-            'status': 'error',
-            'message': 'Authentication failed.'
-        }, status=400)
+        return Response({'message': 'Request Unsuccessfull'}, status=status.HTTP_403_FORBIDDEN)
 
 
 class StudentListView(APIView):
