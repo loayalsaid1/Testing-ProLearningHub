@@ -8,6 +8,7 @@ export const initialState = fromJS({
 });
 
 export default function discussionsReducer (state = initialState, action = {}) {
+  console.log(action);
   switch (action.type) {
     case actions.SET_DISCUSSIONS_ERROR: {
       return state.set('discussionsError, action.payload.errorMessage');
@@ -33,7 +34,7 @@ export default function discussionsReducer (state = initialState, action = {}) {
     }
 
     case actions.LECTURE_DISCUSSION_SUCCESS: {
-      const {lectureId, entries } = action.payload;
+      const {entries, lectureId} = action.payload;
 
       return state.withMutations( state => {
         state

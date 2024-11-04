@@ -26,9 +26,10 @@ export const lectureDiscussionFailure = (errorMessage) => ({
   },
 });
 
-export const lectureDiscussionSuccess = (entries) => ({
+export const lectureDiscussionSuccess = (response) => ({
   type: actions.LECTURE_DISCUSSION_SUCCESS,
   payload: {
-    entries,
+    entries: response.entries,
+    lectureId: response.lectureId
   },
 });

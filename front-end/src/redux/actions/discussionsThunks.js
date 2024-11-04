@@ -15,7 +15,7 @@ export const getLectureDiscussions = (lectureId) => async (dispatch) => {
 
 		dispatch(discussionsActions.lectureDiscussionSuccess({
 			entries: data,
-			lectureId
+			lectureId: lectureId
 		}));
 		
 	}	catch (error) {
