@@ -7,9 +7,9 @@ import { logout } from './redux/actions/uiActionCreators';
 import Spinner from './components/utilityComponents/Spinner';
 import { googleLogout } from '@react-oauth/google';
 import Authintication from './components/Authintication/Authintication';
-// import Lecture from './components/Lecture/Lecture';
-import TextEditor from './components/TextEditor/TextEditor';
-import LectureDiscussion from './components/Discussion/LectureDiscussion';
+import Lecture from './components/Lecture/Lecture';
+// import TextEditor from './components/TextEditor/TextEditor';
+// import LectureDiscussion from './components/Discussion/LectureDiscussion';
 
 function App() {
   const name = useSelector((state) => state.hello.get('name'));
@@ -62,7 +62,7 @@ function App() {
               <>
                 {/* <TextEditor value={value} setValue={setValue} files={files} setFiles={setFiles}  />
                 <button type="button" onClick={() => console.log(value, files)}>Check dataa</button> */}
-                <LectureDiscussion lectureId='testId' />
+                <Lecture lectureId='testId' />
                 <button type="button" onClick={() => setView('dashboard')}>
                   Go to dashboard
                 </button>

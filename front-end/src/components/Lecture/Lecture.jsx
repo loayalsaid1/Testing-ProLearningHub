@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { extractVideoId } from '../../utils/utilFunctions';
 import { getLectureById } from '../../redux/actions/lecturesThunks';
 import Loading from '../utilityComponents/Loading';
+import LectureDiscussion from '../Discussion/LectureDiscussion';
 
 /**
  * Next there must be away to keep the data in sync..
@@ -115,6 +116,7 @@ export default function Lecture({ lectureId }) {
               <ol>{getQuizzez()}</ol>
             )}
           </details>
+          <LectureDiscussion lectureId={lectureId} />
         </>
       )}
     </>
