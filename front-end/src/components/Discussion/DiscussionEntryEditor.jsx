@@ -64,7 +64,7 @@ export default function DiscussionEntryEditor({ onPublish }) {
 		<form onSubmit={handleSubmit}>
 			<label>
 				Title or summary:
-				<input type="text" id='title' name='title' placeholder='Short title/summary or your entry... '/>
+				<input type="text" id='title' name='title'  required placeholder='Short title/summary or your entry... '/>
 			</label>
 			<label>
 				Details (optional):
