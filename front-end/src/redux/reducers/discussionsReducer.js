@@ -4,8 +4,6 @@ import * as actions from '../actions/discussionsActionTypes';
 export const initialState = fromJS({
   lecturesDiscussions: {},
   isLoading: false,
-  // currently to disable the entry form if it's submitted once
-  isEntryBeingSent: false,
   discussionsError: null,
 });
 
