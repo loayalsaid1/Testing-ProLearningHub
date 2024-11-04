@@ -91,6 +91,30 @@ export default function discussionsReducer(state = initialState, action = {}) {
       });
     }
 
+    case actions.GENERAL_DISCUSSION_ENTRY_REQUEST: {
+      return state.set('isEntryBeingSent', true);
+    }
+
+    case actions.GENERAL_DISCUSSION_ENTRY_FAILURE: {
+      return state.withMutations((state) => {
+        state
+          .set('isLoading', false)
+          .set('discussionsError', action.payload.errorMessage);
+      });
+    }
+
+    case actions.GENERAL_DISCUSSION_ENTRY_SUCCESS: {
+      const { entry } = action.payload;
+      return state.withMutations((state) => {
+        state
+          .set('isLoading', false)
+          .set('discussionsError', null)
+          .updateIn(['courseGeneralDiscussion'], (entries) =>
+            entries.unshift(fromJS(entry))
+          );
+      });
+    }
+
     default: {
       return state;
     }
