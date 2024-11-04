@@ -24,7 +24,7 @@ export const getLectureDiscussions = (lectureId) => async (dispatch) => {
 	}
 }
 
-export const AddLectureDiscussionEntry = (lectureId, title, details) => async (dispatch) => {
+export const addLectureDiscussionEntry = (lectureId, title, details) => async (dispatch, getState) => {
 	dispatch(discussionsActions.addDiscussionEntryRequest());
 
 	const userId = getState().ui.getIn(['user', 'id']) || 'testId';

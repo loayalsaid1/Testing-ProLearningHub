@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { fromJS } from 'immutable';
 import { useDispatch, useSelector } from 'react-redux';
 import Loading from '../utilityComponents/Loading';
 import SearchField from '../sharedComponents/SearchField';
 import DiscussionEntryEditor from './DiscussionEntryEditor';
 import DiscussionEntry from './DiscussionEntry';
-import { getLectureDiscussions } from '../../redux/actions/discussionsThunks';
+import { getLectureDiscussions, addLectureDiscussionEntry } from '../../redux/actions/discussionsThunks';
 import {
   selectDiscussionsIsLoading,
   makeLectureDiscussionsSelector,
@@ -29,8 +28,7 @@ export default function LectureDiscussion({ lectureId = '' }) {
     return <p>Am I hijacked? Where Am I rendered... no lectureID givin</p>;
 
   const handlePublishQuestion = (title, details) => {
-    console.log('title => ', title);
-    console.log('details with the real file urls =>  ', details);
+    dispatch(addLectureDiscussionEntry(lectureId, title, details));
     setAskNewQuestion(false);
   };
 
