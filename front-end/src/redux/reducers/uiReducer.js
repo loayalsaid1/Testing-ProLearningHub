@@ -4,6 +4,9 @@ import * as actions from '../actions/uiActionTypes';
 export const initialState = fromJS({
   isLoading: false,
   isLoggedIn: false,
+  course: {
+    id: 'testId',
+  },
   user: {},
   // Save different error messages for different error types
   error: {
