@@ -136,7 +136,7 @@ export const addGeneralDiscussionEntry =
     dispatch(discussionsActions.generalDiscussionEntrySuccess(data));
   };
 
-const fetchReplies = async (questionId) => {
+const fetchReplies = (questionId) => async (dispatch) => {
   dispatch(discussionsActions.getRepliesRequest());
 
   try {
