@@ -1,17 +1,33 @@
-import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { CircleArrowUp, Dot, EllipsisVertical } from 'lucide-react';
-import { fromJS } from 'immutable';
 import ReplyEntry from './ReplyEntry';
 import TextEditor from '../TextEditor/TextEditor';
-import { replaceTempImageUrls } from '../../utils/utilFunctions';
-import { toggleLoading } from '../../redux/actions/uiActionCreators';
-
+import { formatDate, replaceTempImageUrls } from '../../utils/utilFunctions';
+import { setError, toggleLoading } from '../../redux/actions/uiActionCreators';
+import { fetchReplies } from '../../redux/actions/discussionsThunks';
+import {
+  selectDiscussionsIsLoading,
+  makeRepliesSelector,
+} from '../../redux/selectors/DiscussionsSelectors';
 export default function Replies() {
+  const QUESTION_ID = 'question-1';
+
   const [showReplyEditor, setShowReplyEditor] = useState(false);
   const [reply, setReply] = useState('');
   const [replyFiles, setReplyFiles] = useState([]);
+
+  // const repliesIsLoading = useSelector(selectDiscussionsIsLoading);
+  const repliesSelector = makeRepliesSelector(QUESTION_ID);
+  const replies = useSelector(repliesSelector);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    // again... pass the logic of offline experience and also
+    // real time pinging if new reply addid
+    if (!replies || !replies.get('repliesList')?.size)
+      dispatch(fetchReplies(QUESTION_ID));
+  }, [dispatch, replies?.get('repliesList'), QUESTION_ID]);
 
   const handleSubmission = async () => {
     try {
@@ -27,6 +43,7 @@ export default function Replies() {
     }
   };
 
+  if (!replies) return <div>Loading...</div>;
   return (
     <>
       {/* Back button */}
@@ -35,24 +52,26 @@ export default function Replies() {
       {/* Question part */}
       <div>
         <img
-          src="https://picsum.photos/50"
+          src={replies.getIn(['question', 'user', 'pictureThumbnail'])}
           width="50"
           height="50"
           alt="Questioner"
         />
       </div>
       <div>
-        <h3>Question title</h3>
+        <h3>{replies.getIn(['question', 'title'])}</h3>
         <p>
-          Questioner Name <Dot /> X days ago
+          {replies.getIn(['question', 'user', 'name'])} <Dot />{' '}
+          {formatDate(replies.getIn(['question', 'updatedAt']))}
         </p>
-        <div>Question Text</div>
+        <div>{replies.getIn(['question', 'body'])}</div>
       </div>
       <div>
         <button type="button">
-          12 <CircleArrowUp />
+          {replies.getIn(['question', 'upvotes'])}{' '}
+          <CircleArrowUp color="grey" strokeWidth={2} />
         </button>
-        <button type="button">
+        <button type="button" onClick={(() => console.log(replies.getIn(['question', 'id']) + 'options'))}>
           <EllipsisVertical />
         </button>
       </div>
@@ -60,11 +79,12 @@ export default function Replies() {
       {/* Replies part */}
       <div>
         <p>
-          {mockReplies.size} repl{mockReplies.size !== 1 ? 'ies' : 'y'}
+          {replies.get('repliesList').size} repl
+          {replies.get('repliesList').size !== 1 ? 'ies' : 'y'}
         </p>
         {/* Replie entry */}
         <div>
-          {mockReplies.map((reply) => (
+          {replies.get('repliesList').map((reply) => (
             <ReplyEntry key={reply.get('id')} content={reply} />
           ))}
         </div>
@@ -105,52 +125,3 @@ export default function Replies() {
     </>
   );
 }
-
-const question = fromJS({
-  id: 'question-1',
-  title: 'How does react hooks work?',
-  user: {
-    name: 'John Doe',
-    pictureThumbnail: 'https://picsum.photos/100',
-  },
-  updatedAt: '2022-01-01T00:00:00.000Z',
-  upvotes: 100,
-  upvoted: false,
-  repliesCount: 20,
-});
-
-const mockReplies = fromJS([
-  {
-    id: 'reply-1',
-    user: {
-      name: 'Jane Doe',
-      pictureThumbnail: 'https://picsum.photos/100',
-    },
-    updatedAt: '2024-11-02T07:00:00.000Z',
-    upvotes: 50,
-    upvoted: true,
-    body: 'How does react hooks work?',
-  },
-  {
-    id: 'reply-2',
-    user: {
-      name: 'John Doe',
-      pictureThumbnail: 'https://picsum.photos/100',
-    },
-    updatedAt: '2022-01-03T00:00:00.000Z',
-    upvotes: 30,
-    upvoted: false,
-    body: 'How does react context work?',
-  },
-  {
-    id: 'reply-3',
-    user: {
-      name: 'Jane Doe',
-      pictureThumbnail: 'https://picsum.photos/100',
-    },
-    updatedAt: '2024-11-04T07:00:00.000Z',
-    upvotes: 20,
-    upvoted: false,
-    body: 'How does react hooks work?',
-  },
-]);
