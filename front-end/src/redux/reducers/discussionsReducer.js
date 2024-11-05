@@ -116,6 +116,28 @@ export default function discussionsReducer(state = initialState, action = {}) {
       });
     }
 
+    case actions.FETCH_DISCUSSION_REPLIES_REQUEST: {
+      return state.set('isLoading', true);
+    }
+
+    case actions.FETCH_DISCUSSION_REPLIES_FAILURE: {
+      return state.withMutations((state) => {
+        state
+          .set('isLoading', false)
+          .set('discussionsError', action.payload.errorMessage);
+      });
+    }
+
+    case actions.FETCH_DISCUSSION_REPLIES_SUCCESS: {
+      const { questionId, replies } = action.payload;
+      return state.withMutations((state) => {
+        state
+          .set('isLoading', false)
+          .set('discussionsError', null)
+          .setIn(['replies', questionId], fromJS(replies));
+      });
+    }
+
     default: {
       return state;
     }
