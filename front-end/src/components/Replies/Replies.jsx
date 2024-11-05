@@ -2,10 +2,17 @@ import React, { useState } from 'react';
 import ReplyEntry from './ReplyEntry';
 import TextEditor from '../TextEditor/TextEditor';
 import { CircleArrowUp, Dot, EllipsisVertical } from 'lucide-react';
-import {fromJS} from 'immutable';
+import { fromJS } from 'immutable';
 
 export default function Replies() {
-  const [showQuestionEditor, setShowQuestionEditor] = useState(false);
+  const [showReplyEditor, setShowReplyEditor] = useState(false);
+  const [reply, setReply] = useState('');
+  const [replyFiles, setReplyFiles] = useState([]);
+
+  const handleSubmission = () => {
+    console.log(reply);
+    setShowReplyEditor(false);
+  };
 
   return (
     <>
@@ -39,19 +46,19 @@ export default function Replies() {
 
       {/* Replies part */}
       <div>
-        <p>{mockReplies.size} repl{mockReplies.size !== 1 ? 'ies' : 'y'}</p>
+        <p>
+          {mockReplies.size} repl{mockReplies.size !== 1 ? 'ies' : 'y'}
+        </p>
         {/* Replie entry */}
         <div>
-          {
-            mockReplies.map(
-              (reply) => <ReplyEntry key={reply.get('id')} content={reply} />
-            )
-          }
+          {mockReplies.map((reply) => (
+            <ReplyEntry key={reply.get('id')} content={reply} />
+          ))}
         </div>
       </div>
 
       {/* Reply section */}
-      {!showQuestionEditor ? (
+      {!showReplyEditor ? (
         <div>
           <img
             src="https://picsum.photos/50"
@@ -59,15 +66,32 @@ export default function Replies() {
             height="50"
             alt="user's image"
           />
-          <input type='text' id='reply' name='reply' placeholder='Add your comment here...' onClick={() => setShowQuestionEditor(true)} />
+          <input
+            type="text"
+            id="reply"
+            name="reply"
+            placeholder="Add your comment here..."
+            onClick={() => setShowReplyEditor(true)}
+          />
         </div>
       ) : (
-        <h3> Handle adding response here</h3>
+        <>
+          <p>Write your response</p>
+          <TextEditor
+            placeholder="Write your response here..."
+            value={reply}
+            setValue={setReply}
+            files={replyFiles}
+            setFiles={setReplyFiles}
+          />
+          <button type="button" onClick={handleSubmission}>
+            Add an answer
+          </button>
+        </>
       )}
     </>
   );
 }
-
 
 const question = fromJS({
   id: 'question-1',
