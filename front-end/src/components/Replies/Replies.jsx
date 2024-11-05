@@ -1,17 +1,30 @@
 import React, { useState } from 'react';
-import ReplyEntry from './ReplyEntry';
-import TextEditor from '../TextEditor/TextEditor';
+import { useDispatch } from 'react-redux';
 import { CircleArrowUp, Dot, EllipsisVertical } from 'lucide-react';
 import { fromJS } from 'immutable';
+import ReplyEntry from './ReplyEntry';
+import TextEditor from '../TextEditor/TextEditor';
+import { replaceTempImageUrls } from '../../utils/utilFunctions';
+import { toggleLoading } from '../../redux/actions/uiActionCreators';
 
 export default function Replies() {
   const [showReplyEditor, setShowReplyEditor] = useState(false);
   const [reply, setReply] = useState('');
   const [replyFiles, setReplyFiles] = useState([]);
+  const dispatch = useDispatch();
 
-  const handleSubmission = () => {
-    console.log(reply);
-    setShowReplyEditor(false);
+  const handleSubmission = async () => {
+    try {
+      dispatch(toggleLoading());
+      const newContent = await replaceTempImageUrls(reply);
+      console.log(newContent);
+    } catch (error) {
+      console.error(error);
+      dispatch(setError('discussion', 'Failed to submit reply.'));
+    } finally {
+      setShowReplyEditor(false);
+      dispatch(toggleLoading());
+    }
   };
 
   return (
@@ -25,7 +38,7 @@ export default function Replies() {
           src="https://picsum.photos/50"
           width="50"
           height="50"
-          alt="Questioner image"
+          alt="Questioner"
         />
       </div>
       <div>
@@ -64,7 +77,7 @@ export default function Replies() {
             src="https://picsum.photos/50"
             width="50"
             height="50"
-            alt="user's image"
+            alt="user"
           />
           <input
             type="text"
