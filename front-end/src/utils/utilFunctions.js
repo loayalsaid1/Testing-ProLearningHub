@@ -1,3 +1,13 @@
+import ImageKit from 'imagekit-javascript';
+import { setError } from '../redux/actions/uiActionCreators';
+
+const DOMAIN = 'http://localhost:3000';
+
+const imagekit = new ImageKit({
+  publicKey: 'public_tTc9vCi5O7L8WVAQquK6vQWNx08=',
+  urlEndpoint: 'https://ik.imagekit.io/loayalsaid1/proLearningHub',
+});
+
 export const extractVideoId = (url) => {
   const regex =
     /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^/\n\s]+\/\S+\/|(?:v|embed|e|shorts|user)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
@@ -9,7 +19,7 @@ export function formatDate(timestamp) {
   const date = new Date(timestamp);
   const now = new Date();
   const diffInSeconds = Math.floor((now - date) / 1000);
-  
+
   const SECONDS_IN_A_MINUTE = 60;
   const SECONDS_IN_AN_HOUR = 3600;
   const SECONDS_IN_A_DAY = 86400;
@@ -29,4 +39,37 @@ export function formatDate(timestamp) {
   } else {
     return date.toDateString();
   }
+}
+
+/**
+ * This replaces the temp image URLs in a given content with the actual URLs after uploading to ImageKit.
+ * @param {string} content - The content containing temp image URLs.
+ * @param {Array<{file: File, fileUrl: string}>} files - An array of objects containing the file and the corresponding temp image URL.
+ * @param {function} dispatch - The Redux dispatch function.
+ * @returns {Promise<string>} - The content with all temp image URLs replaced with their actual URLs.
+ */
+export async function replaceTempImageUrls(content, files, dispatch) {
+  let newContent = content;
+
+  try {
+    const uploadPromises = files.map(async ({ file, fileUrl }) => {
+      const authParamsResponse = await fetch(`${DOMAIN}/auth/imagekit`);
+      const authParams = await authParamsResponse.json();
+      const uploadResponse = await imagekit.upload({
+        file,
+        fileName: `Discussion_reply_${Date.now()}`,
+        ...authParams,
+      });
+      return { fileUrl, newUrl: uploadResponse.url };
+    });
+
+    const uploadResults = await Promise.all(uploadPromises);
+    uploadResults.forEach(({ fileUrl, newUrl }) => {
+      newContent = newContent.replace(fileUrl, newUrl);
+    });
+  } catch (error) {
+    dispatch(setError('discussion', `Error uploading file: ${error.message}`));
+  }
+
+  return newContent;
 }
