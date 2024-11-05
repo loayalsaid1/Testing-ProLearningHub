@@ -12,6 +12,7 @@ import {
   makeRepliesSelector,
 } from '../../redux/selectors/DiscussionsSelectors';
 import QuestionHeader from './QuestionHeader';
+import RepliesList from './RepliesList';
 export default function Replies() {
   const QUESTION_ID = 'question-1';
 
@@ -22,6 +23,7 @@ export default function Replies() {
   const repliesSelector = makeRepliesSelector(QUESTION_ID);
   const replies = useSelector(repliesSelector);
   const dispatch = useDispatch();
+  const userPicture = useSelector((state) => state.ui.getIn(['user', 'picture']));
 
   useEffect(() => {
     // again... pass the logic of offline experience and also
@@ -51,25 +53,12 @@ export default function Replies() {
       <button type="button">Back to all questions</button>
 
       <QuestionHeader question={replies.get('question')} />
-      {/* Replies part */}
-      <div>
-        <p>
-          {replies.get('repliesList').size} repl
-          {replies.get('repliesList').size !== 1 ? 'ies' : 'y'}
-        </p>
-        {/* Replie entry */}
-        <div>
-          {replies.get('repliesList').map((reply) => (
-            <ReplyEntry key={reply.get('id')} content={reply} />
-          ))}
-        </div>
-      </div>
+      <RepliesList replies={replies.get('repliesList')} />
 
-      {/* Reply section */}
       {!showReplyEditor ? (
         <div>
           <img
-            src="https://picsum.photos/50"
+            src={userPicture || 'https://picsum.photos/50'}
             width="50"
             height="50"
             alt="user"
