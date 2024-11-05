@@ -129,12 +129,12 @@ export default function discussionsReducer(state = initialState, action = {}) {
     }
 
     case actions.FETCH_DISCUSSION_REPLIES_SUCCESS: {
-      const { questionId, replies } = action.payload;
+      const { data } = action.payload;
       return state.withMutations((state) => {
         state
           .set('isLoading', false)
           .set('discussionsError', null)
-          .setIn(['replies', questionId], fromJS(replies));
+          .setIn(['replies', data.question.id], fromJS(data));
       });
     }
 

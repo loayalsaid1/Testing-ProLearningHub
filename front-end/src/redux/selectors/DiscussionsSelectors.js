@@ -15,5 +15,6 @@ export const selectCourseGeneralDiscussion = (state) =>
   state.discussions.get('courseGeneralDiscussion');
 
 const selectReplies = (state) => state.discussions.get('replies');
+
 export const makeRepliesSelector = (questionId) =>
   createSelector([selectReplies], (replies) => replies.get(questionId));

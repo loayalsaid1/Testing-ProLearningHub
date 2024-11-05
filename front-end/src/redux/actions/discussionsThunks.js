@@ -136,8 +136,8 @@ export const addGeneralDiscussionEntry =
     dispatch(discussionsActions.generalDiscussionEntrySuccess(data));
   };
 
-const fetchReplies = (questionId) => async (dispatch) => {
-  dispatch(discussionsActions.getRepliesRequest());
+export const fetchReplies = (questionId) => async (dispatch) => {
+  dispatch(discussionsActions.fetchDiscussionRepliesRequest());
 
   try {
     const response = await fetch(`${DOMAIN}/questions/${questionId}/replies`);
@@ -150,7 +150,7 @@ const fetchReplies = (questionId) => async (dispatch) => {
   } catch (error) {
     console.error(error.message);
     dispatch(
-      discussionsActions.getRepliesFailure(
+      discussionsActions.fetchDiscussionRepliesFailure(
         `Error fetching entries: ${error.message}`
       )
     );
