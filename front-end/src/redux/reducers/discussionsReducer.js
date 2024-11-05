@@ -6,6 +6,7 @@ export const initialState = fromJS({
   courseGeneralDiscussion: [],
   isLoading: false,
   discussionsError: null,
+  replies: {},
 });
 
 export default function discussionsReducer(state = initialState, action = {}) {
