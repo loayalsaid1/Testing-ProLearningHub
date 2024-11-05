@@ -137,6 +137,29 @@ export default function discussionsReducer(state = initialState, action = {}) {
           .setIn(['replies', data.question.id], fromJS(data));
       });
     }
+    case actions.ADD_DISCUSSION_REPLY_REQUEST: {
+      return state.set('isLoading', true);
+    }
+
+    case actions.ADD_DISCUSSION_REPLY_FAILURE: {
+      return state.withMutations((state) => {
+        state
+          .set('isLoading', false)
+          .set('discussionsError', action.payload.errorMessage);
+      });
+    }
+
+    case actions.ADD_DISCUSSION_REPLY_SUCCESS: {
+      const { entry } = action.payload;
+      return state.withMutations((state) => {
+        state
+          .set('isLoading', false)
+          .set('discussionsError', null)
+          .updateIn(['replies', entry.questionId], (replies = fromJS([])) =>
+            replies.unshift(fromJS(entry))
+          );
+      });
+    }
 
     default: {
       return state;
