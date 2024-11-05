@@ -8,14 +8,12 @@ export default function RepliesList({ replies }) {
         {replies.size} repl
         {replies.size !== 1 ? 'ies' : 'y'}
       </p>
-      <ul>
+      <div>
+
         {replies.map((reply) => (
-          <li key={reply.get('id')}>
-            <ReplyEntry content={reply} />
-          </li>
+            <ReplyEntry content={reply} key={reply.get('id')} />
         ))}
-      </ul>
+      </div>
     </div>
   );
 }
-
