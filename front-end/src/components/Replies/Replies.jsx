@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { CircleArrowUp, Dot, EllipsisVertical } from 'lucide-react';
+import Loading from '../utilityComponents/Loading';
 import ReplyEntry from './ReplyEntry';
 import TextEditor from '../TextEditor/TextEditor';
 import { formatDate, replaceTempImageUrls } from '../../utils/utilFunctions';
@@ -10,14 +11,14 @@ import {
   selectDiscussionsIsLoading,
   makeRepliesSelector,
 } from '../../redux/selectors/DiscussionsSelectors';
+import QuestionHeader from './QuestionHeader';
 export default function Replies() {
   const QUESTION_ID = 'question-1';
 
   const [showReplyEditor, setShowReplyEditor] = useState(false);
   const [reply, setReply] = useState('');
   const [replyFiles, setReplyFiles] = useState([]);
-
-  // const repliesIsLoading = useSelector(selectDiscussionsIsLoading);
+  const repliesIsLoading = useSelector(selectDiscussionsIsLoading);
   const repliesSelector = makeRepliesSelector(QUESTION_ID);
   const replies = useSelector(repliesSelector);
   const dispatch = useDispatch();
@@ -49,33 +50,7 @@ export default function Replies() {
       {/* Back button */}
       <button type="button">Back to all questions</button>
 
-      {/* Question part */}
-      <div>
-        <img
-          src={replies.getIn(['question', 'user', 'pictureThumbnail'])}
-          width="50"
-          height="50"
-          alt="Questioner"
-        />
-      </div>
-      <div>
-        <h3>{replies.getIn(['question', 'title'])}</h3>
-        <p>
-          {replies.getIn(['question', 'user', 'name'])} <Dot />{' '}
-          {formatDate(replies.getIn(['question', 'updatedAt']))}
-        </p>
-        <div>{replies.getIn(['question', 'body'])}</div>
-      </div>
-      <div>
-        <button type="button">
-          {replies.getIn(['question', 'upvotes'])}{' '}
-          <CircleArrowUp color="grey" strokeWidth={2} />
-        </button>
-        <button type="button" onClick={(() => console.log(replies.getIn(['question', 'id']) + 'options'))}>
-          <EllipsisVertical />
-        </button>
-      </div>
-
+      <QuestionHeader question={replies.get('question')} />
       {/* Replies part */}
       <div>
         <p>
