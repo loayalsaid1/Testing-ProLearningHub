@@ -3,7 +3,7 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
 const toolbarOptions = [
-  [{ header: [] }],
+  [{ header: [1, 2, 3, 4, 5, 6, false] }],
   ['bold', 'italic'], // Basic text styles
   ['link', 'image'], // Links and images
   ['blockquote'],
