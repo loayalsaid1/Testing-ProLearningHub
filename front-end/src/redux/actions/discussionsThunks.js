@@ -102,7 +102,6 @@ export const getGeneralDiscussion = () => async (dispatch, getState) => {
   }
 };
 
-
 export const addGeneralDiscussionEntry =
   (title, details) => async (dispatch, getState) => {
     dispatch(discussionsActions.generalDiscussionEntryRequest());
@@ -136,3 +135,24 @@ export const addGeneralDiscussionEntry =
 
     dispatch(discussionsActions.generalDiscussionEntrySuccess(data));
   };
+
+const fetchReplies = async (questionId) => {
+  dispatch(discussionsActions.getRepliesRequest());
+
+  try {
+    const response = await fetch(`${DOMAIN}/questions/${questionId}/replies`);
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message);
+    }
+    dispatch(discussionsActions.fetchDiscussionRepliesSuccess(data));
+  } catch (error) {
+    console.error(error.message);
+    dispatch(
+      discussionsActions.getRepliesFailure(
+        `Error fetching entries: ${error.message}`
+      )
+    );
+  }
+};
