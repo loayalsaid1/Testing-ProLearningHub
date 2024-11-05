@@ -87,3 +87,21 @@ export const generalDiscussionEntrySuccess = (entry) => ({
     entry
   }
 })
+
+export const addDiscussionReplyRequest = () => ({
+  type: actions.ADD_DISCUSSION_REPLY_REQUEST,
+})
+
+export const addDiscussionReplyFailure = (errorMessage) => ({
+  type: actions.ADD_DISCUSSION_REPLY_FAILURE,
+  payload: {
+    errorMessage
+  }
+})
+
+export const addDiscussionReplySuccess = (entry) => ({
+  type: actions.ADD_DISCUSSION_REPLY_SUCCESS,
+  payload: {
+    entry
+  }
+})
