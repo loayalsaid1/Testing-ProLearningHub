@@ -23,7 +23,9 @@ export default function Replies() {
   const repliesSelector = makeRepliesSelector(QUESTION_ID);
   const replies = useSelector(repliesSelector);
   const dispatch = useDispatch();
-  const userPicture = useSelector((state) => state.ui.getIn(['user', 'picture']));
+  const userPicture = useSelector((state) =>
+    state.ui.getIn(['user', 'picture'])
+  );
 
   useEffect(() => {
     // again... pass the logic of offline experience and also
@@ -46,44 +48,47 @@ export default function Replies() {
     }
   };
 
-  if (!replies) return <div>Loading...</div>;
   return (
     <>
-      {/* Back button */}
       <button type="button">Back to all questions</button>
-
-      <QuestionHeader question={replies.get('question')} />
-      <RepliesList replies={replies.get('repliesList')} />
-
-      {!showReplyEditor ? (
-        <div>
-          <img
-            src={userPicture || 'https://picsum.photos/50'}
-            width="50"
-            height="50"
-            alt="user"
-          />
-          <input
-            type="text"
-            id="reply"
-            name="reply"
-            placeholder="Add your comment here..."
-            onClick={() => setShowReplyEditor(true)}
-          />
-        </div>
+      {repliesIsLoading ? (
+        <Loading />
+      ) : !replies || !replies.get('repliesList')?.size === 0 ? (
+        <h1>No replies</h1>
       ) : (
         <>
-          <p>Write your response</p>
-          <TextEditor
-            placeholder="Write your response here..."
-            value={reply}
-            setValue={setReply}
-            files={replyFiles}
-            setFiles={setReplyFiles}
-          />
-          <button type="button" onClick={handleSubmission}>
-            Add an answer
-          </button>
+          <QuestionHeader question={replies.get('question')} />
+          <RepliesList replies={replies.get('repliesList')} />
+          {!showReplyEditor ? (
+            <div>
+              <img
+                src={userPicture || 'https://picsum.photos/50'}
+                width="50"
+                height="50"
+                alt="user"
+              />
+              <input
+                type="text"
+                id="reply"
+                name="reply"
+                placeholder="Add your comment here..."
+              />
+            </div>
+          ) : (
+            <>
+              <p>Write your response</p>
+              <TextEditor
+                placeholder="Write your response here..."
+                value={reply}
+                setValue={setReply}
+                files={replyFiles}
+                setFiles={setReplyFiles}
+              />
+              <button type="button" onClick={handleSubmission}>
+                Add an answer
+              </button>
+            </>
+          )}
         </>
       )}
     </>
