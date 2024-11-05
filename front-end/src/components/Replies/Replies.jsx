@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { CircleArrowUp, Dot, EllipsisVertical } from 'lucide-react';
 import Loading from '../utilityComponents/Loading';
-import ReplyEntry from './ReplyEntry';
 import TextEditor from '../TextEditor/TextEditor';
-import { formatDate, replaceTempImageUrls } from '../../utils/utilFunctions';
+import { replaceTempImageUrls } from '../../utils/utilFunctions';
 import { setError, toggleLoading } from '../../redux/actions/uiActionCreators';
 import { fetchReplies } from '../../redux/actions/discussionsThunks';
 import {
@@ -27,12 +25,13 @@ export default function Replies() {
     state.ui.getIn(['user', 'picture'])
   );
 
+  const replisList = replies?.get('repliesList');
   useEffect(() => {
     // again... pass the logic of offline experience and also
     // real time pinging if new reply addid
     if (!replies || !replies.get('repliesList')?.size)
       dispatch(fetchReplies(QUESTION_ID));
-  }, [dispatch, replies?.get('repliesList'), QUESTION_ID]);
+  }, [dispatch, replisList, QUESTION_ID]);
 
   const handleSubmission = async () => {
     try {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
-import { CircleArrowUp, Dot, EllipsisVertical } from 'lucide-react';
+import { CircleArrowUp, EllipsisVertical } from 'lucide-react';
 import { formatDate } from '../../utils/utilFunctions';
 
 export default function ReplyEntry({ content }) {
