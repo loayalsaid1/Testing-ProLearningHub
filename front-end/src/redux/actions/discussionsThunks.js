@@ -1,5 +1,6 @@
 import toast from 'react-hot-toast';
 import * as discussionsActions from './discussionsActionCreators';
+import { toggleLoading } from './uiActionCreators';
 
 const DOMAIN = 'http://localhost:3000';
 export const getLectureDiscussions = (lectureId) => async (dispatch) => {
@@ -138,7 +139,7 @@ export const addGeneralDiscussionEntry =
 
 export const fetchReplies = (questionId) => async (dispatch) => {
   dispatch(discussionsActions.fetchDiscussionRepliesRequest());
-
+  dispatch(toggleLoading());
   try {
     const response = await fetch(`${DOMAIN}/questions/${questionId}/replies`);
     const data = await response.json();
@@ -154,5 +155,7 @@ export const fetchReplies = (questionId) => async (dispatch) => {
         `Error fetching entries: ${error.message}`
       )
     );
+  } finally {
+    dispatch(toggleLoading());
   }
 };
