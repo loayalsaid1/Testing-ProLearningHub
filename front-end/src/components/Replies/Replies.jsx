@@ -71,6 +71,7 @@ export default function Replies() {
                 id="reply"
                 name="reply"
                 placeholder="Add your comment here..."
+                onClick={() => setShowReplyEditor(true)}
               />
             </div>
           ) : (
