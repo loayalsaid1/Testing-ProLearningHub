@@ -11,7 +11,8 @@ import Authintication from './components/Authintication/Authintication';
 // import TextEditor from './components/TextEditor/TextEditor';
 // import LectureDiscussion from './components/Discussion/LectureDiscussion';
 // import GeneralDiscussion from './components/GeneralDiscussion/GeneralDiscussion';
-import Replies from './components/Replies/Replies';
+// import Announcements from './components/Announcements/Announcements';
+import Announcements from './components/Announcements/Announcements';
 
 
 function App() {
@@ -67,7 +68,7 @@ function App() {
                 <button type="button" onClick={() => console.log(value, files)}>Check dataa</button> */}
                 {/* <Lecture lectureId='testId' /> */}
                 {/* <GeneralDiscussion courseId='testId' /> */}
-                <Replies />
+                <Announcements />
                 <button type="button" onClick={() => setView('dashboard')}>
                   Go to dashboard
                 </button>
