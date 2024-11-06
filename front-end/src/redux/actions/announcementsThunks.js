@@ -37,7 +37,6 @@ export const fetchAnnouncementComments = (announcementId) => async (dispatch) =>
 export const addComment = (announcementId, comment) => async (dispatch, getState) => {
 	const userId = getState().ui.getIn(['user', 'id']) || 'testId';
 	dispatch(creators.addCommentRequest());
-
 	try{
 		const data = await toast.promise(
 			fetch(`${DOMAIN}/announcements/${announcementId}/comments`, {
@@ -52,16 +51,15 @@ export const addComment = (announcementId, comment) => async (dispatch, getState
 			}).then(response => {
 				const data = response.json();
 				if (!response.ok) {
-					
 					throw new Error(data.message);
 				}
+				return data
 			}),
 			{
 				loading: 'Adding comment...',
 			success: 'Your comment has been added successfully',
 			error: `Failed to add the comment`,
 		})
-
 		dispatch(creators.addCommentSuccess(announcementId, data));
 	} catch (error) {
 		console.error(error.message);
