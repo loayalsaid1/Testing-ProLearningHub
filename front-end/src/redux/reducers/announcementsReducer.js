@@ -38,6 +38,27 @@ export default function announcementsReducer(
         announcements: fromJS(action.payload.data),
       });
 
+    case actions.FETCH_ANNOUNCEMENT_COMMENTS_REQUEST:
+      return state.set('isLoading', true);
+    
+    case actions.FETCH_ANNOUNCEMENT_COMMENTS_FAILURE:
+      return state.merge({
+        isLoading: false,
+        announcementsError: action.payload.errorMessage,
+      });
+    
+    case actions.FETCH_ANNOUNCEMENT_COMMENTS_SUCCESS: {
+      const {questionId, comments} = action.payload;
+      return state.merge({
+        isLoading: false,
+        announcementsError: null,
+        comments: {
+          ...state.get('comments'),
+          [questionId]: fromJS(comments),
+        },
+      })
+    }
+
     default:
       return state;
   }
