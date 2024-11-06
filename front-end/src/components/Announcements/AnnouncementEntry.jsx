@@ -15,7 +15,10 @@ export default function AnnouncementEntry({content}) {
 					{content.get('commentsCount')} comment{content.get('commentsCount') !== 1 ? 's' : ''}
 					</button>
 				) : (
+					<>
 					<CommentsList announcementId={content.get('id')} />
+					<button type="button" onClick={() => setShowComments(false)}>Hide comments</button>
+					</>
 				)
 			}
 			<hr />
