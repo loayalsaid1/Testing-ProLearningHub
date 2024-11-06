@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 
-export default function CommentPrompt() {
+export default function CommentPrompt({ announcementId }) {
   const userPicture =
     useSelector((state) => state.ui.getIn(['user', 'pictureThumbnail'])) ||
     'https://picsum.photos/100';
