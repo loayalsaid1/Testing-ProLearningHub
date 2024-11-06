@@ -77,6 +77,17 @@ export default function announcementsReducer(
       });
     }
 
+    case actions.INCREMENT_COMMENTS_COUNT: {
+      const { announcementId } = action.payload;
+      return state.updateIn(['announcements'], (announcements) =>
+        announcements.map((announcement) =>
+          announcement.get('id') === announcementId
+            ? announcement.update('commentsCount', (count) => count + 1)
+            : announcement
+        )
+      );
+    }
+
     default:
       return state;
   }

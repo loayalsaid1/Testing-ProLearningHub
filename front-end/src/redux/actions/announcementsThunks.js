@@ -61,6 +61,7 @@ export const addComment = (announcementId, comment) => async (dispatch, getState
 			error: `Failed to add the comment`,
 		})
 		dispatch(creators.addCommentSuccess(announcementId, data));
+		dispatch(creators.incrementCommentsCount(announcementId))
 	} catch (error) {
 		console.error(error.message);
 		dispatch(creators.addCommentFailure(error.message));
