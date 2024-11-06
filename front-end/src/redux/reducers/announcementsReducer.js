@@ -3,6 +3,7 @@ import * as actions from '../actions/announcementsActionTypes';
 
 export const initialState = fromJS({
   isLoading: false,
+  isCommentsLoading: false,
   announcementsError: null,
   announcements: [],
   comments: {},
@@ -39,24 +40,22 @@ export default function announcementsReducer(
       });
 
     case actions.FETCH_ANNOUNCEMENT_COMMENTS_REQUEST:
-      return state.set('isLoading', true);
+      return state.set('isComment', true);
     
     case actions.FETCH_ANNOUNCEMENT_COMMENTS_FAILURE:
       return state.merge({
-        isLoading: false,
+        isComment: false,
         announcementsError: action.payload.errorMessage,
       });
     
     case actions.FETCH_ANNOUNCEMENT_COMMENTS_SUCCESS: {
-      const {questionId, comments} = action.payload;
-      return state.merge({
-        isLoading: false,
+      const {announcementId, comments} = action.payload;
+      return state.update('comments', commentsMap =>
+        commentsMap.set(announcementId, fromJS(comments))
+      ).merge({
+        isComment: false,
         announcementsError: null,
-        comments: {
-          ...state.get('comments'),
-          [questionId]: fromJS(comments),
-        },
-      })
+      });
     }
 
     default:
