@@ -1,4 +1,5 @@
-import * as creators from './announcementsActionCreators'
+import toast from 'react-hot-toast';
+import * as creators from './announcementsActionCreators';
 import { DOMAIN } from '../../utils/constants';
 
 export const fetchAnnouncements = () => async (dispatch, getState) => {
@@ -30,5 +31,41 @@ export const fetchAnnouncementComments = (announcementId) => async (dispatch) =>
 	} catch (error) {
 		console.error(error.message);
 		dispatch(creators.fetchAnnouncementCommentsFailure(error.message));
+	}
+}
+
+export const addComment = (announcementId, comment) => async (dispatch, getState) => {
+	const userId = getState().ui.getIn(['user', 'id']) || 'testId';
+	dispatch(creators.addCommentRequest());
+
+	try{
+		let errorMessage;
+		const data = await toast.promise(
+			fetch(`${DOMAIN}/announcements/${announcementId}/comments`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					userId,
+					comment
+				})
+			}).then(response => {
+				const data = response.json();
+				if (!response.ok) {
+					errorMessage = data.message
+					throw new Error(errorMessage);
+				}
+			}),
+			{
+				loading: 'Adding comment...',
+			success: 'Your comment has been added successfully',
+			error: `Failed to add comment: ${errorMessage}`,
+		})
+
+		dispatch(creators.addCommentSuccess(announcementId, data));
+	} catch (error) {
+		console.error(error.message);
+		dispatch(creators.addCommentFailure(error.message));
 	}
 }
