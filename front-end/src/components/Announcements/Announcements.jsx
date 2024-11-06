@@ -24,6 +24,7 @@ export default function Announcements() {
 			title: 'This is the title of the announcement',
 			body: 'This is the content of the announcement',
 			commentsCount: 10,
+			updatedAt: '2022-01-01T00:00:00.000Z',
 		},
 		{
 			user: {
@@ -35,5 +36,6 @@ export default function Announcements() {
 			title: 'This is the title of the second announcement',
 			body: 'This is the content of the second announcement',
 			commentsCount: 5,
+			updatedAt: '2024-11-01T00:00:00.000Z',
 		},
 	]);

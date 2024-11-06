@@ -1,23 +1,25 @@
 import React from 'react';
 import { Minus, Dot } from 'lucide-react';
+import {formatDate} from '../../utils/utilFunctions';
 
 export default function AnnouncementHeader({ content }) {
-  const announcementBody =
-    'Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam, laboriosam, aliquam dignissimos consectetur nam repellat quidem at enim molestiae rem, sed doloremque ex cupiditate. Voluptatibus sapiente amet possimus quibusdam placeat!';
+  const announcementBody = content.get('body');
   return (
     <div>
       <div>
-        <img src="https://picsum.photos/100" alt="Announcer" />
+        <img src={content.getIn(['user', 'pictureThumbnail'])} alt="Announcer" />
         <p>
-          <strong>Announcer Name</strong> <Minus /> Rule{' '}
+          <strong>{content.getIn(['user', 'name'])}</strong> <Minus />{' '}
+          {/* Incase the role thing is not implemented yet in testing */}
+          {content.get('role') || 'Instructor'}
         </p>
         <p>
-          Posted an announcement <Dot /> 3 days ago
+          Posted an announcement <Dot /> {formatDate(content.get('updatedAt'))}
         </p>
       </div>
 
       <div>
-        <h4>This is the title of the announcement</h4>
+        <h4>{content.get('title')}</h4>
         <div
           dangerouslySetInnerHTML={{
             __html: announcementBody,
