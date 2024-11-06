@@ -40,3 +40,17 @@ export const fetchAnnouncementCommentsSuccess = (announcementId, data) => ({
   type: actions.FETCH_ANNOUNCEMENT_COMMENTS_SUCCESS,
   payload: { announcementId, comments: data },
 });
+
+export const addCommentRequest = (announcementId, comment) => ({
+  type: actions.ADD_COMMENT_REQUEST,
+});
+
+export const addCommentFailure = (errorMessage) => ({
+  type: actions.ADD_COMMENT_FAILURE,
+  payload: { errorMessage },
+});
+
+export const addCommentSuccess = (announcementId, comment) => ({
+  type: actions.ADD_COMMENT_SUCCESS,
+  payload: { announcementId, comment },
+});
