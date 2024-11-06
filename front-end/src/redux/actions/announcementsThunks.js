@@ -39,7 +39,6 @@ export const addComment = (announcementId, comment) => async (dispatch, getState
 	dispatch(creators.addCommentRequest());
 
 	try{
-		let errorMessage;
 		const data = await toast.promise(
 			fetch(`${DOMAIN}/announcements/${announcementId}/comments`, {
 				method: 'POST',
@@ -53,14 +52,14 @@ export const addComment = (announcementId, comment) => async (dispatch, getState
 			}).then(response => {
 				const data = response.json();
 				if (!response.ok) {
-					errorMessage = data.message
-					throw new Error(errorMessage);
+					
+					throw new Error(data.message);
 				}
 			}),
 			{
 				loading: 'Adding comment...',
 			success: 'Your comment has been added successfully',
-			error: `Failed to add comment: ${errorMessage}`,
+			error: `Failed to add the comment`,
 		})
 
 		dispatch(creators.addCommentSuccess(announcementId, data));
