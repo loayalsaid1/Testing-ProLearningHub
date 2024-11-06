@@ -70,7 +70,7 @@ export default function announcementsReducer(
     case actions.ADD_COMMENT_SUCCESS: {
       const { announcementId, comment } = action.payload;
       return state.updateIn(['comments', announcementId], (commentsList = fromJS([])) =>
-        commentsList.push(fromJS(comment))
+        commentsList.unshift(fromJS(comment))
       ).merge({
         isCommentsLoading: false,
         announcementsError: null,
