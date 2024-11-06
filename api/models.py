@@ -14,11 +14,11 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserPostSerializer(serializers.ModelSerializer):
-    profile_image = serializers.ImageField(required=False)
+    # profile_image = serializers.ImageField(required=False)
 
     class Meta:
         model = Users
-        fields = '__all__'
+        exclude = ['reset_token']
 
 
 class UserLoginSerializer(serializers.ModelSerializer):
@@ -67,6 +67,12 @@ class CoursesSerializer(serializers.ModelSerializer):
 class CoursesResourcesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course_Resources
+        fields = '__all__'
+
+
+class LectureSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Lecture
         fields = '__all__'
 
 

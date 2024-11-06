@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import logging
 from pathlib import Path
 import os
+from . import passkeys
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-u607#!i!*3-0df+xdq=v5+r!-aw^h%l!x^1ogcio%wj9)py@@8'
+SECRET_KEY = passkeys.SECRET_KEY
 
 # Google apps key for  Email
 GOOGLE_APPS_KEY = os.getenv('GOOGLE_APPS_KEY')
@@ -148,7 +149,7 @@ EMAIL_HOST = 'smtp.gmail.com'          # SMTP server address
 EMAIL_PORT = 587                       # SMTP server port (587 for TLS)
 EMAIL_USE_TLS = True                   # Use TLS (Transport Layer Security)
 EMAIL_HOST_USER = 'georgekwm1@gmail.com'  # Your email address (sender)
-EMAIL_HOST_PASSWORD = GOOGLE_APPS_KEY  # Your email account's password
+EMAIL_HOST_PASSWORD = passkeys.EMAIL_HOST_PASSWORD  # Your email account's password
 DEFAULT_FROM_EMAIL = 'georgekwm1@gmail.com'  # Default from email address
 
 
@@ -173,8 +174,8 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
 SOCIAL_AUTH_GOOGLE_OAUTH2_REDIRECT_URI = 'http://127.0.0.1:8000/auth/google/callback/'
 # SOCIAL_AUTH_GOOGLE_OAUTH2_REDIRECT_URI = 'http://127.0.0.1:8000/oauth/complete/google-oauth2/'
 SOCIAL_AUTH_REDIRECT_IS_HTTPS = False
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ''
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = passkeys.SOCIAL_AUTH_GOOGLE_OAUTH2_KEY
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = passkeys.SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET
 # if you are using HTTPS, set this to True
 SOCIAL_AUTH_GOOGLE_OAUTH2_IGNORE_DEFAULT_SCOPE = False
 SOCIAL_AUTH_GOOGLE_OAUTH2_USE_UNIQUE_USER_ID = True

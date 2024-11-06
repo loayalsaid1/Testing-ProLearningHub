@@ -15,6 +15,8 @@ class Users(models.Model):
     role = models.CharField(max_length=50)
     profile_image = models.ImageField(
         upload_to='profile_images/', null=True, blank=True)
+    profile_image_thumbnail = models.ImageField(
+        upload_to='profile_image_thumbnails/', null=True, blank=True)
     reset_token = models.CharField(
         max_length=32, blank=True, null=True)  # For password reset
 
@@ -67,9 +69,19 @@ class Courses(models.Model):
         return f"{self.course_name}  ({self.course_code})"
 
 
+class Lecture(models.Model):
+    lecture_id = models.BigAutoField(auto_created=True, primary_key=True)
+    lecture_name = models.CharField(max_length=100)
+    lecture_description = models.TextField(null=True, blank=True)
+    course = models.ForeignKey(Courses, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.lecture_name}"
+
+
 class Course_Resources(models.Model):
     resource_id = models.BigAutoField(auto_created=True, primary_key=True)
-    course = models.ForeignKey(Courses, on_delete=models.CASCADE)
+    lecture = models.ForeignKey(Lecture, on_delete=models.CASCADE)
     resource_name = models.CharField(max_length=100)
     resource_file = models.FileField(
         upload_to='course_resources/', null=True, blank=True)
@@ -135,8 +147,9 @@ class Chats(models.Model):
     sender = models.ForeignKey(
         Users, on_delete=models.CASCADE, related_name='sender')
     receiver = models.ForeignKey(
-        Users, on_delete=models.CASCADE, related_name='receiver')
-    thread = models.ForeignKey(Thread, on_delete=models.CASCADE)
+        Users, on_delete=models.CASCADE, related_name='receiver', null=True, blank=True)
+    thread = models.ForeignKey(
+        Thread, on_delete=models.CASCADE, null=True, blank=True)
     upvotes = models.IntegerField(default=0)
     message = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -163,7 +176,7 @@ class Comment(models.Model):
     comment_id = models.BigAutoField(auto_created=True, primary_key=True)
     announcement = models.ForeignKey(
         Announcement, on_delete=models.CASCADE, related_name='comments')
-    student = models.ForeignKey(Students, on_delete=models.CASCADE)
+    user = models.ForeignKey(Users, on_delete=models.CASCADE)
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
 

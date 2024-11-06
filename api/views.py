@@ -54,11 +54,12 @@ def register(request):
     if serializer.is_valid():
         password = serializer.validated_data.get('password_hash')
         email = serializer.validated_data.get('email')
-        user = Users.objects.get(email=email)
+        user = Users.objects.filter(email=email).first()
         if user is not None:
             return Response({'message': 'User already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer.save(password_hash=make_password(password))
+        user = serializer.save(password_hash=make_password(password))
+        user.save()
 
         if serializer.validated_data.get('role') == 'tutor':
             tutor = Lecturer.objects.create(user=user)
@@ -217,11 +218,17 @@ class CoursesListView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        serializer = CoursesSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        session_id = request.session.get('user_id')
+        if session_id is None:
+            return Response({'message': 'You are not logged in'}, status=status.HTTP_403_FORBIDDEN)
+        user = Users.objects.get(user=session_id)
+        if user.role == 'tutor':
+            serializer = CoursesSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': 'You are not a tutor'}, status=status.HTTP_403_FORBIDDEN)
 
 
 class CourseResourcesListView(APIView):
@@ -231,26 +238,34 @@ class CourseResourcesListView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        serializer = CoursesResourcesSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        session_id = request.session.get('user_id')
+        if session_id is None:
+            return Response({'message': 'You are not logged in'}, status=status.HTTP_403_FORBIDDEN)
+        user = Users.objects.get(user=session_id)
+        if user.role == 'tutor':
+            serializer = CoursesResourcesSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': 'You are not a tutor'}, status=status.HTTP_403_FORBIDDEN)
 
 
 @api_view(['GET'])
-def resources_by_course(request, course_id, resource_id):
+def resources_by_course(request, course_id, lecture_id, resource_id):
     course = get_object_or_404(Courses, course_id=course_id)
+    lecture = get_object_or_404(Lecture, course=course, lecture_id=lecture_id)
     resource = Course_Resources.objects.filter(
-        Q(course=course) & Q(resource_id=resource_id))
+        Q(lecture=lecture) & Q(resource_id=resource_id))
     serializer = CoursesResourcesSerializer(resource, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
-def all_resource_by_course(request, course_id):
+def all_resource_by_course(request, course_id, lecture_id):
     course = get_object_or_404(Courses, course_id=course_id)
-    resource = Course_Resources.objects.filter(course=course)
+    lecture = get_object_or_404(Lecture, course=course, lecture_id=lecture_id)
+    resource = Course_Resources.objects.filter(lecture=lecture)
     serializer = CoursesResourcesSerializer(resource, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -313,8 +328,62 @@ def forum_by_course(request, course_id, forum_id):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+@api_view(['POST'])
+def create_forum(request, course_id):
+    session_id = request.session.get('user_id')
+    if session_id is None:
+        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    user = Users.objects.get(user_id=session_id)
+    serializer = ForumSerializer(data=request.data)
+    if serializer.is_valid():
+        course = Courses.objects.filter(course_id=course_id).first()
+        title = serializer.validated_data.get('title')
+        description = serializer.validated_data.get('description')
+        forum = Forum.objects.create(
+            course=course, title=title, description=description, creator=user)
+        forum.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['PUT'])
+def edit_forum(request, course_id, forum_id):
+    session_id = request.session.get('user_id')
+    if session_id is None:
+        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    user = Users.objects.get(user_id=session_id)
+    serializer = ForumSerializer(data=request.data)
+    if serializer.is_valid():
+        course = Courses.objects.filter(course_id=course_id).first()
+        title = serializer.validated_data.get('title')
+        description = serializer.validated_data.get('description')
+        forum = Forum.objects.filter(Q(course=course) & Q(forum_id=forum_id) & Q(creator=user)).update(
+            title=title, description=description)
+        forum.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['DELETE'])
+def delete_forum(request, course_id, forum_id):
+    session_id = request.session.get('user_id')
+    if session_id is None:
+        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    user = Users.objects.get(user_id=session_id)
+    course = Courses.objects.filter(course_id=course_id).first()
+    forum = Forum.objects.filter(Q(course=course) & Q(
+        forum_id=forum_id) & Q(creator=user))
+    if not forum:
+        return Response({"message": "forum not found"}, status=status.HTTP_404_NOT_FOUND)
+    forum.delete()
+    return Response({"message": "forum deleted successfully"}, status=status.HTTP_200_OK)
+
+
 @api_view(['GET'])
-def comments_in_forum_by_course(request, course_id, forum_id):
+def chats_in_forum_by_course(request, course_id, forum_id):
     course = Courses.objects.filter(course_id=course_id).first()
     forum = Forum.objects.filter(
         course=course) & Forum.objects.filter(forum_id=forum_id)
@@ -328,7 +397,7 @@ def comments_in_forum_by_course(request, course_id, forum_id):
 
 
 @api_view(['GET'])
-def comment_in_forum_by_course(request, course_id, forum_id, chat_id):
+def chat_in_forum_by_course(request, course_id, forum_id, chat_id):
     course = Courses.objects.filter(course_id=course_id).first()
     forum = Forum.objects.filter(
         course=course) & Forum.objects.filter(forum_id=forum_id)
@@ -341,12 +410,221 @@ def comment_in_forum_by_course(request, course_id, forum_id, chat_id):
     return Response(new_data, status=status.HTTP_200_OK)
 
 
+@api_view(['POST'])
+def create_chat(request, course_id, forum_id, thread_id):
+    session_id = request.session.get('user_id')
+    if session_id is None:
+        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
+    user = Users.objects.get(user_id=session_id)
+
+    serializer = ChatsSerializer(data=request.data)
+    if serializer.is_valid():
+        course = Courses.objects.filter(course_id=course_id).first()
+        forum = Forum.objects.filter(forum_id=forum_id).first()
+        message = serializer.validated_data.get('message')
+        thread = Thread.objects.filter(
+            Q(thread_id=thread_id) & Q(forum=forum)).first()
+        chat = Chats.objects.create(thread=thread,
+                                    course=course, message=message, sender=user)
+
+        chat.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['PUT'])
+def edit_chat(request, course_id, forum_id, thread_id, chat_id):
+    session_id = request.session.get('user_id')
+    if session_id is None:
+        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
+    user = Users.objects.get(user_id=session_id)
+
+    serializer = ChatsSerializer(data=request.data)
+    if serializer.is_valid():
+        course = Courses.objects.filter(course_id=course_id).first()
+        forum = Forum.objects.filter(forum_id=forum_id).first()
+        message = serializer.validated_data.get('message')
+        thread = Thread.objects.filter(
+            Q(thread_id=thread_id) & Q(forum=forum)).first()
+        chat = Chats.objects.filter(Q(thread=thread) & Q(course=course) & Q(
+            chat_id=chat_id) & Q(sender=user)).update(message=message)
+
+        chat.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['DELETE'])
+def delete_chat(request, course_id, forum_id, thread_id, chat_id):
+    session_id = request.session.get('user_id')
+    if session_id is None:
+        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
+    user = Users.objects.get(user_id=session_id)
+    course = Courses.objects.filter(course_id=course_id).first()
+    forum = Forum.objects.filter(forum_id=forum_id).first()
+    thread = Thread.objects.filter(
+        Q(thread_id=thread_id) & Q(forum=forum)).first()
+    chat = Chats.objects.filter(Q(thread=thread) & Q(course=course) & Q(
+        chat_id=chat_id) & Q(sender=user)).first()
+    if not chat:
+        return Response({"message": "Chat not found"}, status=status.HTTP_404_NOT_FOUND)
+    chat.delete()
+    return Response({"message": "Chat deleted successfully"}, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def threads_in_forum_by_course(request, course_id, forum_id):
+    course = Courses.objects.filter(course_id=course_id).first()
+    forum = Forum.objects.filter(
+        course=course) & Forum.objects.filter(forum_id=forum_id)
+    threads = Thread.objects.filter(forum=forum)
+    serializer = ThreadSerializer(threads, many=True)
+    if threads:
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    return Response({"message": "No threads found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['GET'])
+def thread_in_forum_by_course(request, course_id, forum_id, thread_id):
+    course = Courses.objects.filter(course_id=course_id).first()
+    forum = Forum.objects.filter(
+        course=course) & Forum.objects.filter(forum_id=forum_id)
+    threads = Thread.objects.filter(Q(forum=forum) & Q(thread_id=thread_id))
+    serializer = ThreadSerializer(threads, many=True)
+    if threads:
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    return Response({"message": "No threads found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['POST'])
+def create_thread(request, course_id, forum_id):
+    session_id = request.session.get('user_id')
+    if session_id is None:
+        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
+    user = Users.objects.get(user_id=session_id)
+
+    serializer = ThreadSerializer(data=request.data)
+    if serializer.is_valid():
+        course = Courses.objects.filter(course_id=course_id).first()
+        forum = Forum.objects.filter(forum_id=forum_id).first()
+        title = serializer.validated_data.get('title')
+        description = serializer.validated_data.get('description')
+        thread = Thread.objects.create(
+            course=course, forum=forum,  title=title, description=description, user=user)
+
+        thread.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['PUT'])
+def edit_thread(request, course_id, forum_id, thread_id):
+    session_id = request.session.get('user_id')
+    if session_id is None:
+        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
+    user = Users.objects.get(user_id=session_id)
+
+    serializer = ThreadSerializer(data=request.data)
+    if serializer.is_valid():
+        course = Courses.objects.filter(course_id=course_id).first()
+        forum = Forum.objects.filter(
+            Q(course=course) & Q(forum_id=forum_id)).first()
+        title = serializer.validated_data.get('title')
+        description = serializer.validated_data.get('description')
+        thread = Thread.objects.filter(Q(forum=forum) & Q(
+            user=user) & Q(thread_id=thread_id)).update(title=title, description=description)
+
+        thread.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['DELETE'])
+def delete_thread(request, course_id, forum_id, thread_id):
+    session_id = request.session.get('user_id')
+    if session_id is None:
+        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
+    user = Users.objects.get(user_id=session_id)
+    course = Courses.objects.filter(course_id=course_id).first()
+    forum = Forum.objects.filter(forum_id=forum_id).first()
+    thread = Thread.objects.filter(
+        Q(thread_id=thread_id) & Q(forum=forum) & Q(user=user)).first()
+    if not thread:
+        return Response({"message": "Thread not found"}, status=status.HTTP_404_NOT_FOUND)
+    thread.delete()
+    return Response({"message": "Thread deleted successfully"}, status=status.HTTP_200_OK)
+
+
 @api_view(['GET'])
 def announcements(request, course_id):
     course = Courses.objects.filter(course_id=course_id).first()
     announcement = Announcement.objects.filter(course=course)
     serializer = AnnouncementSerializer(announcement, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+def create_announcement(request, course_id):
+    session_id = request.session.get('user_id')
+    if session_id is not None:
+        user = Users.objects.get(user_id=session_id)
+        if user.role == 'tutor':
+            serializer = AnnouncementSerializer(data=request.data)
+
+            if serializer.is_valid():
+                course = Courses.objects.filter(course_id=course_id).first()
+                lecturer = Lecturer.objects.filter(user=user)
+                title = serializer.validated_data.get('title')
+                content = serializer.validated_data.get('content')
+                announcement = Announcement.objects.create(course=course, lecturer=lecturer,
+                                                           title=title, content=content)
+                announcement.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"message": "You are not a tutor"}, status=status.HTTP_401_UNAUTHORIZED)
+    return Response({"message": "You must login first"}, status=status.HTTP_403_FORBIDDEN)
+
+
+@api_view(['PUT'])
+def edit_announcement(request, course_id, announcement_id):
+    session_id = request.session.get('user_id')
+    if session_id is not None:
+        user = Users.objects.get(user_id=session_id)
+        if user.role == 'tutor':
+            serializer = AnnouncementSerializer(data=request.data)
+
+            if serializer.is_valid():
+                course = Courses.objects.filter(course_id=course_id).first()
+                lecturer = Lecturer.objects.filter(user=user).first()
+                title = serializer.validated_data.get('title')
+                content = serializer.validated_data.get('content')
+                announcement = Announcement.objects.filter(Q(course=course) & Q(
+                    lecturer=lecturer) & Q(announcement_id)).update(title=title, content=content)
+                announcement.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"message": "You are not a tutor"}, status=status.HTTP_401_UNAUTHORIZED)
+    return Response({"message": "You must login first"}, status=status.HTTP_403_FORBIDDEN)
+
+
+@api_view(['DELETE'])
+def delete_announcement(request, course_id, announcement_id):
+    session_id = request.session.get('user_id')
+    if session_id is None:
+        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
+    user = Users.objects.get(user_id=session_id)
+    if user.role == 'tutor':
+        course = Courses.objects.filter(course_id=course_id).first()
+        lecturer = Lecturer.objects.filter(user=user).first()
+        announcement = Announcement.objects.filter(Q(lecturer=lecturer) & Q(
+            course=course) & Q(announcement_id=announcement_id)).first()
+        if not announcement:
+            return Response({"message": "Announcement not found"}, status=status.HTTP_404_NOT_FOUND)
+        announcement.delete()
+        return Response({"message": "Announcement deleted successfully"}, status=status.HTTP_200_OK)
+    return Response({"message": "You are not a tutor"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 @api_view(['GET'])
@@ -356,6 +634,71 @@ def comment(request, course_id):
     comments = Comment.objects.filter(announcement=announcement)
     serializer = CommentSerializer(comments, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+def create_comment(request, course_id, announcement_id):
+    session_id = request.session.get('user_id')
+    if session_id is not None:
+        user = Users.objects.get(user_id=session_id)
+
+        serializer = CommentSerializer(data=request.data)
+
+        if serializer.is_valid():
+            content = serializer.validated_data.get('content')
+            course = Courses.objects.filter(course_id=course_id).first()
+            announcement = Announcement.objects.filter(
+                Q(announcement_id=announcement_id) & Q(course=course)).first()
+            comments = Comment.objects.create(course=course, user=user,
+                                              announcement=announcement, content=content)
+            comments.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    return Response({"message": "You must login first"}, status=status.HTTP_403_FORBIDDEN)
+
+
+@api_view(['PUT'])
+def edit_comment(request, course_id, announcement_id,  comment_id):
+
+    session_id = request.session.get('user_id')
+    if session_id is not None:
+        user = Users.objects.get(user_id=session_id)
+
+        serializer = CommentSerializer(data=request.data)
+
+        if serializer.is_valid():
+            content = serializer.validated_data.get('content')
+            course = Courses.objects.filter(course_id=course_id).first()
+            announcement = Announcement.objects.filter(
+                Q(announcement_id=announcement_id) & Q(course=course)).first()
+            comments = Comment.objects.filter(Q(announcement=announcement) & Q(
+                user=user) & Q(comment_id=comment_id)).update(content=content)
+            comments.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    return Response({"message": "You must login first"}, status=status.HTTP_403_FORBIDDEN)
+
+
+@api_view(['DELETE'])
+def delete_comment(request, course_id, announcement_id, comment_id):
+    session_id = request.session.get('user_id')
+    if session_id is None:
+        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
+    user = Users.objects.get(user_id=session_id)
+    if user.role == 'tutor':
+        course = Courses.objects.filter(course_id=course_id).first()
+        lecturer = Lecturer.objects.filter(user=user).first()
+        announcement = Announcement.objects.filter(Q(lecturer=lecturer) & Q(
+            course=course) & Q(announcement_id=announcement_id)).first()
+        comment = Comment.objects.filter(
+            Q(comment_id=comment_id) & Q(user=user) & Q(announcement=announcement)).first()
+        if not comment:
+            return Response({"message": "Comment not found"}, status=status.HTTP_404_NOT_FOUND)
+        comment.delete()
+        return Response({"message": "Comment deleted successfully"}, status=status.HTTP_200_OK)
+    return Response({"message": "You are not a tutor"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 @api_view(['GET'])
