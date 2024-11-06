@@ -58,6 +58,25 @@ export default function announcementsReducer(
       });
     }
 
+    case actions.ADD_COMMENT_REQUEST:
+      return state.set('isCommentsLoading', true);
+
+    case actions.ADD_COMMENT_FAILURE:
+      return state.merge({
+        isCommentsLoading: false,
+        announcementsError: action.payload.errorMessage,
+      });
+
+    case actions.ADD_COMMENT_SUCCESS: {
+      const { announcementId, comment } = action.payload;
+      return state.updateIn(['comments', announcementId], (commentsList = fromJS([])) =>
+        commentsList.push(fromJS(comment))
+      ).merge({
+        isCommentsLoading: false,
+        announcementsError: null,
+      });
+    }
+
     default:
       return state;
   }
