@@ -233,6 +233,116 @@ app.post('/courses/:id/general_discussion', (req, res) => {
   res.status(201).json(newEntry);
 });
 
+app.get('/questions/:id/replies', (req, res) => {
+  const questionId = req.params.id;
+
+  // Mock question data
+  const question = {
+    id: 'question-1',
+    title: 'How does react hooks work?',
+    user: {
+      name: 'John Doe',
+      pictureThumbnail: 'https://picsum.photos/100',
+    },
+    updatedAt: '2022-01-01T00:00:00.000Z',
+    upvotes: 100,
+    upvoted: false,
+    repliesCount: 20,
+  };
+
+  // Mock replies data
+  const repliesList = [
+    {
+      id: 'reply-1',
+      user: {
+        name: 'Jane Doe',
+        pictureThumbnail: 'https://picsum.photos/100',
+      },
+      updatedAt: '2024-11-02T07:00:00.000Z',
+      upvotes: 50,
+      upvoted: true,
+      body: 'How does react hooks work?',
+    },
+    {
+      id: 'reply-2',
+      user: {
+        name: 'John Doe',
+        pictureThumbnail: 'https://picsum.photos/100',
+      },
+      updatedAt: '2022-01-03T00:00:00.000Z',
+      upvotes: 30,
+      upvoted: false,
+      body: 'How does react context work?',
+    },
+    {
+      id: 'reply-3',
+      user: {
+        name: 'Jane Doe',
+        pictureThumbnail: 'https://picsum.photos/100',
+      },
+      updatedAt: '2024-11-04T07:00:00.000Z',
+      upvotes: 20,
+      upvoted: false,
+      body: 'How does react hooks work?',
+    },
+    {
+      id: 'reply-4',
+      user: {
+        name: 'John Doe',
+        pictureThumbnail: 'https://picsum.photos/100',
+      },
+      updatedAt: '2022-01-05T00:00:00.000Z',
+      upvotes: 10,
+      upvoted: true,
+      body: 'How does react useState work?',
+    },
+    {
+      id: 'reply-5',
+      user: {
+        name: 'Jane Doe',
+        pictureThumbnail: 'https://picsum.photos/100',
+      },
+      updatedAt: '2024-11-06T07:00:00.000Z',
+      upvotes: 5,
+      upvoted: false,
+      body: 'How does react useEffect work?',
+    },
+  ];
+
+  if (questionId === 'question-1') {
+    res.json({ question, repliesList });
+  } else {
+    res.status(404).send({ message: 'Question not found' });
+  }
+});
+
+app.post('/questions/:id/replies', (req, res) => {
+  const questionId = req.params.id;
+  const { userId, body } = req.body;
+
+  if (!userId || !body) {
+    return res.status(400).send({ message: 'Missing required fields' });
+  }
+
+  const newReply = {
+    questionId,
+    id: `reply-${Date.now()}`,
+    user: {
+      name: 'Anonymous',
+      pictureThumbnail: `https://picsum.photos/100`,
+    },
+    updatedAt: new Date().toISOString(),
+    upvotes: 0,
+    upvoted: false,
+    body,
+  };
+
+  // Here you would typically add the newReply to your database or data store.
+  // For this example, we'll just return it in the response.
+  mockReplies.unshift(newReply);
+
+  res.status(201).json(newReply);
+});
 app.use((req, res, next) => {
   res.status(404).send({ message: 'Not found' });
 });
@@ -700,5 +810,77 @@ const mockDiscussion = [
     upvotes: 10,
     upvoted: true,
     repliesCount: 10,
+  },
+];
+
+const question = {
+  id: 'question-1',
+  title: 'How does react hooks work?',
+  user: {
+    name: 'John Doe',
+    pictureThumbnail: 'https://picsum.photos/100',
+  },
+  updatedAt: '2022-01-01T00:00:00.000Z',
+  upvotes: 100,
+  upvoted: false,
+  repliesCount: 20,
+};
+
+
+const mockReplies = [
+  {
+    id: 'reply-1',
+    user: {
+      name: 'Jane Doe',
+      pictureThumbnail: 'https://picsum.photos/100',
+    },
+    updatedAt: '2024-11-02T07:00:00.000Z',
+    upvotes: 50,
+    upvoted: true,
+    body: 'How does react hooks work?',
+  },
+  {
+    id: 'reply-2',
+    user: {
+      name: 'John Doe',
+      pictureThumbnail: 'https://picsum.photos/100',
+    },
+    updatedAt: '2022-01-03T00:00:00.000Z',
+    upvotes: 30,
+    upvoted: false,
+    body: 'How does react context work?',
+  },
+  {
+    id: 'reply-3',
+    user: {
+      name: 'Jane Doe',
+      pictureThumbnail: 'https://picsum.photos/100',
+    },
+    updatedAt: '2024-11-04T07:00:00.000Z',
+    upvotes: 20,
+    upvoted: false,
+    body: 'How does react hooks work?',
+  },
+  {
+    id: 'reply-4',
+    user: {
+      name: 'John Doe',
+      pictureThumbnail: 'https://picsum.photos/100',
+    },
+    updatedAt: '2022-01-05T00:00:00.000Z',
+    upvotes: 10,
+    upvoted: true,
+    body: 'How does react useState work?',
+  },
+  {
+    id: 'reply-5',
+    user: {
+      name: 'Jane Doe',
+      pictureThumbnail: 'https://picsum.photos/100',
+    },
+    updatedAt: '2024-11-06T07:00:00.000Z',
+    upvotes: 5,
+    upvoted: false,
+    body: 'How does react useEffect work?',
   },
 ];
