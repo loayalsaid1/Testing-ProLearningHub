@@ -10,12 +10,14 @@ export default function StandAloneInputField({
 
   function handleKeyDown(e) {
     if (e.key === 'Enter' && !e.shiftKey) {
-      onSubmit(value);
-      setValue(initialValue);
       e.preventDefault();
-    } else if (e.key === 'Escape') {
+      e.target.blur();
       setValue(initialValue);
+      onSubmit(value);
+    } else if (e.key === 'Escape') {
       setShowSubText(false);
+      setValue(initialValue);
+      e.target.blur();     
     }
   }
   
