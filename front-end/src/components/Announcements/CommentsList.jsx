@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import Loading from '../utilityComponents/Loading';
-
+import CommentEntry from './CommentEntry';
 import { fromJS } from 'immutable';
 
-export default function CommentsList({ announcementId }) {
+export default function CommentsList({ announcementId = 'testId' }) {
   const [limit, setLimit] = useState(10);
-
   const [isLoading, setIsLoading] = useState(true);
   setTimeout(() => {
     setIsLoading(false);
@@ -16,6 +15,7 @@ export default function CommentsList({ announcementId }) {
       {isLoading ? (
         <Loading />
       ) : (
+
         mockComments
           .slice(0, limit)
           .map((comment) => (
@@ -39,7 +39,7 @@ export default function CommentsList({ announcementId }) {
 const mockComments = fromJS([
   {
     id: 'comment-1',
-    announcementId,
+    announcementId: 'testId',
     user: {
       name: 'John Doe',
       pictureThumbnail: 'https://picsum.photos/100',
@@ -51,7 +51,7 @@ const mockComments = fromJS([
   },
   {
     id: 'comment-2',
-    announcementId,
+    announcementId: 'testId',
     user: {
       name: 'Jane Doe',
       pictureThumbnail: 'https://picsum.photos/101',
@@ -63,7 +63,7 @@ const mockComments = fromJS([
   },
   {
     id: 'comment-3',
-    announcementId,
+    announcementId: 'testId',
     user: {
       name: 'John Doe',
       pictureThumbnail: 'https://picsum.photos/102',
@@ -75,7 +75,7 @@ const mockComments = fromJS([
   },
   {
     id: 'comment-4',
-    announcementId,
+    announcementId: 'testId',
     user: {
       name: 'Jane Doe',
       pictureThumbnail: 'https://picsum.photos/103',
@@ -87,7 +87,7 @@ const mockComments = fromJS([
   },
   {
     id: 'comment-5',
-    announcementId,
+    announcementId: 'testId',
     user: {
       name: 'John Doe',
       pictureThumbnail: 'https://picsum.photos/104',

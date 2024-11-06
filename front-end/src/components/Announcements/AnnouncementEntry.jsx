@@ -10,9 +10,9 @@ export default function AnnouncementEntry({content}) {
 			<AnnouncementHeader content={content} />
 			<CommentPrompt announcementId={content.get('id')} />
 			{
-				showComments ? (
-					<button type='button' onClick={() => setShowComments(false)}>
-					{content.commentsCount} comment{content.commentsCount !== 1 ? 's' : ''}
+				!showComments ? (
+					<button type='button' onClick={() => setShowComments(true)}>
+					{content.get('commentsCount')} comment{content.get('commentsCount') !== 1 ? 's' : ''}
 					</button>
 				) : (
 					<CommentsList announcementId={content.get('id')} />

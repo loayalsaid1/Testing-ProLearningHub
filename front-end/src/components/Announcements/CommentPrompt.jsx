@@ -1,5 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
+import StandAloneInputField from '../sharedComponents/StandAloneInputField';
 
 export default function CommentPrompt({ announcementId }) {
   const userPicture =
@@ -11,7 +12,7 @@ export default function CommentPrompt({ announcementId }) {
   return (
     <div>
       <img src={userPicture} alt="user" />
-      <StandAloneComment
+      <StandAloneInputField
         onSubmit={submitComment}
         placeholder="Write your comment here..."
       />
