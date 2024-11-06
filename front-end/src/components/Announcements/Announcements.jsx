@@ -15,9 +15,13 @@ export default function Announcements() {
 				isLoading ? (
 					<Loading />
 				) : (
-					announcements.map((announcement) => (
-						<AnnouncementEntry key={announcement.get('id')} content={announcement} />
-					))
+					announcements.size === 0 ? (
+						<h1>No announcements yet</h1>
+					) : (
+						announcements.map((announcement) => (
+							<AnnouncementEntry key={announcement.get('id')} content={announcement} />
+						))
+					)
 				)
 			}
 		</div>
