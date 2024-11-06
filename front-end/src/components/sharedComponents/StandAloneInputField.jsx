@@ -12,8 +12,10 @@ export default function StandAloneInputField({
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       e.target.blur();
-      setValue(initialValue);
-      onSubmit(value);
+      if (e.target.value) {
+        setValue(initialValue);
+        onSubmit(value);
+      }
     } else if (e.key === 'Escape') {
       setShowSubText(false);
       setValue(initialValue);
