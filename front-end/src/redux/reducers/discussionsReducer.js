@@ -6,6 +6,7 @@ export const initialState = fromJS({
   courseGeneralDiscussion: [],
   isLoading: false,
   discussionsError: null,
+  replies: {},
 });
 
 export default function discussionsReducer(state = initialState, action = {}) {
@@ -115,6 +116,53 @@ export default function discussionsReducer(state = initialState, action = {}) {
       });
     }
 
+    case actions.FETCH_DISCUSSION_REPLIES_REQUEST: {
+      return state.set('isLoading', true);
+    }
+
+    case actions.FETCH_DISCUSSION_REPLIES_FAILURE: {
+      return state.withMutations((state) => {
+        state
+          .set('isLoading', false)
+          .set('discussionsError', action.payload.errorMessage);
+      });
+    }
+
+    case actions.FETCH_DISCUSSION_REPLIES_SUCCESS: {
+      const { data } = action.payload;
+      return state.withMutations((state) => {
+        state
+          .set('isLoading', false)
+          .set('discussionsError', null)
+          .setIn(['replies', data.question.id], fromJS(data));
+      });
+    }
+    case actions.ADD_DISCUSSION_REPLY_REQUEST: {
+      return state.set('isLoading', true);
+    }
+
+    case actions.ADD_DISCUSSION_REPLY_FAILURE: {
+      return state.withMutations((state) => {
+        state
+          .set('isLoading', false)
+          .set('discussionsError', action.payload.errorMessage);
+      });
+    }
+
+    case actions.ADD_DISCUSSION_REPLY_SUCCESS: {
+      const { entry } = action.payload;
+      console.log(entry);
+      return state.withMutations((state) => {
+        console.log(state.toJS());
+        return state
+          .set('isLoading', false)
+          .set('discussionsError', null)
+          .updateIn(['replies', entry.questionId, 'repliesList'], (replies) =>
+            replies.unshift(fromJS(entry))
+        );
+      });
+    }
+    
     default: {
       return state;
     }

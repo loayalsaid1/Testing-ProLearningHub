@@ -1,5 +1,6 @@
 import toast from 'react-hot-toast';
 import * as discussionsActions from './discussionsActionCreators';
+import { toggleLoading } from './uiActionCreators';
 
 const DOMAIN = 'http://localhost:3000';
 export const getLectureDiscussions = (lectureId) => async (dispatch) => {
@@ -102,7 +103,6 @@ export const getGeneralDiscussion = () => async (dispatch, getState) => {
   }
 };
 
-
 export const addGeneralDiscussionEntry =
   (title, details) => async (dispatch, getState) => {
     dispatch(discussionsActions.generalDiscussionEntryRequest());
@@ -135,4 +135,67 @@ export const addGeneralDiscussionEntry =
     }
 
     dispatch(discussionsActions.generalDiscussionEntrySuccess(data));
+  };
+
+export const fetchReplies = (questionId) => async (dispatch) => {
+  dispatch(discussionsActions.fetchDiscussionRepliesRequest());
+  dispatch(toggleLoading());
+  try {
+    const response = await fetch(`${DOMAIN}/questions/${questionId}/replies`);
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message);
+    }
+    dispatch(discussionsActions.fetchDiscussionRepliesSuccess(data));
+  } catch (error) {
+    console.error(error.message);
+    dispatch(
+      discussionsActions.fetchDiscussionRepliesFailure(
+        `Error fetching entries: ${error.message}`
+      )
+    );
+  } finally {
+    dispatch(toggleLoading());
+  }
+};
+
+export const addDiscussionReply =
+  (questionId, body) => async (dispatch, getState) => {
+    dispatch(discussionsActions.addDiscussionReplyRequest());
+
+    const userId = getState().ui.getIn(['user', 'id']) || 'testId';
+    try {
+      const data = await toast.promise(
+        fetch(`${DOMAIN}/questions/${questionId}/replies`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId,
+            body,
+          }),
+        }).then(response => {
+          if (!response.ok) {
+            throw new Error(data.message);
+          }
+          return response.json();
+        }),
+        {
+          loading: 'Sending reply',
+          success: 'Reply sent',
+          error: 'Error sending reply',
+        }
+      );
+
+      dispatch(discussionsActions.addDiscussionReplySuccess(data));
+    } catch (error) {
+      console.error(error.message);
+      dispatch(
+        discussionsActions.addDiscussionReplyFailure(
+          `Error adding reply: ${error.message}`
+        )
+      );
+    }
   };

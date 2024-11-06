@@ -10,7 +10,9 @@ import Authintication from './components/Authintication/Authintication';
 // import Lecture from './components/Lecture/Lecture';
 // import TextEditor from './components/TextEditor/TextEditor';
 // import LectureDiscussion from './components/Discussion/LectureDiscussion';
-import GeneralDiscussion from './components/GeneralDiscussion/GeneralDiscussion';
+// import GeneralDiscussion from './components/GeneralDiscussion/GeneralDiscussion';
+import Replies from './components/Replies/Replies';
+
 
 function App() {
   const name = useSelector((state) => state.hello.get('name'));
@@ -64,7 +66,8 @@ function App() {
                 {/* <TextEditor value={value} setValue={setValue} files={files} setFiles={setFiles}  />
                 <button type="button" onClick={() => console.log(value, files)}>Check dataa</button> */}
                 {/* <Lecture lectureId='testId' /> */}
-                <GeneralDiscussion courseId='testId' />
+                {/* <GeneralDiscussion courseId='testId' /> */}
+                <Replies />
                 <button type="button" onClick={() => setView('dashboard')}>
                   Go to dashboard
                 </button>

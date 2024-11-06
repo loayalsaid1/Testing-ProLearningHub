@@ -87,3 +87,39 @@ export const generalDiscussionEntrySuccess = (entry) => ({
     entry
   }
 })
+
+export const fetchDiscussionRepliesRequest = () => ({
+  type: actions.FETCH_DISCUSSION_REPLIES_REQUEST,
+})
+
+export const fetchDiscussionRepliesFailure = (errorMessage) => ({
+  type: actions.FETCH_DISCUSSION_REPLIES_FAILURE,
+  payload: {
+    errorMessage
+  }
+})
+
+export const fetchDiscussionRepliesSuccess = (data) => ({
+  type: actions.FETCH_DISCUSSION_REPLIES_SUCCESS,
+  payload: {
+    data
+  }
+})
+
+export const addDiscussionReplyRequest = () => ({
+  type: actions.ADD_DISCUSSION_REPLY_REQUEST,
+})
+
+export const addDiscussionReplyFailure = (errorMessage) => ({
+  type: actions.ADD_DISCUSSION_REPLY_FAILURE,
+  payload: {
+    errorMessage
+  }
+})
+
+export const addDiscussionReplySuccess = (entry) => ({
+  type: actions.ADD_DISCUSSION_REPLY_SUCCESS,
+  payload: {
+    entry
+  }
+})
