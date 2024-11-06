@@ -1,13 +1,15 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import StandAloneInputField from '../sharedComponents/StandAloneInputField';
+import { addComment } from '../../redux/actions/announcementsThunks';
 
 export default function CommentPrompt({ announcementId }) {
   const userPicture =
     useSelector((state) => state.ui.getIn(['user', 'pictureThumbnail'])) ||
     'https://picsum.photos/100';
+  const dispatch = useDispatch();
   function submitComment(commentText) {
-    console.log(commentText);
+    dispatch(addComment(announcementId, commentText));
   }
   return (
     <div>
