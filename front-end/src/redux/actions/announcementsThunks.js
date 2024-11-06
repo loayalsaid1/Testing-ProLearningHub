@@ -17,3 +17,18 @@ export const fetchAnnouncements = () => async (dispatch, getState) => {
 		dispatch(creators.fetchAnnouncementsFailure(error.message));
 	}
 }
+
+export const fetchAnnouncementComments = (announcementId) => async (dispatch) => {
+	dispatch(creators.fetchAnnouncementCommentsRequest(announcementId));
+	try {
+		const response = await fetch(`${DOMAIN}/announcements/${announcementId}/comments`);
+		const data = await response.json();
+		if (!response.ok) {
+			throw new Error(data.message);
+		}
+		dispatch(creators.fetchAnnouncementCommentsSuccess(announcementId, data));
+	} catch (error) {
+		console.error(error.message);
+		dispatch(creators.fetchAnnouncementCommentsFailure(error.message));
+	}
+}
