@@ -2,12 +2,10 @@ import React, {useState} from 'react';
 import Loading from '../utilityComponents/Loading';
 import AnnouncementEntry from './AnnouncementEntry';
 import {fromJS} from 'immutable'
+import { useSelector } from 'react-redux';
+import { selectIsLoading } from '../../redux/selectors/announcementsSelectors';
 export default function Announcements() {
-		const [isLoading, setIsLoading] = useState(true);
-		setTimeout(() => {
-			setIsLoading(false);
-		}, 500);
-
+		const isLoading = useSelector(selectIsLoading);
 		return (
 			<div>
 			<h1>Announcements</h1>
