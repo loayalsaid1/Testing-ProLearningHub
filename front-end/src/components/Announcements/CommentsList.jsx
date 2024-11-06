@@ -17,9 +17,8 @@ export default function CommentsList({ announcementId = 'testId' }) {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (!comments || ! comments.size)
       dispatch(fetchAnnouncementComments(announcementId));
-  }, [dispatch, comments, announcementId]);
+  }, [dispatch, announcementId]);
 
   return (
     <div>
