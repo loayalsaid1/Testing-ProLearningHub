@@ -1,8 +1,7 @@
 import toast from 'react-hot-toast';
 import * as discussionsActions from './discussionsActionCreators';
 import { toggleLoading } from './uiActionCreators';
-
-const DOMAIN = 'http://localhost:3000';
+import {DOMAIN} from '../../utils/constants'
 export const getLectureDiscussions = (lectureId) => async (dispatch) => {
   dispatch(discussionsActions.toggleDiscussionsLoading());
 
