@@ -266,7 +266,7 @@ def course_lectures(request, course_id):
 @api_view(['GET'])
 def course_lectures_by_id(request, course_id, lecture_id):
     course = get_object_or_404(Courses, course_id=course_id)
-    lecture = get_object_or_404(Lecture, course=course, lecture_id)
+    lecture = get_object_or_404(Lecture, lecture_id, course=course)
     serializer = LectureSerializer(lecture, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
