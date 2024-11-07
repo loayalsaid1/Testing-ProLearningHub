@@ -10,8 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+import logging
 from pathlib import Path
 import os
+from . import passkeys
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-u607#!i!*3-0df+xdq=v5+r!-aw^h%l!x^1ogcio%wj9)py@@8'
+SECRET_KEY = passkeys.SECRET_KEY
 
 # Google apps key for  Email
 GOOGLE_APPS_KEY = os.getenv('GOOGLE_APPS_KEY')
@@ -29,7 +31,7 @@ GOOGLE_APPS_KEY = os.getenv('GOOGLE_APPS_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'georgekwm1.pythonanywhere.com']
 
 
 # Application definition
@@ -48,6 +50,7 @@ INSTALLED_APPS = [
     'authentication',
     'api',
     'social_django',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -147,7 +150,7 @@ EMAIL_HOST = 'smtp.gmail.com'          # SMTP server address
 EMAIL_PORT = 587                       # SMTP server port (587 for TLS)
 EMAIL_USE_TLS = True                   # Use TLS (Transport Layer Security)
 EMAIL_HOST_USER = 'georgekwm1@gmail.com'  # Your email address (sender)
-EMAIL_HOST_PASSWORD = GOOGLE_APPS_KEY  # Your email account's password
+EMAIL_HOST_PASSWORD = passkeys.EMAIL_HOST_PASSWORD  # Your email account's password
 DEFAULT_FROM_EMAIL = 'georgekwm1@gmail.com'  # Default from email address
 
 
@@ -160,10 +163,30 @@ REST_FRAMEWORK = {
 AUTHENTICATION_BACKENDS = (
     'social_core.backends.google.GoogleOAuth2',  # Add Google OAuth2 backend
     'django.contrib.auth.backends.ModelBackend',  # Default authentication
-)
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '778678866766-0g4c4f0g9g6g7g8g9g0g7g8g7g8g7g.apps.googleusercontent.com'
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'GOCSPX-7g8g'
 
-LOGIN_REDIRECT_URL = 'auth/me/'
-LOGOUT_REDIRECT_URL = 'auth/'
+)
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
+    'openid',
+    'https://www.googleapis.com/auth/userinfo.email',
+    'https://www.googleapis.com/auth/userinfo.profile'
+]
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_REDIRECT_URI = 'http://127.0.0.1:8000/auth/google/callback/'
+# SOCIAL_AUTH_GOOGLE_OAUTH2_REDIRECT_URI = 'http://127.0.0.1:8000/oauth/complete/google-oauth2/'
+SOCIAL_AUTH_REDIRECT_IS_HTTPS = False
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = passkeys.SOCIAL_AUTH_GOOGLE_OAUTH2_KEY
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = passkeys.SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET
+# if you are using HTTPS, set this to True
+SOCIAL_AUTH_GOOGLE_OAUTH2_IGNORE_DEFAULT_SCOPE = False
+SOCIAL_AUTH_GOOGLE_OAUTH2_USE_UNIQUE_USER_ID = True
+# SOCIAL_AUTH_FIELDS_STORED_IN_SESSION = ['state']
+# SOCIAL_AUTH_GOOGLE_OAUTH2_AUTH_EXTRA_ARGUMENTS = {'state': 'random_value'}
+SOCIAL_AUTH_GOOGLE_OAUTH2_AUTH_EXTRA_ARGUMENTS = {
+    'redirect_uri': 'http://127.0.0.1:8000/auth/google/callback/'}
+
+CSRF_COOKIE_SECURE = False
+LOGIN_REDIRECT_URL = '/auth/me'
+LOGOUT_REDIRECT_URL = '/'
 # LOGIN_URL = '/login/'
+# SOCIAL_AUTH_OAUTH2_IGNORE_STATE = True

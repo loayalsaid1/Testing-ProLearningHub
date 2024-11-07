@@ -47,19 +47,7 @@ def edit_course(request, course_id):
         form = CourseForm(instance=course)
     return render(request, 'add_course.html', {'form': form, 'course': course})
 
-
-''' hold on, working on a better one below ⬇️
-@login_required
-def course_detail(request, course_id):
-    course = get_object_or_404(Courses, pk=course_id)
-    resources = course.course_resources_set.all()
-    students = Enrollments.objects.filter(course_id=course_id)
-    return render(request, 'course_detail.html', {'course': course, 'resources': resources, 'students': students})
-'''
-
-# for adding resources
-
-
+# Add a Course Resource
 def add_resource(request, course_id):
     ''' A view to Upload a Resource '''
     course = get_object_or_404(Courses, pk=course_id)
@@ -74,10 +62,9 @@ def add_resource(request, course_id):
         form = CourseResourceForm()
     return render(request, "add_resource.html", {"form": form, "course": course})
 
-# edit a resource detail
-
-
+# Edit/update a resource detail
 def edit_resource(request, resource_id):
+    ''' A view to Update a Resource '''
     resource = get_object_or_404(Course_Resources, pk=resource_id)
     if request.method == "POST":
         form = CourseResourceForm(
@@ -89,9 +76,8 @@ def edit_resource(request, resource_id):
         form = CourseResourceForm(instance=resource)
     return render(request, "add_resource.html", {"form": form, "resource": resource})
 
-# For enrolling a student (lecturer view)
 
-
+# Enrol a student (lecturer view)
 @login_required
 def enroll_student(request, course_id):
     course = get_object_or_404(Courses, pk=course_id)

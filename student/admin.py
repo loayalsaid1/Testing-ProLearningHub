@@ -13,7 +13,7 @@ class StudentsAdmin(admin.ModelAdmin):
 
 
 class CourseResourcesAdmin(admin.ModelAdmin):
-    list_display = ('resource_name', 'course')
+    list_display = ('resource_name', 'lecture')
 
 
 class ForumAdmin(admin.ModelAdmin):
