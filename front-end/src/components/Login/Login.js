@@ -52,7 +52,7 @@ export default function Login({ setType }) {
 		<button type='submit' disabled={isLoading}>Login</button>
 	</form>
 
-	<button type="button" onClick={() => setType('register')}>Register</button>
+	<button type="button" onClick={() => navigate('/register')}>Register</button>
 
 	<GoogleLogin
   onSuccess={handleGoogleLoginSuccess}
