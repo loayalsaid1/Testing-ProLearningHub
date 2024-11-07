@@ -15,6 +15,7 @@ import Lecture from './components/Lecture/Lecture';
 import Replies from './components/Replies/Replies';
 import Login from './components/Login/Login';
 import Register from './components/Register/Register';
+import FakeHome from './components/FakeHome/FakeHome';
 
 
 function ProtectedLayout() {
@@ -25,7 +26,6 @@ function ProtectedLayout() {
 }
 
 function App() {
-  const name = useSelector((state) => state.hello.get('name'));
   const isLoading = useSelector((state) => state.ui.get('isLoading'));
   const dispatch = useDispatch();
 
@@ -33,7 +33,6 @@ function App() {
     dispatch(logout());
     googleLogout();
   };
-
 
   return (
     <div className="APP">
@@ -49,22 +48,14 @@ function App() {
         <Routes>
           <Route path='/login' element={<Login />} />
           <Route path='/Register' element={<Register />} />
-          <Route element={<ProtectedLayout />}>
-            <Route path="/" element={<Lectures />} />
+          <Route path="/" element={<ProtectedLayout />}>
+            <Route index element={<FakeHome />} />
+            <Route path="/lectures" element={<Lectures />} />
             <Route path="/announcements" element={<Announcements />} />
             <Route path="/discussion" element={<GeneralDiscussion />} />
           </Route>
           <Route path="*" element={<h1>Oops, not found!</h1>} />
         </Routes>
-          {/* <>
-          <p>Hello: {name}</p>
-          <button type="button" onClick={() => dispatch(toggleName())}>
-            Toggle name
-          </button>
-          <div>
-
-          </div>
-        </> */}
       <Toaster reverseOrder={true} />
       </header>
     </div>
