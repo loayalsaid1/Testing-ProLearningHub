@@ -1,7 +1,8 @@
 import toast from 'react-hot-toast';
 import * as uiActions from '../actions/uiActionTypes';
 import * as lecturesActions from '../actions/lecturesActionTypes';
-
+import { LECTURE_DISCUSSION_FAILURE } from '../actions/discussionsActionTypes';
+import { FETCH_ANNOUNCEMENTS_FAILURE, FETCH_ANNOUNCEMENT_COMMENTS_FAILURE } from '../actions/announcementsActionTypes';
 
 const toastMiddleware = (store) => (next) => (action) => {
 	switch (action.type) {
@@ -39,6 +40,21 @@ const toastMiddleware = (store) => (next) => (action) => {
 			return next(action);
 		}
 
+		case LECTURE_DISCUSSION_FAILURE: {
+			toast.error(action.payload.errorMessage);
+			return next(action);
+		}
+
+		case FETCH_ANNOUNCEMENTS_FAILURE: {
+			toast.error(action.payload.errorMessage);
+			return next(action);
+		}
+
+		case FETCH_ANNOUNCEMENT_COMMENTS_FAILURE: {
+			toast.error(action.payload.errorMessage);
+			return next(action);
+		}
+		
 		default: {
 			return next(action);
 		}

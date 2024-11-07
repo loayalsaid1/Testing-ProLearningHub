@@ -35,3 +35,22 @@ export const lectureFailure = (errorMessage) => ({
     errorMessage,
   },
 });
+
+
+export const sectionsRequest = () => ({
+  type: actions.SECTIONS_REQUEST
+})
+
+export const sectionsSuccess = (sections) => ({
+  type: actions.SECTIONS_SUCCESS,
+  payload: {
+    sections
+  }
+})
+
+export const sectionsFailure = (errorMessage) => ({
+  type: actions.SECTIONS_FAILURE,
+  payload: {
+    errorMessage
+  }
+})
