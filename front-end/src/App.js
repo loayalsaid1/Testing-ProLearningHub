@@ -57,6 +57,7 @@ function App() {
             <Route path="/lectures" element={<Lectures />} />
             <Route path="/announcements" element={<Announcements />} />
             <Route path="/discussion" element={<GeneralDiscussion />} />
+            <Route path="questions/:questionId" element={<Replies />} />
           </Route>
           <Route path="*" element={<h1>Oops, not found!</h1>} />
         </Routes>

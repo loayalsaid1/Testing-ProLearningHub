@@ -11,14 +11,14 @@ import {
 } from '../../redux/selectors/DiscussionsSelectors';
 import QuestionHeader from './QuestionHeader';
 import RepliesList from './RepliesList';
+import { useParams } from 'react-router-dom';
 export default function Replies() {
-  const QUESTION_ID = 'question-1';
-
+  const { questionId } = useParams();
   const [showReplyEditor, setShowReplyEditor] = useState(false);
   const [reply, setReply] = useState('');
   const [replyFiles, setReplyFiles] = useState([]);
   const repliesIsLoading = useSelector(selectDiscussionsIsLoading);
-  const repliesSelector = makeRepliesSelector(QUESTION_ID);
+  const repliesSelector = makeRepliesSelector(questionId);
   const replies = useSelector(repliesSelector);
   const dispatch = useDispatch();
   const userPicture = useSelector((state) =>
@@ -28,15 +28,15 @@ export default function Replies() {
   useEffect(() => {
     // again... pass the logic of offline experience and also
     // real time pinging if new reply addid
-      dispatch(fetchReplies(QUESTION_ID));
-  }, [dispatch, QUESTION_ID]);
+      dispatch(fetchReplies(questionId));
+  }, [dispatch, questionId]);
 
   const handleSubmission = async () => {
     try {
       dispatch(toggleLoading());
       const newContent = await replaceTempImageUrls(reply, replyFiles, dispatch);
 
-      dispatch(addDiscussionReply(QUESTION_ID, newContent, replyFiles));
+      dispatch(addDiscussionReply(questionId, newContent, replyFiles));
     } catch (error) {
       console.error(error);
       dispatch(setError('discussion', 'Failed to submit reply.'));
