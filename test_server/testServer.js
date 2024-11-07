@@ -343,6 +343,55 @@ app.post('/questions/:id/replies', (req, res) => {
 
   res.status(201).json(newReply);
 });
+
+app.get('/courses/:id/announcements', (req, res) => {
+  const courseId = req.params.id;
+
+  // Mock announcements data
+
+
+  if (courseId === "testId") {
+    res.json(mockAnnouncements);
+  } else {
+    res.status(404).send({ message: 'Course not found' });
+  }
+});
+app.get('/announcements/:id/comments', (req, res) => {
+  const announcementId = req.params.id;
+  const ids = mockAnnouncements.map((announcement) => announcement.id);
+  ids.push('testId');
+  if (ids.includes(announcementId)) {
+    res.json(mockComments);
+  } else {
+    res.status(404).send({ message: 'Announcement not found' });
+  }
+});
+
+app.post('/announcements/:id/comments', (req, res) => {
+  const announcementId = req.params.id;
+  const { userId, comment } = req.body;
+
+  if (!userId || !comment) {
+    return res.status(400).send({ message: 'Missing required fields' });
+  }
+  console.log(comment)
+  const newComment = {
+    announcementId,
+    id: `comment-${Date.now()}`,
+    user: {
+      name: 'Anonymous',
+      pictureThumbnail: `https://picsum.photos/100`,
+    },
+    updatedAt: new Date().toISOString(),
+    body: comment,
+  };
+
+  // Here you would typically add the newComment to your database or data store.
+  // For this example, we'll just return it in the response.
+  mockComments.unshift(newComment);
+
+  res.status(201).json(newComment);
+});
 app.use((req, res, next) => {
   res.status(404).send({ message: 'Not found' });
 });
@@ -882,5 +931,95 @@ const mockReplies = [
     upvotes: 5,
     upvoted: false,
     body: 'How does react useEffect work?',
+  },
+];
+
+const mockAnnouncements = [
+  {
+    user: {
+      name: 'John Doe',
+      id: '1234567890',
+      pictureThumbnail: 'https://picsum.photos/100',
+    },
+    id: 'announcement-1',
+    title: 'This is the title of the announcement',
+    body: 'This is the content of the announcement',
+    commentsCount: 10,
+    updatedAt: '2022-01-01T00:00:00.000Z',
+  },
+  {
+    user: {
+      name: 'Jane Doe',
+      id: '9876543210',
+      pictureThumbnail: 'https://picsum.photos/101',
+    },
+    id: 'announcement-2',
+    title: 'This is the title of the second announcement',
+    body: 'This is the content of the second announcement',
+    commentsCount: 5,
+    updatedAt: '2024-11-01T00:00:00.000Z',
+  },
+];
+
+const mockComments = [
+  {
+    id: 'comment-1',
+    announcementId: 'testId',
+    user: {
+      name: 'John Doe',
+      pictureThumbnail: 'https://picsum.photos/100',
+    },
+    updatedAt: '2024-11-02T07:00:00.000Z',
+    upvotes: 50,
+    upvoted: true,
+    body: 'How does react hooks work?',
+  },
+  {
+    id: 'comment-2',
+    announcementId: 'testId',
+    user: {
+      name: 'Jane Doe',
+      pictureThumbnail: 'https://picsum.photos/101',
+    },
+    updatedAt: '2022-01-03T00:00:00.000Z',
+    upvotes: 30,
+    upvoted: false,
+    body: 'How does react context work?',
+  },
+  {
+    id: 'comment-3',
+    announcementId: 'testId',
+    user: {
+      name: 'John Doe',
+      pictureThumbnail: 'https://picsum.photos/102',
+    },
+    updatedAt: '2024-11-04T07:00:00.000Z',
+    upvotes: 20,
+    upvoted: false,
+    body: 'How does react useState work?',
+  },
+  {
+    id: 'comment-4',
+    announcementId: 'testId',
+    user: {
+      name: 'Jane Doe',
+      pictureThumbnail: 'https://picsum.photos/103',
+    },
+    updatedAt: '2022-01-05T00:00:00.000Z',
+    upvotes: 10,
+    upvoted: true,
+    body: 'How does react hooks work?',
+  },
+  {
+    id: 'comment-5',
+    announcementId: 'testId',
+    user: {
+      name: 'John Doe',
+      pictureThumbnail: 'https://picsum.photos/104',
+    },
+    updatedAt: '2024-11-06T07:00:00.000Z',
+    upvotes: 5,
+    upvoted: false,
+    body: 'How does react useState work?',
   },
 ];
