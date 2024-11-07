@@ -21,7 +21,7 @@ import FakeHome from './components/FakeHome/FakeHome';
 function ProtectedLayout() {
   const isLoggedIn = useSelector((state) => state.ui.get('isLoggedIn'));
   if (!isLoggedIn) {
-    sessionStorage.setItem(window.location.pathname);
+    sessionStorage.setItem('intendedPath', window.location.pathname);
     return <Navigate to="/login" replace/>
   } else {
     return <Outlet />

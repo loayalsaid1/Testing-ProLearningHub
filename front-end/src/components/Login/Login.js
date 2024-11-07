@@ -15,9 +15,9 @@ export default function Login({ setType }) {
 
 		if (intendedPath) {
 			sessionStorage.removeItem('intendedPath');
-			nagivate(intendedPath, {replace: true});
+			navigate(intendedPath, {replace: true});
 		} else {
-			nagivate('/');
+			navigate('/');
 		}
 	}
 
