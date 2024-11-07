@@ -25,12 +25,13 @@ export const loginFailure = (errorMessage) => (dispatch) => {
 };
 
 export function formLogin(email, password) {
-  const request = new Request(`${DOMAIN}/auth/login`, {
+  const request = new Request(`${DOMAIN}/auth/login/`, {
     method: 'POST',
     body: JSON.stringify({ email, password }),
     headers: {
       'Content-Type': 'application/json',
     },
+    mode: 'no-cors'
   });
 
   return login(request);
@@ -115,12 +116,14 @@ export const registerSuccess = (user) => {
 };
 
 export const formRegister = (userData) => {
-  const request = new Request(`${DOMAIN}/auth/register`, {
+  // const request = new Request(`${DOMAIN}/auth/register`, {
+  const request = new Request(`${DOMAIN}/api/register`, {
     method: 'POST',
     body: JSON.stringify({userData}),
     headers: {
       'Content-Type': 'application/json',
     },
+    mode: 'no-cors',
   });
 
   return register(request);
