@@ -263,10 +263,11 @@ def course_lectures(request, course_id):
     serializer = LectureSerializer(lecture, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+
 @api_view(['GET'])
 def course_lectures_by_id(request, course_id, lecture_id):
     course = get_object_or_404(Courses, course_id=course_id)
-    lecture = get_object_or_404(Lecture, lecture_id, course=course)
+    lecture = get_object_or_404(Lecture, course=course, lecture_id=lecture_id)
     serializer = LectureSerializer(lecture, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -308,7 +309,7 @@ def edit_lecture(request, course_id, lecture_id):
                     'lecture_description')
                 lecture = Lecture.objects.filter(Q(course=course) & Q(
                     lecture_id=lecture_id)).update(lecture_name=lecture_name,
-                                                 lecture_description=lecture_description)
+                                                   lecture_description=lecture_description)
                 lecture.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -341,6 +342,7 @@ def all_resources_by_lecture(request, course_id, lecture_id):
     serializer = CoursesResourcesSerializer(resource, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+
 @api_view(['GET'])
 def resource_by_lecture(request, course_id, lecture_id, resource_id):
     course = get_object_or_404(Courses, course_id=course_id)
@@ -361,12 +363,13 @@ def create_resource_by_lecture(request, course_id, lecture_id):
 
             if serializer.is_valid():
                 course = Courses.objects.filter(course_id=course_id).first()
-                lecture = get_object_or_404(Lecture, course=course, lecture_id=lecture_id)
+                lecture = get_object_or_404(
+                    Lecture, course=course, lecture_id=lecture_id)
                 resource_name = serializer.validated_data.get('resource_name')
                 resource_file = serializer.validated_data.get('resource_file')
                 resource_link = serializer.validated_data.get('resource_link')
                 resource = Course_Resources.objects.create(course=course, lecture=lecture,
-                                                 resource_name=resource_name, resource_file=resource_file, resource_link=resource_link)
+                                                           resource_name=resource_name, resource_file=resource_file, resource_link=resource_link)
                 resource.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -389,7 +392,7 @@ def edit_resource_by_lecture(request, course_id, lecture_id, resource_id):
                     'lecture_description')
                 lecture = Lecture.objects.filter(Q(course=course) & Q(
                     lecture_id=lecture_id)).update(lecture_name=lecture_name,
-                                                 lecture_description=lecture_description)
+                                                   lecture_description=lecture_description)
                 lecture.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -412,6 +415,7 @@ def delete_resource_by_lecture(request, course_id, lecture_id, resource_id):
         lecture.delete()
         return Response({"message": "Lecture deleted successfully"}, status=status.HTTP_200_OK)
     return Response({"message": "You are not a tutor"}, status=status.HTTP_401_UNAUTHORIZED)
+
 
 class FacialRecognitionListView(APIView):
     def get(self, request):
