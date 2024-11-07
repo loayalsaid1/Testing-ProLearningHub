@@ -7,7 +7,7 @@ urlpatterns = [
 
 
     # BASIC AUTHENTICATION, REGISTRATION AND LOGOUT
-    path('register/', views.register, name='api_register'),
+    path('register', views.register, name='api_register'),
     path('reset_password/', views.reset_password, name='api_reset_password'),
     path('reset_token/<str:token>', views.reset_token, name='api_reset_token'),
     path('login/', views.login, name='api_login'),
@@ -30,7 +30,7 @@ urlpatterns = [
     # Lectures
     path("course/<int:course_id>/lectures",
          views.course_lectures, name="course_lectures"),
-     path("course/<int:course_id>/lectures/<int:lecture_id>/",
+    path("course/<int:course_id>/lectures/<int:lecture_id>/",
          views.course_lectures_by_id, name="course_lectures_byid"),
 
     # Lecture Resources

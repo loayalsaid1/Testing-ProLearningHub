@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import logging
 from pathlib import Path
 import os
-
+from . import passkeys
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'api',
     'social_django',
     'rest_framework',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -61,6 +62,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'schoolhub.urls'
@@ -150,7 +152,7 @@ EMAIL_HOST = 'smtp.gmail.com'          # SMTP server address
 EMAIL_PORT = 587                       # SMTP server port (587 for TLS)
 EMAIL_USE_TLS = True                   # Use TLS (Transport Layer Security)
 EMAIL_HOST_USER = 'georgekwm1@gmail.com'  # Your email address (sender)
-EMAIL_HOST_PASSWORD = ''  # Your email account's password
+EMAIL_HOST_PASSWORD = passkeys.EMAIL_HOST_PASSWORD  # Your email account's password
 DEFAULT_FROM_EMAIL = 'georgekwm1@gmail.com'  # Default from email address
 
 
@@ -175,8 +177,8 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
 SOCIAL_AUTH_GOOGLE_OAUTH2_REDIRECT_URI = 'http://127.0.0.1:8000/auth/google/callback/'
 # SOCIAL_AUTH_GOOGLE_OAUTH2_REDIRECT_URI = 'http://127.0.0.1:8000/oauth/complete/google-oauth2/'
 SOCIAL_AUTH_REDIRECT_IS_HTTPS = False
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ''
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = passkeys.SOCIAL_AUTH_GOOGLE_OAUTH2_KEY
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = passkeys.SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET
 # if you are using HTTPS, set this to True
 SOCIAL_AUTH_GOOGLE_OAUTH2_IGNORE_DEFAULT_SCOPE = False
 SOCIAL_AUTH_GOOGLE_OAUTH2_USE_UNIQUE_USER_ID = True
@@ -189,6 +191,12 @@ CSRF_COOKIE_SECURE = False
 LOGIN_REDIRECT_URL = '/auth/me'
 LOGOUT_REDIRECT_URL = '/'
 
-APPEND_SLASH = True
+APPEND_SLASH = False
 # LOGIN_URL = '/login/'
 # SOCIAL_AUTH_OAUTH2_IGNORE_STATE = True
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3001",
+]
+
+CORS_ALLOW_ALL_ORIGINS = True
