@@ -43,9 +43,12 @@ class UserListView(APIView):
 
 class UserIdView(APIView):
     def get(self, request, user_id):
-        users = Users.objects.filter(user_id=user_id)
-        serializer = UserSerializer(users, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        try:
+            user = Users.objects.get(user_id=user_id)
+            serializer = UserSerializer(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Users.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['POST'])
@@ -87,6 +90,8 @@ def login(request):
 
 @api_view(['POST'])
 def logout(request):
+    if request.session.get('user_id') is None:
+        return Response({'message': 'You are already Logged out'}, status=status.HTTP_401_UNAUTHORIZED)
     request.session.flush()
     return Response({'message': 'Logout successful'}, status=status.HTTP_200_OK)
 
@@ -221,7 +226,7 @@ class CoursesListView(APIView):
         session_id = request.session.get('user_id')
         if session_id is None:
             return Response({'message': 'You are not logged in'}, status=status.HTTP_403_FORBIDDEN)
-        user = Users.objects.get(user=session_id)
+        user = Users.objects.get(user_id=session_id)
         if user.role == 'tutor':
             serializer = CoursesSerializer(data=request.data)
             if serializer.is_valid():
@@ -252,7 +257,92 @@ class CourseResourcesListView(APIView):
 
 
 @api_view(['GET'])
-def resources_by_course(request, course_id, lecture_id, resource_id):
+def course_lectures(request, course_id):
+    course = get_object_or_404(Courses, course_id=course_id)
+    lecture = get_object_or_404(Lecture, course=course)
+    serializer = LectureSerializer(lecture, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def course_lectures_by_id(request, course_id, lecture_id):
+    course = get_object_or_404(Courses, course_id=course_id)
+    lecture = get_object_or_404(Lecture, course=course, lecture_id)
+    serializer = LectureSerializer(lecture, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+def create_lecture(request, course_id):
+    session_id = request.session.get('user_id')
+    if session_id is not None:
+        user = Users.objects.get(user_id=session_id)
+        if user.role == 'tutor':
+            serializer = LectureSerializer(data=request.data)
+
+            if serializer.is_valid():
+                course = Courses.objects.filter(course_id=course_id).first()
+                lecture_name = serializer.validated_data.get('lecture_name')
+                lecture_description = serializer.validated_data.get(
+                    'lecture_description')
+                lecture = Lecture.objects.create(course=course, lecture_name=lecture_name,
+                                                 lecture_description=lecture_description)
+                lecture.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"message": "You are not a tutor"}, status=status.HTTP_401_UNAUTHORIZED)
+    return Response({"message": "You must login first"}, status=status.HTTP_403_FORBIDDEN)
+
+
+@api_view(['PUT'])
+def edit_lecture(request, course_id, lecture_id):
+    session_id = request.session.get('user_id')
+    if session_id is not None:
+        user = Users.objects.get(user_id=session_id)
+        if user.role == 'tutor':
+            serializer = AnnouncementSerializer(data=request.data)
+
+            if serializer.is_valid():
+                course = Courses.objects.filter(course_id=course_id).first()
+                lecture_name = serializer.validated_data.get('lecture_name')
+                lecture_description = serializer.validated_data.get(
+                    'lecture_description')
+                lecture = Lecture.objects.filter(Q(course=course) & Q(
+                    lecture_id=lecture_id)).update(lecture_name=lecture_name,
+                                                 lecture_description=lecture_description)
+                lecture.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"message": "You are not a tutor"}, status=status.HTTP_401_UNAUTHORIZED)
+    return Response({"message": "You must login first"}, status=status.HTTP_403_FORBIDDEN)
+
+
+@api_view(['DELETE'])
+def delete_lecture(request, course_id, lecture_id):
+    session_id = request.session.get('user_id')
+    if session_id is None:
+        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
+    user = Users.objects.get(user_id=session_id)
+    if user.role == 'tutor':
+        course = Courses.objects.filter(course_id=course_id).first()
+        lecture = Lecture.objects.filter(Q(course=course) & Q(
+            lecture_id=lecture_id)).first()
+        if not lecture:
+            return Response({"message": "Lecture not found"}, status=status.HTTP_404_NOT_FOUND)
+        lecture.delete()
+        return Response({"message": "Lecture deleted successfully"}, status=status.HTTP_200_OK)
+    return Response({"message": "You are not a tutor"}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+@api_view(['GET'])
+def all_resources_by_lecture(request, course_id, lecture_id):
+    course = get_object_or_404(Courses, course_id=course_id)
+    lecture = get_object_or_404(Lecture, course=course, lecture_id=lecture_id)
+    resource = Course_Resources.objects.filter(lecture=lecture)
+    serializer = CoursesResourcesSerializer(resource, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def resource_by_lecture(request, course_id, lecture_id, resource_id):
     course = get_object_or_404(Courses, course_id=course_id)
     lecture = get_object_or_404(Lecture, course=course, lecture_id=lecture_id)
     resource = Course_Resources.objects.filter(
@@ -261,14 +351,67 @@ def resources_by_course(request, course_id, lecture_id, resource_id):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-@api_view(['GET'])
-def all_resource_by_course(request, course_id, lecture_id):
-    course = get_object_or_404(Courses, course_id=course_id)
-    lecture = get_object_or_404(Lecture, course=course, lecture_id=lecture_id)
-    resource = Course_Resources.objects.filter(lecture=lecture)
-    serializer = CoursesResourcesSerializer(resource, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+@api_view(['POST'])
+def create_resource_by_lecture(request, course_id, lecture_id):
+    session_id = request.session.get('user_id')
+    if session_id is not None:
+        user = Users.objects.get(user_id=session_id)
+        if user.role == 'tutor':
+            serializer = CoursesResourcesSerializer(data=request.data)
 
+            if serializer.is_valid():
+                course = Courses.objects.filter(course_id=course_id).first()
+                lecture = get_object_or_404(Lecture, course=course, lecture_id=lecture_id)
+                resource_name = serializer.validated_data.get('resource_name')
+                resource_file = serializer.validated_data.get('resource_file')
+                resource_link = serializer.validated_data.get('resource_link')
+                resource = Course_Resources.objects.create(course=course, lecture=lecture,
+                                                 resource_name=resource_name, resource_file=resource_file, resource_link=resource_link)
+                resource.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"message": "You are not a tutor"}, status=status.HTTP_401_UNAUTHORIZED)
+    return Response({"message": "You must login first"}, status=status.HTTP_403_FORBIDDEN)
+
+
+@api_view(['PUT'])
+def edit_resource_by_lecture(request, course_id, lecture_id, resource_id):
+    session_id = request.session.get('user_id')
+    if session_id is not None:
+        user = Users.objects.get(user_id=session_id)
+        if user.role == 'tutor':
+            serializer = AnnouncementSerializer(data=request.data)
+
+            if serializer.is_valid():
+                course = Courses.objects.filter(course_id=course_id).first()
+                lecture_name = serializer.validated_data.get('lecture_name')
+                lecture_description = serializer.validated_data.get(
+                    'lecture_description')
+                lecture = Lecture.objects.filter(Q(course=course) & Q(
+                    lecture_id=lecture_id)).update(lecture_name=lecture_name,
+                                                 lecture_description=lecture_description)
+                lecture.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"message": "You are not a tutor"}, status=status.HTTP_401_UNAUTHORIZED)
+    return Response({"message": "You must login first"}, status=status.HTTP_403_FORBIDDEN)
+
+
+@api_view(['DELETE'])
+def delete_resource_by_lecture(request, course_id, lecture_id, resource_id):
+    session_id = request.session.get('user_id')
+    if session_id is None:
+        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
+    user = Users.objects.get(user_id=session_id)
+    if user.role == 'tutor':
+        course = Courses.objects.filter(course_id=course_id).first()
+        lecture = Lecture.objects.filter(Q(course=course) & Q(
+            lecture_id=lecture_id)).first()
+        if not lecture:
+            return Response({"message": "Lecture not found"}, status=status.HTTP_404_NOT_FOUND)
+        lecture.delete()
+        return Response({"message": "Lecture deleted successfully"}, status=status.HTTP_200_OK)
+    return Response({"message": "You are not a tutor"}, status=status.HTTP_401_UNAUTHORIZED)
 
 class FacialRecognitionListView(APIView):
     def get(self, request):

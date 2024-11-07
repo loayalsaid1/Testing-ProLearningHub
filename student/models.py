@@ -95,11 +95,11 @@ class Course_Resources(models.Model):
 class Enrollments(models.Model):
     enrollment_id = models.BigAutoField(auto_created=True, primary_key=True)
     student = models.ForeignKey(Students, on_delete=models.CASCADE)
-    course = models.CharField(max_length=100, null=True, blank=True)
+    course_name = models.CharField(max_length=100, null=True, blank=True)
     semester = models.CharField(max_length=50, null=True, blank=True)
     year = models.CharField(max_length=50, null=True, blank=True)
     grade = models.CharField(max_length=50, null=True, blank=True)
-    course_id = models.ForeignKey(Courses, on_delete=models.CASCADE)
+    course = models.ForeignKey(Courses, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.student.user.first_name + " " + self.student.user.last_name + " - " + self.course

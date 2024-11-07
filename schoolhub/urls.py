@@ -29,7 +29,7 @@ urlpatterns = [
     path('auth/', include('authentication.urls')),
     path('lecturer/', include('tutor.urls', )),
     path('student/', include('student.urls', )),
-    path('api/', include('api.urls', )),
+    path('api/', include('api.urls')),
     path('oauth/', include('social_django.urls', namespace='social')),
     path('auth/google/login/', views.google_login, name='google_login'),
     path('auth/google/callback/',

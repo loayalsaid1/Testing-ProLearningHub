@@ -11,7 +11,7 @@ urlpatterns = [
     path('reset_password/', views.reset_password, name='api_reset_password'),
     path('reset_token/<str:token>', views.reset_token, name='api_reset_token'),
     path('login/', views.login, name='api_login'),
-    path('logout/', views.login, name='api_logout'),
+    path('logout/', views.logout, name='api_logout'),
 
     # GET LIST OF ITEMS AND RESOURCES OR CREATE THEM
     path('users/', views.UserListView.as_view(),
@@ -20,15 +20,24 @@ urlpatterns = [
     path('students/', views.StudentListView.as_view(), name='api_students'),
     path('lecturers/', views.LecturerListView.as_view(), name='api_lecturers'),
     # GET & POST(must be a tutor to post)
+
+    # GET
+    # Course
     path('courses/', views.CoursesListView.as_view(), name='api_courses'),
     path('course_resources/', views.CourseResourcesListView.as_view(),  # GET & POST(must be a tutor to post)
          name='api_course_resources'),
+
+    # Lectures
     path("course/<int:course_id>/lectures",
-         views.course_detail_view, name="course_lectures"),
+         views.course_lectures, name="course_lectures"),
+     path("course/<int:course_id>/lectures/<int:lecture_id>/",
+         views.course_lectures_by_id, name="course_lectures_byid"),
+
+    # Lecture Resources
     path('course/<int:course_id>/lecture/<int:lecture_id>/resource/<int:resource_id>',  # GET:
-         views.resources_by_course, name='api_resource_of_lecture_of_course'),
+         views.resource_by_lecture, name='api_resource_of_lecture'),
     path('course/<int:course_id>/lecture/<int:lecture_id>/resources/',   # GET
-         views.all_resource_by_course, name='api_resources_of_course'),
+         views.all_resources_by_lecture, name='api_resources_of_lecture'),
     path('facial_recognitions/',
          views.FacialRecognitionListView.as_view(), name='api_facial_recognitions'),
     #     path('chats/', views.ChatListView.as_view()),

@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'authentication',
     'api',
     'social_django',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
