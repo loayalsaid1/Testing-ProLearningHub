@@ -110,7 +110,11 @@ urlpatterns = [
     # Announcements and Comments in announcements
     path("course/<int:course_id>/announcements",
          views.announcements, name="announcements"),
-    path("course/<int:course_id>/comment", views.comment, name="comment"),
+    path("course/<int:course_id>/announcement/<int:announcement_id>",
+         views.announcement_by_id, name="announcement_by_id"),
+    path("course/<int:course_id>/comment", views.comments, name="comments"),
+    path("course/<int:course_id>/comment",
+         views.comment_by_id, name="comment_by_id"),
 
     # Upvotes for Threads and Chats
     path("thread/<int:thread_id>/upvote",
@@ -128,7 +132,7 @@ urlpatterns = [
 
     # Chats in threads
     path("course/<int:course_id>/forum/<int:forum_id>/thread/<int:thread_id>/chat/create",
-         views.chats_in_forum_by_course, name="create_chat"),
+         views.create_chat, name="create_chat"),
 
     # Announcements and Comments in announcements
     path("course/<int:course_id>/announcement/create",

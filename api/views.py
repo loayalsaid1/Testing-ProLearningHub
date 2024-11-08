@@ -313,6 +313,9 @@ class CourseResourcesListView(APIView):
 
 @api_view(['GET'])
 def course_lectures(request, course_id):
+    session_id = request.session.get('user_id')
+    if session_id is None:
+        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
     course = get_object_or_404(Courses, course_id=course_id)
     lecture = Lecture.objects.filter(course=course)
     serializer = LectureSerializer(lecture, many=True)
@@ -321,6 +324,9 @@ def course_lectures(request, course_id):
 
 @api_view(['GET'])
 def course_lecture_by_id(request, course_id, lecture_id):
+    session_id = request.session.get('user_id')
+    if session_id is None:
+        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
     course = get_object_or_404(Courses, course_id=course_id)
     lecture = Lecture.objects.filter(
         Q(course=course) & Q(lecture_id=lecture_id)).first()
@@ -387,6 +393,9 @@ def delete_lecture(request, course_id, lecture_id):
 
 @api_view(['GET'])
 def all_resources_by_lecture(request, course_id, lecture_id):
+    session_id = request.session.get('user_id')
+    if session_id is None:
+        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
     course = get_object_or_404(Courses, course_id=course_id)
     lecture = get_object_or_404(Lecture, course=course, lecture_id=lecture_id)
     resource = Course_Resources.objects.filter(lecture=lecture)
@@ -586,9 +595,12 @@ def delete_forum(request, course_id, forum_id):
 
 @api_view(['GET'])
 def chats_in_forum_by_course(request, course_id, forum_id):
+    session_id = request.session.get('user_id')
+    if session_id is None:
+        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
     course = Courses.objects.filter(course_id=course_id).first()
     forum = Forum.objects.filter(
-        course=course) & Forum.objects.filter(forum_id=forum_id)
+        Q(course=course) & Q(forum_id=forum_id)).first()
     threads = Thread.objects.filter(forum=forum)
     new_data = []
     for thread in threads:
@@ -600,13 +612,17 @@ def chats_in_forum_by_course(request, course_id, forum_id):
 
 @api_view(['GET'])
 def chat_in_forum_by_course(request, course_id, forum_id, chat_id):
+    session_id = request.session.get('user_id')
+    if session_id is None:
+        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
     course = Courses.objects.filter(course_id=course_id).first()
     forum = Forum.objects.filter(
-        course=course) & Forum.objects.filter(forum_id=forum_id)
+        Q(course=course) & Q(forum_id=forum_id)).first()
     threads = Thread.objects.filter(forum=forum)
     new_data = []
     for thread in threads:
-        comments = Chats.objects.filter(Q(thread=thread) & Q(chat_id=chat_id))
+        comments = Chats.objects.filter(
+            Q(thread=thread) & Q(chat_id=chat_id)).first()
         serializer = ChatsSerializer(comments, many=True)
         new_data.append(serializer.data)
     return Response(new_data, status=status.HTTP_200_OK)
@@ -618,18 +634,14 @@ def create_chat(request, course_id, forum_id, thread_id):
     if session_id is None:
         return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
     user = Users.objects.get(user_id=session_id)
-
+    course = Courses.objects.filter(course_id=course_id).first()
+    forum = Forum.objects.filter(
+        Q(course=course) & Q(forum_id=forum_id)).first()
+    thread = Thread.objects.filter(
+        Q(thread_id=thread_id) & Q(forum=forum)).first()
     serializer = ChatsSerializer(data=request.data)
     if serializer.is_valid():
-        course = Courses.objects.filter(course_id=course_id).first()
-        forum = Forum.objects.filter(forum_id=forum_id).first()
-        message = serializer.validated_data.get('message')
-        thread = Thread.objects.filter(
-            Q(thread_id=thread_id) & Q(forum=forum)).first()
-        chat = Chats.objects.create(thread=thread,
-                                    course=course, message=message, sender=user)
-
-        chat.save()
+        serializer.save(sender=user, thread=thread)
         return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -640,18 +652,16 @@ def edit_chat(request, course_id, forum_id, thread_id, chat_id):
     if session_id is None:
         return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
     user = Users.objects.get(user_id=session_id)
-
-    serializer = ChatsSerializer(data=request.data)
+    course = Courses.objects.filter(course_id=course_id).first()
+    forum = Forum.objects.filter(
+        Q(forum_id=forum_id) & Q(course=course)).first()
+    thread = Thread.objects.filter(
+        Q(thread_id=thread_id) & Q(forum=forum)).first()
+    chat = Chats.objects.filter(Q(thread=thread) & Q(
+        chat_id=chat_id) & Q(sender=user)).first()
+    serializer = ChatsSerializer(chat, data=request.data, partial=True)
     if serializer.is_valid():
-        course = Courses.objects.filter(course_id=course_id).first()
-        forum = Forum.objects.filter(forum_id=forum_id).first()
-        message = serializer.validated_data.get('message')
-        thread = Thread.objects.filter(
-            Q(thread_id=thread_id) & Q(forum=forum)).first()
-        chat = Chats.objects.filter(Q(thread=thread) & Q(course=course) & Q(
-            chat_id=chat_id) & Q(sender=user)).update(message=message)
-
-        chat.save()
+        serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -676,9 +686,13 @@ def delete_chat(request, course_id, forum_id, thread_id, chat_id):
 
 @api_view(['GET'])
 def threads_in_forum_by_course(request, course_id, forum_id):
+    session_id = request.session.get('user_id')
+    if session_id is None:
+        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
+    user = Users.objects.get(user_id=session_id)
     course = Courses.objects.filter(course_id=course_id).first()
     forum = Forum.objects.filter(
-        course=course) & Forum.objects.filter(forum_id=forum_id)
+        Q(course=course) & Q(forum_id=forum_id)).first()
     threads = Thread.objects.filter(forum=forum)
     serializer = ThreadSerializer(threads, many=True)
     if threads:
@@ -689,11 +703,15 @@ def threads_in_forum_by_course(request, course_id, forum_id):
 
 @api_view(['GET'])
 def thread_in_forum_by_course(request, course_id, forum_id, thread_id):
+    session_id = request.session.get('user_id')
+    if session_id is None:
+        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
     course = Courses.objects.filter(course_id=course_id).first()
     forum = Forum.objects.filter(
-        course=course) & Forum.objects.filter(forum_id=forum_id)
-    threads = Thread.objects.filter(Q(forum=forum) & Q(thread_id=thread_id))
-    serializer = ThreadSerializer(threads, many=True)
+        Q(course=course) & Q(forum_id=forum_id)).first()
+    threads = Thread.objects.filter(
+        Q(forum=forum) & Q(thread_id=thread_id)).first()
+    serializer = ThreadSerializer(threads, many=False)
     if threads:
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -706,17 +724,12 @@ def create_thread(request, course_id, forum_id):
     if session_id is None:
         return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
     user = Users.objects.get(user_id=session_id)
-
+    course = Courses.objects.filter(course_id=course_id).first()
+    forum = Forum.objects.filter(
+        Q(forum_id=forum_id) & Q(course=course)).first()
     serializer = ThreadSerializer(data=request.data)
     if serializer.is_valid():
-        course = Courses.objects.filter(course_id=course_id).first()
-        forum = Forum.objects.filter(forum_id=forum_id).first()
-        title = serializer.validated_data.get('title')
-        description = serializer.validated_data.get('description')
-        thread = Thread.objects.create(
-            course=course, forum=forum,  title=title, description=description, user=user)
-
-        thread.save()
+        serializer.save(forum=forum, user=user)
         return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -727,18 +740,14 @@ def edit_thread(request, course_id, forum_id, thread_id):
     if session_id is None:
         return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
     user = Users.objects.get(user_id=session_id)
-
-    serializer = ThreadSerializer(data=request.data)
+    course = Courses.objects.filter(course_id=course_id).first()
+    forum = Forum.objects.filter(
+        Q(course=course) & Q(forum_id=forum_id)).first()
+    thread = Thread.objects.filter(Q(forum=forum) & Q(
+        user=user) & Q(thread_id=thread_id)).first()
+    serializer = ThreadSerializer(thread, data=request.data, partial=True)
     if serializer.is_valid():
-        course = Courses.objects.filter(course_id=course_id).first()
-        forum = Forum.objects.filter(
-            Q(course=course) & Q(forum_id=forum_id)).first()
-        title = serializer.validated_data.get('title')
-        description = serializer.validated_data.get('description')
-        thread = Thread.objects.filter(Q(forum=forum) & Q(
-            user=user) & Q(thread_id=thread_id)).update(title=title, description=description)
-
-        thread.save()
+        serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -761,9 +770,24 @@ def delete_thread(request, course_id, forum_id, thread_id):
 
 @api_view(['GET'])
 def announcements(request, course_id):
+    session_id = request.session.get('user_id')
+    if session_id is None:
+        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
     course = Courses.objects.filter(course_id=course_id).first()
     announcement = Announcement.objects.filter(course=course)
     serializer = AnnouncementSerializer(announcement, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def announcement_by_id(request, course_id, announcement_id):
+    session_id = request.session.get('user_id')
+    if session_id is None:
+        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
+    course = Courses.objects.filter(course_id=course_id).first()
+    announcement = Announcement.objects.filter(
+        Q(course=course) & Q(announcement_id=announcement_id)).first
+    serializer = AnnouncementSerializer(announcement, many=False)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -774,15 +798,10 @@ def create_announcement(request, course_id):
         user = Users.objects.get(user_id=session_id)
         if user.role == 'tutor':
             serializer = AnnouncementSerializer(data=request.data)
-
+            course = Courses.objects.filter(course_id=course_id).first()
+            lecturer = Lecturer.objects.filter(user=user).first()
             if serializer.is_valid():
-                course = Courses.objects.filter(course_id=course_id).first()
-                lecturer = Lecturer.objects.filter(user=user)
-                title = serializer.validated_data.get('title')
-                content = serializer.validated_data.get('content')
-                announcement = Announcement.objects.create(course=course, lecturer=lecturer,
-                                                           title=title, content=content)
-                announcement.save()
+                serializer.save(course=course, lecturer=lecturer)
                 return Response(serializer.data, status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response({"message": "You are not a tutor"}, status=status.HTTP_401_UNAUTHORIZED)
@@ -795,16 +814,14 @@ def edit_announcement(request, course_id, announcement_id):
     if session_id is not None:
         user = Users.objects.get(user_id=session_id)
         if user.role == 'tutor':
-            serializer = AnnouncementSerializer(data=request.data)
-
+            course = Courses.objects.filter(course_id=course_id).first()
+            lecturer = Lecturer.objects.filter(user=user).first()
+            announcement = Announcement.objects.filter(Q(course=course) & Q(
+                lecturer=lecturer) & Q(announcement_id))
+            serializer = AnnouncementSerializer(
+                announcement, data=request.data, partial=True)
             if serializer.is_valid():
-                course = Courses.objects.filter(course_id=course_id).first()
-                lecturer = Lecturer.objects.filter(user=user).first()
-                title = serializer.validated_data.get('title')
-                content = serializer.validated_data.get('content')
-                announcement = Announcement.objects.filter(Q(course=course) & Q(
-                    lecturer=lecturer) & Q(announcement_id)).update(title=title, content=content)
-                announcement.save()
+                serializer.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response({"message": "You are not a tutor"}, status=status.HTTP_401_UNAUTHORIZED)
@@ -830,11 +847,29 @@ def delete_announcement(request, course_id, announcement_id):
 
 
 @api_view(['GET'])
-def comment(request, course_id):
+def comments(request, course_id):
+    session_id = request.session.get('user_id')
+    if session_id is None:
+        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
+    user = Users.objects.get(user_id=session_id)
     course = Courses.objects.filter(course_id=course_id).first()
     announcement = Announcement.objects.filter(course=course)
-    comments = Comment.objects.filter(announcement=announcement)
+    comments = Comment.objects.filter(
+        Q(announcement=announcement) & Q(user=user))
     serializer = CommentSerializer(comments, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+def comment_by_id(request, course_id, comment_id):
+    session_id = request.session.get('user_id')
+    if session_id is None:
+        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
+    user = Users.objects.get(user_id=session_id)
+    course = Courses.objects.filter(course_id=course_id).first()
+    announcement = Announcement.objects.filter(course=course)
+    comment = Comment.objects.filter(Q(announcement=announcement) & Q(
+        user=user) & Q(comment_id=comment_id)).first()
+    serializer = CommentSerializer(comment, many=False)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -845,15 +880,11 @@ def create_comment(request, course_id, announcement_id):
         user = Users.objects.get(user_id=session_id)
 
         serializer = CommentSerializer(data=request.data)
-
+        course = Courses.objects.filter(course_id=course_id).first()
+        announcement = Announcement.objects.filter(
+            Q(announcement_id=announcement_id) & Q(course=course)).first()
         if serializer.is_valid():
-            content = serializer.validated_data.get('content')
-            course = Courses.objects.filter(course_id=course_id).first()
-            announcement = Announcement.objects.filter(
-                Q(announcement_id=announcement_id) & Q(course=course)).first()
-            comments = Comment.objects.create(course=course, user=user,
-                                              announcement=announcement, content=content)
-            comments.save()
+            serializer.save(announcement=announcement, user=user)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -866,17 +897,17 @@ def edit_comment(request, course_id, announcement_id,  comment_id):
     session_id = request.session.get('user_id')
     if session_id is not None:
         user = Users.objects.get(user_id=session_id)
-
-        serializer = CommentSerializer(data=request.data)
+        lecturer = Lecturer.objects.filter(user=user).first()
+        course = Courses.objects.filter(course_id=course_id).first()
+        announcement = Announcement.objects.filter(
+            Q(announcement_id=announcement_id) & Q(course=course)).first()
+        comment = Comment.objects.filter(Q(announcement=announcement) & Q(
+            user=user) & Q(comment_id=comment_id))
+        serializer = CommentSerializer(
+            comment, data=request.data, partial=True)
 
         if serializer.is_valid():
-            content = serializer.validated_data.get('content')
-            course = Courses.objects.filter(course_id=course_id).first()
-            announcement = Announcement.objects.filter(
-                Q(announcement_id=announcement_id) & Q(course=course)).first()
-            comments = Comment.objects.filter(Q(announcement=announcement) & Q(
-                user=user) & Q(comment_id=comment_id)).update(content=content)
-            comments.save()
+            serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

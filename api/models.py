@@ -88,6 +88,7 @@ class ChatsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Chats
         fields = '__all__'
+        read_only_fields = ['sender', 'thread']
 
 
 class EnrollmentsSerializer(serializers.ModelSerializer):
@@ -107,15 +108,18 @@ class ThreadSerializer(serializers.ModelSerializer):
     class Meta:
         model = Thread
         fields = '__all__'
+        read_only_fields = ['forum', 'user']
 
 
 class AnnouncementSerializer(serializers.ModelSerializer):
     class Meta:
         model = Announcement
         fields = '__all__'
+        read_only_fields = ['course', 'lecturer']
 
 
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = '__all__'
+        read_only_fields = ['announcement', 'user']
