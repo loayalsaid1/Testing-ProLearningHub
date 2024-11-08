@@ -11,9 +11,14 @@ import {
 } from '../../redux/selectors/DiscussionsSelectors';
 import QuestionHeader from './QuestionHeader';
 import RepliesList from './RepliesList';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useLocation } from 'react-router-dom';
 export default function Replies() {
   const { questionId } = useParams();
+  const location = useLocation();
+  // if this is not commint from lecture discussion or general discussion
+  // meaning.. it's just direct link in teh browser.. if fals back to general discussion
+  const { backRoute } = location.state || { backRoute: '/discussion' };
+
   const [showReplyEditor, setShowReplyEditor] = useState(false);
   const [reply, setReply] = useState('');
   const [replyFiles, setReplyFiles] = useState([]);
@@ -58,7 +63,7 @@ export default function Replies() {
 
     It would be very imparasing if I actually find out later that's a very simple problem!
     */}
-      <button type="button"><Link to="/discussion">Back to all questions</Link></button>
+      <button type="button"><Link to={backRoute}>Back to all questions</Link></button>
       {repliesIsLoading ? (
         <Loading />
       ) : !replies || !replies.get('repliesList')?.size === 0 ? (
