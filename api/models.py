@@ -68,12 +68,14 @@ class CoursesResourcesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course_Resources
         fields = '__all__'
+        read_only_fields = ['lecture']
 
 
 class LectureSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lecture
         fields = '__all__'
+        read_only_fields = ['course']
 
 
 class FacialRecognitionsSerializer(serializers.ModelSerializer):
@@ -98,6 +100,7 @@ class ForumSerializer(serializers.ModelSerializer):
     class Meta:
         model = Forum
         fields = '__all__'
+        read_only_fields = ['course', 'creator']
 
 
 class ThreadSerializer(serializers.ModelSerializer):

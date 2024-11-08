@@ -8,40 +8,81 @@ urlpatterns = [
 
     # BASIC AUTHENTICATION, REGISTRATION AND LOGOUT
     path('register', views.register, name='api_register'),
-    path('reset_password/', views.reset_password, name='api_reset_password'),
+    path('reset_password', views.reset_password, name='api_reset_password'),
     path('reset_token/<str:token>', views.reset_token, name='api_reset_token'),
-    path('login/', views.login, name='api_login'),
-    path('logout/', views.logout, name='api_logout'),
+    path('login', views.login, name='api_login'),
+    path('logout', views.logout, name='api_logout'),
 
     # GET LIST OF ITEMS AND RESOURCES OR CREATE THEM
-    path('users/', views.UserListView.as_view(),
+    path('users', views.UserListView.as_view(),
          name='api_users'),
     path('user/<int:user_id>', views.UserIdView.as_view(), name='api_user_by_id'),
-    path('students/', views.StudentListView.as_view(), name='api_students'),
-    path('lecturers/', views.LecturerListView.as_view(), name='api_lecturers'),
+    path('students', views.StudentListView.as_view(), name='api_students'),
+    path('lecturers', views.LecturerListView.as_view(), name='api_lecturers'),
     # GET & POST(must be a tutor to post)
 
     # GET
     # Course
-    path('courses/', views.CoursesListView.as_view(), name='api_courses'),
-    path('course_resources/', views.CourseResourcesListView.as_view(),  # GET & POST(must be a tutor to post)
-         name='api_course_resources'),
+    path('courses', views.CoursesListView.as_view(), name='api_courses'),
+    path('course/<int:user_id>', views.CoursesListByLecturerView.as_view(),
+         name='api_course_by lecturer'),
 
     # Lectures
     path("course/<int:course_id>/lectures",
          views.course_lectures, name="course_lectures"),
-    path("course/<int:course_id>/lectures/<int:lecture_id>/",
-         views.course_lectures_by_id, name="course_lectures_byid"),
+    path("course/<int:course_id>/lecture/<int:lecture_id>",
+         views.course_lecture_by_id, name="course_lectures_byid"),
 
     # Lecture Resources
     path('course/<int:course_id>/lecture/<int:lecture_id>/resource/<int:resource_id>',  # GET:
          views.resource_by_lecture, name='api_resource_of_lecture'),
-    path('course/<int:course_id>/lecture/<int:lecture_id>/resources/',   # GET
+    path('course/<int:course_id>/lecture/<int:lecture_id>/resources',   # GET
          views.all_resources_by_lecture, name='api_resources_of_lecture'),
-    path('facial_recognitions/',
+
+    # POST
+    # Course
+    path('courses/create', views.CoursesCreateView.as_view(),
+         name='api_create_courses'),
+
+    # Lectures
+    path("course/<int:course_id>/lectures/create",
+         views.create_lecture, name="create_course_lectures"),
+
+    # Lecture Resources
+    path('course/<int:course_id>/lecture/<int:lecture_id>/resources/create',   # GET
+         views.create_resource_by_lecture, name='create_resources_of_lecture'),
+
+    # PUT
+    # Course
+    path('courses/<int:course_id>/edit',
+         views.CoursesEditDeleteView.as_view(), name='api_create_courses'),
+
+    # Lectures
+    path("course/<int:course_id>/lectures/<int:lecture_id>/edit",
+         views.edit_lecture, name="edit_course_lectures"),
+
+    # Lecture Resources
+    path('course/<int:course_id>/lectures/<int:lecture_id>/resources/<int:resource_id>/edit',   # GET
+         views.edit_resource_by_lecture, name='edit_resources_of_lecture'),
+
+    # DELETE
+    # Course
+    path('courses/<int:course_id>/edit',
+         views.CoursesEditDeleteView.as_view(), name='api_create_courses'),
+
+    # Lectures
+    path("course/<int:course_id>/lectures/<int:lecture_id>/delete",
+         views.delete_lecture, name="delete_course_lectures"),
+
+    # Lecture Resources
+    path('course/<int:course_id>/lectures/<int:lecture_id>/resources/<int:resource_id>/delete',   # GET
+         views.delete_resource_by_lecture, name='delete_resources_of_lecture'),
+
+
+    path('facial_recognitions',
          views.FacialRecognitionListView.as_view(), name='api_facial_recognitions'),
     #     path('chats/', views.ChatListView.as_view()),
-    path('enrollments/', views.EnrollmentListView.as_view(), name='api_enrollments'),
+    path('enrollments', views.EnrollmentListView.as_view(), name='api_enrollments'),
     path("course/details/<int:course_id>",
          views.course_detail_view, name="course_detail_view"),  # GET: View details for a particular course
 
@@ -49,7 +90,7 @@ urlpatterns = [
 
     # GET
     # Forums
-    path("course/<int:course_id>/forum",
+    path("course/<int:course_id>/forums",
          views.forums_by_course, name="forums_by_course"),  # GET: View all forums for a particular course
     path("course/<int:course_id>/forum/<int:forum_id>",
          views.forum_by_course, name="forum_by_course"),  # GET: View a particular forum for a particular course
