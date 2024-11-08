@@ -11,7 +11,7 @@ import {
 } from '../../redux/selectors/DiscussionsSelectors';
 import QuestionHeader from './QuestionHeader';
 import RepliesList from './RepliesList';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 export default function Replies() {
   const { questionId } = useParams();
   const [showReplyEditor, setShowReplyEditor] = useState(false);
@@ -49,7 +49,16 @@ export default function Replies() {
 
   return (
     <>
-      <button type="button">Back to all questions</button>
+    {/* Now, I'll be a dectateo and make him only go to discusssiosn.
+    because honestly.. I don'tknow how to findout he was comming from genreal questions
+    or from a specific lecture with an id... OR.. FROM OUTSIDE OF THE APP!,
+    SO, NAVIGATE(-1) WON'T WORK HERE...
+    so.. Let me just go back to the discussion page and that's it
+    i'm really really really running out of time here. and no time for my perfectionism..
+
+    It would be very imparasing if I actually find out later that's a very simple problem!
+    */}
+      <button type="button"><Link to="/discussion">Back to all questions</Link></button>
       {repliesIsLoading ? (
         <Loading />
       ) : !replies || !replies.get('repliesList')?.size === 0 ? (
