@@ -123,3 +123,23 @@ export const addDiscussionReplySuccess = (entry) => ({
     entry
   }
 })
+
+
+export const toggleLectureQuestionUpvoteRequest = () => ({
+  type: actions.TOGGLE_LECTURE_QUESTION_UPVOTE_REQUEST,
+})
+
+export const toggleLectureQuestionUpvoteFailure = (errorMessage) => ({
+  type: actions.TOGGLE_LECTURE_QUESTION_UPVOTE_FAILURE,
+  payload: {
+    errorMessage
+  }
+})
+
+export const toggleLectureQuestionUpvoteSuccess = (id, isUpvoted) => ({
+  type: actions.TOGGLE_LECTURE_QUESTION_UPVOTE_SUCCESS,
+  payload: {
+    id,
+    isUpvoted,
+  }
+})
