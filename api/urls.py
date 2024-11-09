@@ -67,7 +67,7 @@ urlpatterns = [
 
     # DELETE
     # Course
-    path('courses/<int:course_id>/edit',
+    path('courses/<int:course_id>/delete',
          views.CoursesEditDeleteView.as_view(), name='api_create_courses'),
 
     # Lectures

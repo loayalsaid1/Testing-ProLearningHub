@@ -89,7 +89,7 @@ class Course_Resources(models.Model):
     upload_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.resource_name}  ({self.course.course_code})"
+        return f"{self.resource_name}  ({self.lecture.course.course_code})"
 
 
 class Enrollments(models.Model):
@@ -181,4 +181,4 @@ class Comment(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Comment by {self.student} on {self.announcement}"
+        return f"Comment by {self.user} on {self.announcement}"

@@ -145,7 +145,7 @@ def reset_token(request, token):
     user = Users.objects.filter(reset_token=token).first()
     if user:
         # if user is valid serializes the user data and return a JSON response
-        serializer = UserResetTokenSerializer(user, many=True)
+        serializer = UserResetTokenSerializer(user, many=False)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     return Response({'message': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
@@ -721,10 +721,11 @@ def delete_chat(request, course_id, forum_id, thread_id, chat_id):
         return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
     user = Users.objects.get(user_id=session_id)
     course = Courses.objects.filter(course_id=course_id).first()
-    forum = Forum.objects.filter(forum_id=forum_id).first()
+    forum = Forum.objects.filter(
+        Q(forum_id=forum_id) & Q(course=course)).first()
     thread = Thread.objects.filter(
         Q(thread_id=thread_id) & Q(forum=forum)).first()
-    chat = Chats.objects.filter(Q(thread=thread) & Q(course=course) & Q(
+    chat = Chats.objects.filter(Q(thread=thread) & Q(
         chat_id=chat_id) & Q(sender=user)).first()
     if not chat:
         return Response({"message": "Chat not found"}, status=status.HTTP_404_NOT_FOUND)

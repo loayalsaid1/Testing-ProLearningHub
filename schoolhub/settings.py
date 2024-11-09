@@ -147,7 +147,8 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR/'media'
 
 # Email settings for sending emails through Gmail's SMTP server
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'          # SMTP server address
 EMAIL_PORT = 587                       # SMTP server port (587 for TLS)
 EMAIL_USE_TLS = True                   # Use TLS (Transport Layer Security)

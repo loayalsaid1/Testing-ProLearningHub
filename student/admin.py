@@ -32,6 +32,10 @@ class AnnouncementAdmin(admin.ModelAdmin):
     list_display = ('announcement_id', 'lecturer', 'course')
 
 
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ('comment_id', 'announcement', 'user')
+
+
 admin.site.register(models.Users, UsersAdmin)
 admin.site.register(models.Students, StudentsAdmin)
 admin.site.register(models.Course_Resources, CourseResourcesAdmin)
@@ -39,3 +43,4 @@ admin.site.register(models.Forum, ForumAdmin)
 admin.site.register(models.Thread, ThreadAdmin)
 admin.site.register(models.Chats, ChatsAdmin)
 admin.site.register(models.Announcement, AnnouncementAdmin)
+admin.site.register(models.Comment, CommentAdmin)
