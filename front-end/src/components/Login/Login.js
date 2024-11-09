@@ -2,10 +2,24 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { formLogin, googleLogin, loginFailure } from '../../redux/actions/uiActionCreators';
 import { GoogleLogin } from '@react-oauth/google';
+import { useNavigate } from 'react-router-dom';
 
 export default function Login({ setType }) {
 	const dispatch = useDispatch();
+	const navigate = useNavigate();
 	const isLoading = useSelector((state) => state.ui.get('isLoading'));
+	const isLoggedIn = useSelector(state => state.ui.get('isLoggedIn'));
+	
+	if (isLoggedIn) {
+		const intendedPath = sessionStorage.getItem('intendedPath');
+
+		if (intendedPath) {
+			sessionStorage.removeItem('intendedPath');
+			navigate(intendedPath, {replace: true});
+		} else {
+			navigate('/');
+		}
+	}
 
 	function handleSubmit(event) {
 		event.preventDefault();
@@ -38,7 +52,7 @@ export default function Login({ setType }) {
 		<button type='submit' disabled={isLoading}>Login</button>
 	</form>
 
-	<button type="button" onClick={() => setType('register')}>Register</button>
+	<button type="button" onClick={() => navigate('/register')}>Register</button>
 
 	<GoogleLogin
   onSuccess={handleGoogleLoginSuccess}

@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import RegisterStepOne from './RegisterStepOne';
 import RegisterStepTwo from './RegisterStepTwo';
 
 export default function Register({setType}) {
+  const navigate = useNavigate();
+	const isLoggedIn = useSelector(state => state.ui.get('isLoggedIn'));
   const [step, setStep] = useState(1);
   const [userData, setUserData] = useState({
     username: '',
@@ -11,6 +15,12 @@ export default function Register({setType}) {
     firstName: '',
     lastName: '',
  });
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate('/', {replace: true});
+    }
+  }, [isLoggedIn, navigate]);
 
  function handleInputChange(field, value) {
    setUserData((prevState) => ({
@@ -27,7 +37,7 @@ export default function Register({setType}) {
         <RegisterStepTwo setStep={setStep} userData={userData} handleInputChange={handleInputChange} />
       )}
 			<p>Have an account already?</p>
-      <button onClick={() => setType('login')}>Login</button>
+      <button onClick={() => navigate('/login')}>Login</button>
     </>
   );
 }

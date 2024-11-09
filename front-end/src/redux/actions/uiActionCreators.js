@@ -1,6 +1,6 @@
 import * as actions from './uiActionTypes';
 
-const DOMAIN = 'http://localhost:3000';
+import { DOMAIN } from '../../utils/constants';
 
 export const toggleLoading = () => {
   return { type: actions.TOGGLE_LOADING };

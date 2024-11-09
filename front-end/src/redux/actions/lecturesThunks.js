@@ -1,12 +1,12 @@
 import * as actionCreators from './lecturesActionCreators';
 
-const DOMAIN = 'http://localhost:3000';
+import { DOMAIN } from '../../utils/constants';
 
 export const getLectureById = (lectureId) => async (dispatch) => {
   dispatch(actionCreators.lectureRequest());
 
   try {
-    const response = await fetch(`${DOMAIN}/courses/testId/lectures/testId`);
+    const response = await fetch(`${DOMAIN}/courses/testId/lectures/${lectureId}`);
     const data = await response.json();
 
     if (!response.ok) {
