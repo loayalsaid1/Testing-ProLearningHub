@@ -29,11 +29,11 @@ export default function Login({ setType }) {
 		const email = event.target.email.value;
 		const password = event.target.password.value;
 
-		dispatch(formLogin(email, password));
+		dispatch(formLogin(email, password, adminLogin));
 	}
 
 	function handleGoogleLoginSuccess(response) {
-		dispatch(googleLogin(response.credential));
+		dispatch(googleLogin(response.credential, adminLogin));
 	}
 
 	function handleGoogleLoginFailure(error) {
