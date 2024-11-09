@@ -107,19 +107,29 @@ urlpatterns = [
     path("course/<int:course_id>/forum/<int:forum_id>/chat/<int:chat_id>",
          views.chat_in_forum_by_course, name="chat_in_forum_by_course"),
 
+    path("course/<int:course_id>/forum/<int:forum_id>/threads/<int:thread_id>/chats",
+         views.chats_in_thread_by_forum, name="chats_in_thread_by_forum"),  # GET: View all forums for a particular course
+    path("course/<int:course_id>/forum/<int:forum_id>/threads/<int:thread_id>/chat/<int:chat_id>",
+         views.chat_in_thread_by_forum, name="chat_in_thread_by_forum"),
+
     # Announcements and Comments in announcements
     path("course/<int:course_id>/announcements",
          views.announcements, name="announcements"),
     path("course/<int:course_id>/announcement/<int:announcement_id>",
          views.announcement_by_id, name="announcement_by_id"),
-    path("course/<int:course_id>/comment", views.comments, name="comments"),
-    path("course/<int:course_id>/comment",
+    path("course/<int:course_id>/announcement/<int:announcement_id>/comments",
+         views.comments, name="comments"),
+    path("course/<int:course_id>/announcement/<int:announcement_id>/comment/<int:comment_id>",
          views.comment_by_id, name="comment_by_id"),
 
     # Upvotes for Threads and Chats
     path("thread/<int:thread_id>/upvote",
          views.thread_upvote, name="thread_upvote"),
     path("chat/<int:chat_id>/upvote", views.chat_upvote, name="chat_upvote"),
+
+    path("thread/<int:thread_id>/unvote",
+         views.thread_unvote, name="thread_unvote"),
+    path("chat/<int:chat_id>/unvote", views.chat_unvote, name="chat_unvote"),
 
     # POST
     # Forum

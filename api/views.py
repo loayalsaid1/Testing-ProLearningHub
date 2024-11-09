@@ -29,6 +29,9 @@ def home_view(request):
 
 class UserListView(APIView):
     def get(self, request):
+        session_id = request.session.get('user_id')
+        if session_id is None:
+            return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
         users = Users.objects.all()
         serializer = UserSerializer(users, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -43,6 +46,9 @@ class UserListView(APIView):
 
 class UserIdView(APIView):
     def get(self, request, user_id):
+        session_id = request.session.get('user_id')
+        if session_id is None:
+            return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
         try:
             user = Users.objects.get(user_id=user_id)
             serializer = UserSerializer(user)
@@ -204,6 +210,9 @@ def google_callback(request):
 
 class StudentListView(APIView):
     def get(self, request):
+        session_id = request.session.get('user_id')
+        if session_id is None:
+            return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
         students = Students.objects.all()
         serializer = StudentSerializer(students, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -211,6 +220,9 @@ class StudentListView(APIView):
 
 class LecturerListView(APIView):
     def get(self, request):
+        session_id = request.session.get('user_id')
+        if session_id is None:
+            return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
         lecturer = Lecturer.objects.all()
         serializer = LecturerSerializer(lecturer, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -621,11 +633,47 @@ def chat_in_forum_by_course(request, course_id, forum_id, chat_id):
     threads = Thread.objects.filter(forum=forum)
     new_data = []
     for thread in threads:
-        comments = Chats.objects.filter(
+        comment = Chats.objects.filter(
             Q(thread=thread) & Q(chat_id=chat_id)).first()
-        serializer = ChatsSerializer(comments, many=True)
+        serializer = ChatsSerializer(comment, many=False)
         new_data.append(serializer.data)
     return Response(new_data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def chats_in_thread_by_forum(request, course_id, forum_id, thread_id):
+    session_id = request.session.get('user_id')
+    if session_id is None:
+        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
+    course = Courses.objects.filter(course_id=course_id).first()
+    forum = Forum.objects.filter(
+        Q(course=course) & Q(forum_id=forum_id)).first()
+    thread = Thread.objects.filter(
+        Q(forum=forum) & Q(thread_id=thread_id)).first()
+    comment = Chats.objects.filter(thread=thread)
+    new_data = []
+    for comm in comment:
+        serializer = ChatsSerializer(comm, many=False)
+        new_data.append(serializer.data)
+
+    return Response(new_data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def chat_in_thread_by_forum(request, course_id, forum_id, thread_id, chat_id):
+    session_id = request.session.get('user_id')
+    if session_id is None:
+        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
+    course = Courses.objects.filter(course_id=course_id).first()
+    forum = Forum.objects.filter(
+        Q(course=course) & Q(forum_id=forum_id)).first()
+    thread = Thread.objects.filter(
+        Q(forum=forum) & Q(thread_id=thread_id)).first()
+    comment = Chats.objects.filter(
+        Q(thread=thread) & Q(chat_id=chat_id)).first()
+    serializer = ChatsSerializer(comment, many=False)
+
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
@@ -786,7 +834,7 @@ def announcement_by_id(request, course_id, announcement_id):
         return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
     course = Courses.objects.filter(course_id=course_id).first()
     announcement = Announcement.objects.filter(
-        Q(course=course) & Q(announcement_id=announcement_id)).first
+        Q(course=course) & Q(announcement_id=announcement_id)).first()
     serializer = AnnouncementSerializer(announcement, many=False)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -817,7 +865,7 @@ def edit_announcement(request, course_id, announcement_id):
             course = Courses.objects.filter(course_id=course_id).first()
             lecturer = Lecturer.objects.filter(user=user).first()
             announcement = Announcement.objects.filter(Q(course=course) & Q(
-                lecturer=lecturer) & Q(announcement_id))
+                lecturer=lecturer) & Q(announcement_id=announcement_id)).first()
             serializer = AnnouncementSerializer(
                 announcement, data=request.data, partial=True)
             if serializer.is_valid():
@@ -847,26 +895,29 @@ def delete_announcement(request, course_id, announcement_id):
 
 
 @api_view(['GET'])
-def comments(request, course_id):
+def comments(request, course_id, announcement_id):
     session_id = request.session.get('user_id')
     if session_id is None:
         return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
     user = Users.objects.get(user_id=session_id)
     course = Courses.objects.filter(course_id=course_id).first()
-    announcement = Announcement.objects.filter(course=course)
-    comments = Comment.objects.filter(
+    announcement = Announcement.objects.filter(
+        Q(course=course) & Q(announcement_id=announcement_id)).first()
+    comment = Comment.objects.filter(
         Q(announcement=announcement) & Q(user=user))
-    serializer = CommentSerializer(comments, many=True)
+    serializer = CommentSerializer(comment, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-def comment_by_id(request, course_id, comment_id):
+@api_view(['GET'])
+def comment_by_id(request, course_id, announcement_id, comment_id):
     session_id = request.session.get('user_id')
     if session_id is None:
         return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
     user = Users.objects.get(user_id=session_id)
     course = Courses.objects.filter(course_id=course_id).first()
-    announcement = Announcement.objects.filter(course=course)
+    announcement = Announcement.objects.filter(
+        Q(course=course) & Q(announcement_id=announcement_id)).first()
     comment = Comment.objects.filter(Q(announcement=announcement) & Q(
         user=user) & Q(comment_id=comment_id)).first()
     serializer = CommentSerializer(comment, many=False)
@@ -902,7 +953,7 @@ def edit_comment(request, course_id, announcement_id,  comment_id):
         announcement = Announcement.objects.filter(
             Q(announcement_id=announcement_id) & Q(course=course)).first()
         comment = Comment.objects.filter(Q(announcement=announcement) & Q(
-            user=user) & Q(comment_id=comment_id))
+            user=user) & Q(comment_id=comment_id)).first()
         serializer = CommentSerializer(
             comment, data=request.data, partial=True)
 
@@ -936,18 +987,46 @@ def delete_comment(request, course_id, announcement_id, comment_id):
 
 @api_view(['GET'])
 def thread_upvote(request, thread_id):
+    session_id = request.session.get('user_id')
+    if session_id is None:
+        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
     thread = get_object_or_404(Thread, thread_id=thread_id)
     thread.upvotes += 1
     thread.save()
-    return Response(status=status.HTTP_200_OK)
+    return Response({"upvote total": f"{thread.upvotes}"}, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
 def chat_upvote(request, chat_id):
+    session_id = request.session.get('user_id')
+    if session_id is None:
+        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
     chat = get_object_or_404(Chats, chat_id=chat_id)
     chat.upvotes += 1
     chat.save()
-    return Response(status=status.HTTP_200_OK)
+    return Response({"upvote total": f"{chat.upvotes}"}, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def thread_unvote(request, thread_id):
+    session_id = request.session.get('user_id')
+    if session_id is None:
+        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
+    thread = get_object_or_404(Thread, thread_id=thread_id)
+    thread.upvotes -= 1 if thread.upvotes > 0 else 0
+    thread.save()
+    return Response({"upvote total": f"{thread.upvotes}"}, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def chat_unvote(request, chat_id):
+    session_id = request.session.get('user_id')
+    if session_id is None:
+        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
+    chat = get_object_or_404(Chats, chat_id=chat_id)
+    chat.upvotes -= 1 if chat.upvotes > 0 else 0
+    chat.save()
+    return Response({"upvote total": f"{chat.upvotes}"}, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
