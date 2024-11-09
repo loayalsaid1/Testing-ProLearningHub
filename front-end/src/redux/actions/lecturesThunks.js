@@ -1,6 +1,6 @@
 import * as actionCreators from './lecturesActionCreators';
 
-const DOMAIN = 'http://localhost:3000';
+import { DOMAIN } from '../../utils/constants';
 
 export const getLectureById = (lectureId) => async (dispatch) => {
   dispatch(actionCreators.lectureRequest());
