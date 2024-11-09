@@ -18,13 +18,21 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
+from .views import main_home_view
+from api import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', main_home_view, name='main_home'),  # HTML homepage
+
     # Authentication Endpoints
     path('auth/', include('authentication.urls')),
     path('lecturer/', include('tutor.urls', )),
     path('student/', include('student.urls', )),
-    path('api/', include('api.urls', ))
+    path('api/', include('api.urls')),
+    path('oauth/', include('social_django.urls', namespace='social')),
+    path('auth/google/login/', views.google_login, name='google_login'),
+    path('auth/google/callback/',
+         views.google_callback, name='google_login')
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)\
     + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
