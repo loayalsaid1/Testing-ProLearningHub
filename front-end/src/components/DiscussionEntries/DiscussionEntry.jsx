@@ -4,7 +4,7 @@ import { formatDate } from '../../utils/utilFunctions';
 import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
 
-export default function DiscussionEntry({ content }) {
+export default function DiscussionEntry({ content, isLecture }) {
   const [upvoted, setUpvoted] = useState(content.get('upvoted'));
 
   const date = formatDate(content.get('updatedAt'));

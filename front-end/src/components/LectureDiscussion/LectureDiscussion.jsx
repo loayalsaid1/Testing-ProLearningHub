@@ -41,7 +41,7 @@ export default function LectureDiscussion({ lectureId = '' }) {
       {isLoading ? (
         <Loading />
       ) : (
-        <DiscussionEntries entries={entries} chunkSize={10} />
+        <DiscussionEntries entries={entries} chunkSize={10} isLecture />
       )}
       <div>
         {askNewQuestion ? (
