@@ -57,7 +57,6 @@ export default function Login({ setType }) {
 		)
 	}
 	</button>
-
 	<h1>ProLearningHub</h1>
 	<p>Please login to continue as {adminLogin ? 'admin' : 'student'}</p>
 	<form onSubmit={handleSubmit}>
