@@ -17,7 +17,9 @@ app.post('/auth/login', (req, res) => {
   if (email === 'admin' && password === 'admin') {
     res.send({ message: 'Logged in successfully', 
 			user: {
-				email, password, id: 'fakeId',
+				email, password, id: 'testId',
+        role: 'student'
+
 			}
 		 });
   } else {
@@ -37,7 +39,9 @@ app.post('/auth/oauth/google', (req, res) => {
         res.send({ message: 'Logged in successfully', 
           user: {
             email: data.email,
-            id: data.sub
+            id: data.sub,
+            role: 'student'
+
           }
         });
       } else {
@@ -62,7 +66,8 @@ app.post('/auth/oauth/googleRegister', (req, res) => {
         res.send({ message: 'Logged in successfully', 
           user: {
             email: data.email,
-            id: data.sub
+            id: data.sub,
+
           }
         });
       } else {
@@ -74,6 +79,47 @@ app.post('/auth/oauth/googleRegister', (req, res) => {
       res.status(500).send({ message: 'Internal Server Error' });
     });
 });
+
+app.post('/auth/admin/login', (req, res) => {
+  const { email, password } = req.body;
+  if (email === 'admin' && password === 'admin') {
+    res.send({ message: 'Logged in successfully', 
+      user: {
+        email,
+        password,
+        id: 'testId',
+        role: 'admin'
+      }
+    });
+  } else {
+    res.status(401).send({ message: 'Invalid credentials' });
+  }
+});
+
+app.post('/auth/admin/OAuth/google', (req, res) => {
+  const idToken  = req.body.token;
+  const googleVerifyUrl = `https://oauth2.googleapis.com/tokeninfo?id_token=${idToken}`;
+  fetch(googleVerifyUrl)
+    .then(response => response.json())
+    .then(data => {
+      if (data.email_verified) {
+        res.send({ message: 'Logged in successfully', 
+          user: {
+            email: data.email,
+            id: data.sub,
+            role: 'admin'
+          }
+        });
+      } else {
+        res.status(401).send({ message: 'Email not verified' });
+      }
+    })
+    .catch(error => {
+      console.error(error);
+      res.status(500).send({ message: 'Internal Server Error' });
+    });
+});
+
 const imagekit = new ImageKit({
   publicKey: 'public_tTc9vCi5O7L8WVAQquK6vQWNx08=',
   privateKey: 'private_edl1a45K3hzSaAhroLRPpspVRqM=',
@@ -100,8 +146,8 @@ app.get('/courses/:courseId/lectures/:lectureId', (req, res) => {
   const courseId = req.params.courseId;
   const lectureId = req.params.lectureId;
   console.log(courseId, lectureId)
-  console.log(1)
-  if (courseId === "testId" && lectureId === "testId") {
+  const allowedLectures = mockSections.flatMap(section => section.lectures.map(lecture => lecture.id));
+  if (courseId === "testId" && allowedLectures.includes(lectureId)) {
     res.json({lectureData: {
       id: lectureId,
       title: 'Week 4',
@@ -160,7 +206,9 @@ app.get('/courses/:id/lectures', (req, res) => {
 app.get('/lectures/:id/discussion', (req, res) => {
   console.log(33)
   const id = req.params.id;
-  if (id === "testId") {
+  const allowedLectures = mockSections.flatMap(section => section.lectures.map(lecture => lecture.id));
+
+  if (allowedLectures.includes(id)) {
     res.json(mockDiscussion);
   } else {
     res.status(404).send({ message: 'Lecture not found' });
@@ -343,6 +391,55 @@ app.post('/questions/:id/replies', (req, res) => {
 
   res.status(201).json(newReply);
 });
+
+app.get('/courses/:id/announcements', (req, res) => {
+  const courseId = req.params.id;
+
+  // Mock announcements data
+
+
+  if (courseId === "testId") {
+    res.json(mockAnnouncements);
+  } else {
+    res.status(404).send({ message: 'Course not found' });
+  }
+});
+app.get('/announcements/:id/comments', (req, res) => {
+  const announcementId = req.params.id;
+  const ids = mockAnnouncements.map((announcement) => announcement.id);
+  ids.push('testId');
+  if (ids.includes(announcementId)) {
+    res.json(mockComments);
+  } else {
+    res.status(404).send({ message: 'Announcement not found' });
+  }
+});
+
+app.post('/announcements/:id/comments', (req, res) => {
+  const announcementId = req.params.id;
+  const { userId, comment } = req.body;
+
+  if (!userId || !comment) {
+    return res.status(400).send({ message: 'Missing required fields' });
+  }
+  console.log(comment)
+  const newComment = {
+    announcementId,
+    id: `comment-${Date.now()}`,
+    user: {
+      name: 'Anonymous',
+      pictureThumbnail: `https://picsum.photos/100`,
+    },
+    updatedAt: new Date().toISOString(),
+    body: comment,
+  };
+
+  // Here you would typically add the newComment to your database or data store.
+  // For this example, we'll just return it in the response.
+  mockComments.unshift(newComment);
+
+  res.status(201).json(newComment);
+});
 app.use((req, res, next) => {
   res.status(404).send({ message: 'Not found' });
 });
@@ -464,7 +561,7 @@ const mockSections = [
 
 const mockDiscussion = [
   {
-    id: '1',
+    id: 'question-1',
     title: 'How does react work?',
     user: {
       name: 'John Doe',
@@ -476,7 +573,7 @@ const mockDiscussion = [
     repliesCount: 20,
   },
   {
-    id: '2',
+    id: 'question-2',
     title: 'How does react state work?',
     user: {
       name: 'Jane Doe',
@@ -488,7 +585,7 @@ const mockDiscussion = [
     repliesCount: 10,
   },
   {
-    id: '3',
+    id: 'question-3',
     title: 'How does react context work?',
     user: {
       name: 'John Doe',
@@ -500,7 +597,7 @@ const mockDiscussion = [
     repliesCount: 5,
   },
   {
-    id: '4',
+    id: 'question-4',
     title: 'How does react hooks work?',
     user: {
       name: 'Jane Doe',
@@ -882,5 +979,95 @@ const mockReplies = [
     upvotes: 5,
     upvoted: false,
     body: 'How does react useEffect work?',
+  },
+];
+
+const mockAnnouncements = [
+  {
+    user: {
+      name: 'John Doe',
+      id: '1234567890',
+      pictureThumbnail: 'https://picsum.photos/100',
+    },
+    id: 'announcement-1',
+    title: 'This is the title of the announcement',
+    body: 'This is the content of the announcement',
+    commentsCount: 10,
+    updatedAt: '2022-01-01T00:00:00.000Z',
+  },
+  {
+    user: {
+      name: 'Jane Doe',
+      id: '9876543210',
+      pictureThumbnail: 'https://picsum.photos/101',
+    },
+    id: 'announcement-2',
+    title: 'This is the title of the second announcement',
+    body: 'This is the content of the second announcement',
+    commentsCount: 5,
+    updatedAt: '2024-11-01T00:00:00.000Z',
+  },
+];
+
+const mockComments = [
+  {
+    id: 'comment-1',
+    announcementId: 'testId',
+    user: {
+      name: 'John Doe',
+      pictureThumbnail: 'https://picsum.photos/100',
+    },
+    updatedAt: '2024-11-02T07:00:00.000Z',
+    upvotes: 50,
+    upvoted: true,
+    body: 'How does react hooks work?',
+  },
+  {
+    id: 'comment-2',
+    announcementId: 'testId',
+    user: {
+      name: 'Jane Doe',
+      pictureThumbnail: 'https://picsum.photos/101',
+    },
+    updatedAt: '2022-01-03T00:00:00.000Z',
+    upvotes: 30,
+    upvoted: false,
+    body: 'How does react context work?',
+  },
+  {
+    id: 'comment-3',
+    announcementId: 'testId',
+    user: {
+      name: 'John Doe',
+      pictureThumbnail: 'https://picsum.photos/102',
+    },
+    updatedAt: '2024-11-04T07:00:00.000Z',
+    upvotes: 20,
+    upvoted: false,
+    body: 'How does react useState work?',
+  },
+  {
+    id: 'comment-4',
+    announcementId: 'testId',
+    user: {
+      name: 'Jane Doe',
+      pictureThumbnail: 'https://picsum.photos/103',
+    },
+    updatedAt: '2022-01-05T00:00:00.000Z',
+    upvotes: 10,
+    upvoted: true,
+    body: 'How does react hooks work?',
+  },
+  {
+    id: 'comment-5',
+    announcementId: 'testId',
+    user: {
+      name: 'John Doe',
+      pictureThumbnail: 'https://picsum.photos/104',
+    },
+    updatedAt: '2024-11-06T07:00:00.000Z',
+    upvotes: 5,
+    upvoted: false,
+    body: 'How does react useState work?',
   },
 ];
