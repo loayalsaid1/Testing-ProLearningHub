@@ -19,7 +19,7 @@ class UserPostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Users
-        exclude = ['reset_token', 'pictureId']
+        exclude = ['reset_token', 'pictureId', 'password_hash']
 
 
 class UserLoginSerializer(serializers.ModelSerializer):

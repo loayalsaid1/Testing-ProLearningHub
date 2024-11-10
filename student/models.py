@@ -15,7 +15,7 @@ class Users(models.Model):
     role = models.CharField(max_length=50)
     pictureId = models.CharField(max_length=50, blank=True, null=True)
     pictureURL = models.URLField(max_length=200, blank=True, null=True)
-    picturethumbnail = models.URLField(max_length=200, blank=True, null=True)
+    pictureThumbnail = models.URLField(max_length=200, blank=True, null=True)
     reset_token = models.CharField(
         max_length=32, blank=True, null=True)  # For password reset
 
