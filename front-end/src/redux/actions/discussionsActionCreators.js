@@ -143,3 +143,22 @@ export const toggleLectureQuestionUpvoteSuccess = (id, isUpvoted) => ({
     isUpvoted,
   }
 })
+
+export const toggleGeneralQuestionUpvoteRequest = () => ({
+  type: actions.TOGGLE_GENERAL_QUESTION_UPVOTE_REQUEST,
+})
+
+export const toggleGeneralQuestionUpvoteFailure = (errorMessage) => ({
+  type: actions.TOGGLE_GENERAL_QUESTION_UPVOTE_FAILURE,
+  payload: {
+    errorMessage
+  }
+})
+
+export const toggleGeneralQuestionUpvoteSuccess = (id, isUpvoted) => ({
+  type: actions.TOGGLE_GENERAL_QUESTION_UPVOTE_SUCCESS,
+  payload: {
+    id,
+    isUpvoted,
+  }
+})
