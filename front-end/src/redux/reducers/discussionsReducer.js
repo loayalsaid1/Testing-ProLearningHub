@@ -162,6 +162,31 @@ export default function discussionsReducer(state = initialState, action = {}) {
         );
       });
     }
+
+    case actions.TOGGLE_LECTURE_QUESTION_UPVOTE_REQUEST: {
+      return state.set('isLoading', true);
+    }
+
+    case actions.TOGGLE_LECTURE_QUESTION_UPVOTE_FAILURE: {
+      return state.withMutations((state) => {
+        state
+          .set('isLoading', false)
+          .set('discussionsError', action.payload.errorMessage);
+      });
+    }
+
+    case actions.TOGGLE_LECTURE_QUESTION_UPVOTE_SUCCESS: {
+      const { questionId, isUpvoted } = action.payload;
+      return state.withMutations((state) => {
+        state
+          .set('isLoading', false)
+          .set('discussionsError', null)
+          .setIn(['lecturesDiscussions', questionId, 'upvoted'], isUpvoted)
+          .updateIn(['lecturesDiscussions', questionId, 'upvotes'], (upvotes) =>
+            isUpvoted ? upvotes + 1 : upvotes - 1
+          );
+      });
+    }
     
     default: {
       return state;
