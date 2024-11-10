@@ -506,17 +506,57 @@ class FacialRecognitionListView(APIView):
 
 class EnrollmentListView(APIView):
     def get(self, request):
+        session_id = request.session.get('user_id')
+        if session_id is None:
+            return Response({'message': 'You are not logged in'}, status=status.HTTP_403_FORBIDDEN)
         enrollments = Enrollments.objects.all()
         serializer = EnrollmentsSerializer(enrollments, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def post(self, request):
-        serializer = EnrollmentsSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class EnrollmentForStudentView(APIView):
+    def post(self, request, course_id):
+        session_id = request.session.get('user_id')
+        if session_id is None:
+            return Response({'message': 'You are not logged in'}, status=status.HTTP_403_FORBIDDEN)
+        user = get_object_or_404(Users, user_id=session_id)
+        course = Courses.objects.filter(course_id=course_id).first()
+        if user.role == 'student':
+            student = Students.objects.filter(user=user).first()
+            serializer = EnrollmentsSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save(student=student, course=course)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': 'You can only enroll here as a student'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+class EnrollmentForLecturerView(APIView):
+    def post(self, request, course_id, student_id):
+        session_id = request.session.get('user_id')
+        if session_id is None:
+            return Response({'message': 'You are not logged in'}, status=status.HTTP_403_FORBIDDEN)
+        user = get_object_or_404(Users, user_id=session_id)
+
+        if user.role == 'tutor':
+            lecturer = Lecturer.objects.filter(user=user).first()
+            student = Students.objects.filter(student_id=student_id).first()
+            course = Courses.objects.filter(
+                Q(course_id=course_id) & Q(lecturer=lecturer)).first()
+            if course:
+                serializer = EnrollmentsSerializer(data=request.data)
+                if serializer.is_valid():
+                    serializer.save(student=student, course=course)
+                    return Response(serializer.data, status=status.HTTP_201_CREATED)
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'No course matching the query found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'message': 'You can only enroll here as a student'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    def delete(self, request, course_id, student_id):
+        session_id = request.session.get('user_id')
+        if session_id is None:
+            return Response({'message': 'You are not logged in'}, status=status.HTTP_403_FORBIDDEN)
+        user = get_object_or_404(Users, user_id=session_id)
 
 # class ChatListView(APIView):
 #     def get(self, request):
