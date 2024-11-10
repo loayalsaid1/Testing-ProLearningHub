@@ -4,6 +4,7 @@ import { extractVideoId } from '../../utils/utilFunctions';
 import { getLectureById } from '../../redux/actions/lecturesThunks';
 import Loading from '../utilityComponents/Loading';
 import LectureDiscussion from '../LectureDiscussion/LectureDiscussion';
+import { useParams } from 'react-router-dom';
 
 /**
  * Next there must be away to keep the data in sync..
@@ -12,7 +13,8 @@ import LectureDiscussion from '../LectureDiscussion/LectureDiscussion';
  * or something outside the scope of redux.. which is utilizing websotckets
  * to ping react when a change happens
  */
-export default function Lecture({ lectureId }) {
+export default function Lecture() {
+  const {lectureId} = useParams()
   const lectureData = useSelector((state) =>
     state.lectures.getIn(['lectures', lectureId])
   );

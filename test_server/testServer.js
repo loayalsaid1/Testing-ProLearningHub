@@ -17,7 +17,9 @@ app.post('/auth/login', (req, res) => {
   if (email === 'admin' && password === 'admin') {
     res.send({ message: 'Logged in successfully', 
 			user: {
-				email, password, id: 'fakeId',
+				email, password, id: 'testId',
+        role: 'student'
+
 			}
 		 });
   } else {
@@ -37,7 +39,9 @@ app.post('/auth/oauth/google', (req, res) => {
         res.send({ message: 'Logged in successfully', 
           user: {
             email: data.email,
-            id: data.sub
+            id: data.sub,
+            role: 'student'
+
           }
         });
       } else {
@@ -62,7 +66,8 @@ app.post('/auth/oauth/googleRegister', (req, res) => {
         res.send({ message: 'Logged in successfully', 
           user: {
             email: data.email,
-            id: data.sub
+            id: data.sub,
+
           }
         });
       } else {
@@ -74,6 +79,47 @@ app.post('/auth/oauth/googleRegister', (req, res) => {
       res.status(500).send({ message: 'Internal Server Error' });
     });
 });
+
+app.post('/auth/admin/login', (req, res) => {
+  const { email, password } = req.body;
+  if (email === 'admin' && password === 'admin') {
+    res.send({ message: 'Logged in successfully', 
+      user: {
+        email,
+        password,
+        id: 'testId',
+        role: 'admin'
+      }
+    });
+  } else {
+    res.status(401).send({ message: 'Invalid credentials' });
+  }
+});
+
+app.post('/auth/admin/OAuth/google', (req, res) => {
+  const idToken  = req.body.token;
+  const googleVerifyUrl = `https://oauth2.googleapis.com/tokeninfo?id_token=${idToken}`;
+  fetch(googleVerifyUrl)
+    .then(response => response.json())
+    .then(data => {
+      if (data.email_verified) {
+        res.send({ message: 'Logged in successfully', 
+          user: {
+            email: data.email,
+            id: data.sub,
+            role: 'admin'
+          }
+        });
+      } else {
+        res.status(401).send({ message: 'Email not verified' });
+      }
+    })
+    .catch(error => {
+      console.error(error);
+      res.status(500).send({ message: 'Internal Server Error' });
+    });
+});
+
 const imagekit = new ImageKit({
   publicKey: 'public_tTc9vCi5O7L8WVAQquK6vQWNx08=',
   privateKey: 'private_edl1a45K3hzSaAhroLRPpspVRqM=',
@@ -100,8 +146,8 @@ app.get('/courses/:courseId/lectures/:lectureId', (req, res) => {
   const courseId = req.params.courseId;
   const lectureId = req.params.lectureId;
   console.log(courseId, lectureId)
-  console.log(1)
-  if (courseId === "testId" && lectureId === "testId") {
+  const allowedLectures = mockSections.flatMap(section => section.lectures.map(lecture => lecture.id));
+  if (courseId === "testId" && allowedLectures.includes(lectureId)) {
     res.json({lectureData: {
       id: lectureId,
       title: 'Week 4',
@@ -160,7 +206,9 @@ app.get('/courses/:id/lectures', (req, res) => {
 app.get('/lectures/:id/discussion', (req, res) => {
   console.log(33)
   const id = req.params.id;
-  if (id === "testId") {
+  const allowedLectures = mockSections.flatMap(section => section.lectures.map(lecture => lecture.id));
+
+  if (allowedLectures.includes(id)) {
     res.json(mockDiscussion);
   } else {
     res.status(404).send({ message: 'Lecture not found' });
@@ -513,7 +561,7 @@ const mockSections = [
 
 const mockDiscussion = [
   {
-    id: '1',
+    id: 'question-1',
     title: 'How does react work?',
     user: {
       name: 'John Doe',
@@ -525,7 +573,7 @@ const mockDiscussion = [
     repliesCount: 20,
   },
   {
-    id: '2',
+    id: 'question-2',
     title: 'How does react state work?',
     user: {
       name: 'Jane Doe',
@@ -537,7 +585,7 @@ const mockDiscussion = [
     repliesCount: 10,
   },
   {
-    id: '3',
+    id: 'question-3',
     title: 'How does react context work?',
     user: {
       name: 'John Doe',
@@ -549,7 +597,7 @@ const mockDiscussion = [
     repliesCount: 5,
   },
   {
-    id: '4',
+    id: 'question-4',
     title: 'How does react hooks work?',
     user: {
       name: 'Jane Doe',
