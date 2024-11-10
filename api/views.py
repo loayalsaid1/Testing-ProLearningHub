@@ -91,7 +91,9 @@ def login(request):
         if user and check_password(password, user.password_hash):
             request.session['user_id'] = user.user_id
             return Response({'message': 'Login successful'}, status=status.HTTP_200_OK)
-        return Response({'message': 'Invalid email or password'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 @api_view(['GET'])
