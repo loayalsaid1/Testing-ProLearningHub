@@ -103,12 +103,14 @@ def login(request):
                 'userid': user.user_id,
                 'firstname': user.first_name,
                 'lastname': user.last_name,
-                'displayPicture': user.profile_image if user.profile_image else None,
-                'thumbnail': user.profile_image_thumbnail if user.profile_image_thumbnail else None
+                'email': user.email,
+                'pictureURL': user.pictureURL if user.pictureURL else None,
+                'pictureThumbnail': user.pictureThumbnail if user.pictureThumbnail else None
             }
             # Create a list and append dictList directly
             response_data = {'message': 'Login successful'}
-            response_data.update(dictList)
+            user_response = {"user": dictList}
+            response_data.update(user_response)
             return Response(response_data, status=status.HTTP_200_OK)
         return Response({'message': 'Invalid email or password'}, status=status.HTTP_400_BAD_REQUEST)
     return Response({'message': 'Input Not Valid'}, status=status.HTTP_403_FORBIDDEN)
