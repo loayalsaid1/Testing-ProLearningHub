@@ -1,3 +1,4 @@
+from django.views.decorators.csrf import ensure_csrf_cookie
 import requests
 import secrets
 import logging
@@ -19,7 +20,9 @@ from django.utils.crypto import get_random_string
 from social_django.utils import load_strategy, load_backend
 from social_core.exceptions import AuthMissingParameter, AuthForbidden
 from django.conf import settings
-
+import logging
+from django.views.decorators.csrf import csrf_exempt
+logger = logging.getLogger(__name__)
 # Create your views here.
 
 
@@ -81,6 +84,10 @@ def register(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# @csrf_exempt
+
+
+# @ensure_csrf_cookie
 @api_view(['POST'])
 def login(request):
     serializer = UserLoginSerializer(data=request.data)
@@ -90,8 +97,19 @@ def login(request):
         user = Users.objects.filter(email=email).first()
         if user and check_password(password, user.password_hash):
             request.session['user_id'] = user.user_id
-            return Response({'message': 'Login successful'}, status=status.HTTP_200_OK)
+            dictList = {
+                'userid': user.user_id,
+                'firstname': user.first_name,
+                'lastname': user.last_name,
+                'displayPicture': user.profile_image if user.profile_image else None,
+                'thumbnail': user.profile_image_thumbnail if user.profile_image_thumbnail else None
+            }
+            # Create a list and append dictList directly
+            response_data = {'message': 'Login successful'}
+            response_data.update(dictList)
+            return Response(response_data, status=status.HTTP_200_OK)
         return Response({'message': 'Invalid email or password'}, status=status.HTTP_400_BAD_REQUEST)
+    return Response({'message': 'Input Not Valid'}, status=status.HTTP_403_FORBIDDEN)
 
 
 @api_view(['GET'])
