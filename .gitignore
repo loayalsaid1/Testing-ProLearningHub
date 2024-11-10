@@ -4,3 +4,4 @@ newenv/
 node_modules/
 *.cpython-312.pyc
 /schoolhub/passkeys.py
+db.sqlite3

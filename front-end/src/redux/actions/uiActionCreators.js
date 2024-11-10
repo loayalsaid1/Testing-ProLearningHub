@@ -121,9 +121,16 @@ export const registerSuccess = (user) => {
 };
 
 export const formRegister = (userData) => {
-  const request = new Request(`${DOMAIN}/auth/register`, {
+  const requestBody = {
+    ...userData,
+    first_name: userData.firstName,
+    last_name: userData.lastName,
+    password_hash: userData.password,
+    role: 'student'
+  }
+  const request = new Request(`${DOMAIN}/api/register`, {
     method: 'POST',
-    body: JSON.stringify({userData}),
+    body: JSON.stringify(requestBody),
     headers: {
       'Content-Type': 'application/json',
     },
@@ -165,6 +172,7 @@ export const register = (request) => async (dispatch) => {
         }
       }
     }
+    console.log(data);
     dispatch(registerSuccess(data.user));
 
   } catch (error) {
