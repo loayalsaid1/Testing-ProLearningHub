@@ -30,7 +30,7 @@ export function formLogin(email, password, isAdmin) {
     : `${DOMAIN}/api/login`
   const request = new Request(url, {
     method: 'POST',
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ email, password_hash: password }),
     headers: {
       'Content-Type': 'application/json',
     },
@@ -59,6 +59,7 @@ const login = (request) => async (dispatch) => {
 
   try {
     const response = await fetch(request);
+    const data = await response.json();
     if (!response.ok) {
       switch (response.status) {
         case 401: {
@@ -68,12 +69,12 @@ const login = (request) => async (dispatch) => {
           throw new Error("Oops, that's a 404!");
         }
         default: {
+          console.error(data.message)
           throw new Error('Unexpected error occured!');
         }
       }
     }
 
-    const data = await response.json();
     dispatch(loginSuccess(data.user));
   } catch (error) {
     dispatch(loginFailure(error.message));
