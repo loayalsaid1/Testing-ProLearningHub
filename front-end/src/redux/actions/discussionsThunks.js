@@ -200,3 +200,53 @@ export const addDiscussionReply =
       );
     }
   };
+
+const toggleDiscussionEntryVote = (entryId, isLecture) => async (dispatch, getState) => {
+  const state = getState();
+  const isUpvoted = state.discussions.getIn([
+    isLecture ? 'lecturesDiscussions' : 'courseGeneralDiscussion',
+    entryId,
+    'upvoted',
+  ]);
+
+  const action = isUpvoted ? 'downvote' : 'upvote';
+
+  const failureAction = isLecture
+    ? discussionsActions.toggleLectureQuestionUpvoteFailure
+    : discussionsActions.toggleGeneralQuestionUpvoteFailure;
+  const successAction = isLecture
+    ? discussionsActions.toggleLectureQuestionUpvoteFailure
+    : discussionsActions.toggleGeneralQuestionUpvoteSuccess;
+
+  try {
+    const data = await toast.promise(
+      fetch(`${DOMAIN}/questions/${entryId}/vote`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({action})
+      }).then(response => {
+        if (!response.ok) {
+          const data = response.json();
+          throw new Error(data.message);
+        }
+        return response.json();
+      }),
+      {
+        loading: isUpvoted ? 'Downvoting' : 'Upvoting',
+        success: isUpvoted ? 'Downvoted' : 'Upvoted',
+        error: 'Error toggling vote',
+      }
+    );
+
+    dispatch(successAction(entryId, !isUpvoted));
+  } catch (error) {
+    console.error(error.message);
+    dispatch(
+      failureAction(
+        `Error toggling the vote: ${error.message}`
+      )
+    );
+  }
+};
