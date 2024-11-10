@@ -30,6 +30,7 @@ export function formLogin(email, password, isAdmin) {
     : `${DOMAIN}/api/login`
   const request = new Request(url, {
     method: 'POST',
+    // TODO: This should be password
     body: JSON.stringify({ email, password_hash: password }),
     headers: {
       'Content-Type': 'application/json',
@@ -42,7 +43,7 @@ export function formLogin(email, password, isAdmin) {
 export function googleLogin(idToken, isAdmin) {
   const url = isAdmin
     ? `${DOMAIN}/auth/admin/oauth/google/`
-    : `${DOMAIN}/auth/oauth/google`
+    : `${DOMAIN}/auth/google/login/`
   const request = new Request(url, {
     method: 'POST',
     body: JSON.stringify({ token: idToken }),
@@ -74,7 +75,7 @@ const login = (request) => async (dispatch) => {
         }
       }
     }
-
+    console.log(data);
     dispatch(loginSuccess(data.user));
   } catch (error) {
     dispatch(loginFailure(error.message));
