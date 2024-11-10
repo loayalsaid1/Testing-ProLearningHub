@@ -6,7 +6,7 @@ from student.models import *
 
 
 class UserSerializer(serializers.ModelSerializer):
-    profile_image = serializers.ImageField(required=False)
+    pictureURL = serializers.URLField(required=False)
 
     class Meta:
         model = Users
@@ -15,22 +15,25 @@ class UserSerializer(serializers.ModelSerializer):
 
 class UserPostSerializer(serializers.ModelSerializer):
     # profile_image = serializers.ImageField(required=False)
+    # pictureURL = serializers.URLField(required=False)
 
     class Meta:
         model = Users
-        exclude = ['reset_token']
+        exclude = ['reset_token', 'pictureId']
 
 
 class UserLoginSerializer(serializers.ModelSerializer):
-    profile_image = serializers.ImageField(required=False)
+    # profile_image = serializers.ImageField(required=False)
+    # pictureURL = serializers.URLField(required=False)
 
     class Meta:
         model = Users
-        fields = ['email', 'password_hash', 'profile_image']
+        fields = ['email', 'password_hash', 'pictureURL']
 
 
 class UserResetPasswordSerializer(serializers.ModelSerializer):
     # profile_image = serializers.ImageField(required=False)
+    # pictureURL = serializers.URLField(required=False)
 
     class Meta:
         model = Users
@@ -39,6 +42,7 @@ class UserResetPasswordSerializer(serializers.ModelSerializer):
 
 class UserResetTokenSerializer(serializers.ModelSerializer):
     # profile_image = serializers.ImageField(required=False)
+    # pictureURL = serializers.URLField(required=False)
 
     class Meta:
         model = Users
