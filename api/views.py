@@ -96,7 +96,7 @@ def register(request):
 
 
 class UserEditView(APIView):
-    def edit_user(request):
+    def put(self, request):
         session_id = request.session.get('user_id')
         if session_id is None:
             return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -112,7 +112,7 @@ class UserEditView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response({'message': 'You are not a user. Please register first.'}, status=status.HTTP_403_FORBIDDEN)
 
-    def delete_user(request):
+    def delete(self, request):
         session_id = request.session.get('user_id')
         if session_id is None:
             return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -123,7 +123,7 @@ class UserEditView(APIView):
                 "Authorization": f"Basic {encode64(IMAGE_KIT_AUTH.get('private_key'))}",
                 "Accept": "application/json"
             }
-            response = requests.delete(url, headers=headers)
+            response = requests.delete(url, headers=headers, timeout=200)
             print("Status Code:", response.status_code)
             print("Response Text:", response.text)
             user.delete()
