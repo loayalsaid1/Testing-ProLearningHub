@@ -159,7 +159,7 @@ export default function discussionsReducer(state = initialState, action = {}) {
           .set('discussionsError', null)
           .updateIn(['replies', entry.questionId, 'repliesList'], (replies) =>
             replies.unshift(fromJS(entry))
-        );
+          );
       });
     }
 
@@ -176,18 +176,33 @@ export default function discussionsReducer(state = initialState, action = {}) {
     }
 
     case actions.TOGGLE_LECTURE_QUESTION_UPVOTE_SUCCESS: {
-      const { questionId, isUpvoted } = action.payload;
+      const { questionId, lectureId, isUpvoted } = action.payload;
       return state.withMutations((state) => {
         state
           .set('isLoading', false)
           .set('discussionsError', null)
-          .setIn(['lecturesDiscussions', questionId, 'upvoted'], isUpvoted)
-          .updateIn(['lecturesDiscussions', questionId, 'upvotes'], (upvotes) =>
-            isUpvoted ? upvotes + 1 : upvotes - 1
+          .updateIn(['lecturesDiscussions', lectureId], (questionsList) =>
+            questionsList.map((question) =>
+              question.get('id') === questionId
+                ? question.set('upvoted', isUpvoted)
+                : question
+            )
+          )
+          .updateIn(['lecturesDiscussions', lectureId], (questionsList) =>
+            questionsList.map((question) => {
+              question.get('id') === questionId
+                ? question.set(
+                    'upvotes',
+                    isUpvoted
+                      ? question.get('upvotes') + 1
+                      : question.get('upvotes') - 1
+                  )
+                : question;
+            })
           );
       });
     }
-    
+
     default: {
       return state;
     }
