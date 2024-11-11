@@ -81,6 +81,7 @@ def register(request):
         response_data = {"message": "Registration successful"}
         user_response = {"user": serializer.data}
         response_data.update(user_response)
+        request.session['user_id'] = user.user_id
         return Response(response_data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
