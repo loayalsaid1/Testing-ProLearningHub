@@ -13,9 +13,10 @@ class Users(models.Model):
     email = models.EmailField()
     password_hash = models.CharField(max_length=200)
     role = models.CharField(max_length=50)
-    pictureId = models.CharField(max_length=50, blank=True, null=True)
-    pictureURL = models.URLField(max_length=200, blank=True, null=True)
-    pictureThumbnail = models.URLField(max_length=200, blank=True, null=True)
+    profile_image = models.ImageField(
+        upload_to='profile_images/', null=True, blank=True)
+    profile_image_thumbnail = models.ImageField(
+        upload_to='profile_image_thumbnails/', null=True, blank=True)
     reset_token = models.CharField(
         max_length=32, blank=True, null=True)  # For password reset
 
