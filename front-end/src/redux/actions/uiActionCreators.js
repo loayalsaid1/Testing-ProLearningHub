@@ -173,7 +173,7 @@ export const register = (request) => async (dispatch) => {
       }
     }
     console.log(data);
-    dispatch(registerSuccess(data));
+    dispatch(registerSuccess(data.user));
 
   } catch (error) {
     console.error(error);
