@@ -50,7 +50,7 @@ class UserResetTokenSerializer(serializers.ModelSerializer):
 
 
 class UserEditSerializer(serializers.ModelSerializer):
-    pictureURL = serializers.URLField(required=False)
+    # pictureURL = serializers.URLField(required=False)
 
     class Meta:
         model = Users
