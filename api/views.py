@@ -22,8 +22,17 @@ from social_core.exceptions import AuthMissingParameter, AuthForbidden
 from django.conf import settings
 import logging
 from django.views.decorators.csrf import csrf_exempt
+from imagekitio import ImageKit
+import requests
+import base64
+from schoolhub.passkeys import IMAGE_KIT_AUTH
 logger = logging.getLogger(__name__)
 # Create your views here.
+
+
+def encode64(private_key):
+    encoded_credentials = base64.b64encode(f"{private_key}:".encode()).decode()
+    return encoded_credentials
 
 
 def home_view(request):
@@ -68,8 +77,7 @@ def register(request):
         email = serializer.validated_data.get('email')
         user = Users.objects.filter(email=email).first()
         if user is not None:
-            return Response({'message': 'User already exists'}, status=status.HTTP_400_BAD_REQUEST)
-
+            return Response({'message': 'User already exists'}, status=status.HTTP_409_CONFLICT)
         user = serializer.save(password_hash=make_password(password))
         user.save()
 
@@ -79,15 +87,80 @@ def register(request):
         elif serializer.validated_data.get('role') == 'student':
             student = Students.objects.create(user=user)
             student.save()
-
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        response_data = {"message": "Registration successful"}
+        user_response = {"user": serializer.data}
+        response_data.update(user_response)
+        request.session['user_id'] = user.user_id
+        return Response(response_data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class UserEditView(APIView):
+    def put(self, request):
+        session_id = request.session.get('user_id')
+        if session_id is None:
+            return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
+        user = Users.objects.filter(user_id=session_id).first()
+        if user:
+            serializer = UserEditSerializer(
+                user, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                new_data = serializer.data.copy()
+                new_data.pop('pictureId')
+                return Response(new_data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': 'You are not a user. Please register first.'}, status=status.HTTP_403_FORBIDDEN)
+
+    def delete(self, request):
+        session_id = request.session.get('user_id')
+        if session_id is None:
+            return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
+        user = Users.objects.filter(user_id=session_id).first()
+        if user:
+            url = f"https://api.imagekit.io/v1/files/{user.pictureId}"
+            headers = {
+                "Authorization": f"Basic {encode64(IMAGE_KIT_AUTH.get('private_key'))}",
+                "Accept": "application/json"
+            }
+            response = requests.delete(url, headers=headers, timeout=200)
+            print("Status Code:", response.status_code)
+            print("Response Text:", response.text)
+            user.delete()
+            request.session.flush()
+            return Response({"message": "Your account has been successfully deleted"}, status=status.HTTP_204_NO_CONTENT)
+        return Response({"message": "Cant find user, please register first"}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+@api_view(['PUT'])
+def edit_user_image(request):
+    session_id = request.session.get('user_id')
+    if session_id is None:
+        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
+    user = Users.objects.filter(user_id=session_id).first()
+    if user:
+        serializer = UserImageEditSerializer(
+            user, data=request.data, partial=True)
+        if serializer.is_valid():
+            url = f"https://api.imagekit.io/v1/files/{user.pictureId}"
+            headers = {
+                "Authorization": f"Basic {encode64(IMAGE_KIT_AUTH.get('private_key'))}",
+                "Accept": "application/json"
+            }
+            response = requests.delete(url, headers=headers)
+            print("Status Code:", response.status_code)
+            print("Response Text:", response.text)
+            serializer.save()
+            new_data = serializer.data.copy()
+            new_data.pop('pictureId')
+            return Response(new_data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({'message': 'You are not a user. Please register first.'}, status=status.HTTP_403_FORBIDDEN)
+
 # @csrf_exempt
-
-
 # @ensure_csrf_cookie
+
+
 @api_view(['POST'])
 def login(request):
     serializer = UserLoginSerializer(data=request.data)
@@ -101,15 +174,18 @@ def login(request):
                 'userid': user.user_id,
                 'firstname': user.first_name,
                 'lastname': user.last_name,
-                'displayPicture': user.profile_image if user.profile_image else None,
-                'thumbnail': user.profile_image_thumbnail if user.profile_image_thumbnail else None
+                'email': user.email,
+                'pictureURL': user.pictureURL if user.pictureURL else None,
+                'pictureThumbnail': user.pictureThumbnail if user.pictureThumbnail else None
             }
             # Create a list and append dictList directly
             response_data = {'message': 'Login successful'}
-            response_data.update(dictList)
+            user_response = {"user": dictList}
+            response_data.update(user_response)
             return Response(response_data, status=status.HTTP_200_OK)
-        return Response({'message': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
-    return Response({'message': 'Input Not Valid'}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+        return Response({'message': 'Invalid email or password'}, status=status.HTTP_400_BAD_REQUEST)
+    return Response({'message': 'Input Not Valid'}, status=status.HTTP_403_FORBIDDEN)
+
 
 @api_view(['GET'])
 def logout(request):
@@ -574,6 +650,24 @@ class EnrollmentForLecturerView(APIView):
         if session_id is None:
             return Response({'message': 'You are not logged in'}, status=status.HTTP_403_FORBIDDEN)
         user = get_object_or_404(Users, user_id=session_id)
+        if user.role == 'tutor':
+            lecturer = Lecturer.objects.filter(user=user).first()
+            student = Students.objects.filter(student_id=student_id).first()
+            course = Courses.objects.filter(
+                Q(course_id=course_id) & Q(lecturer=lecturer)).first()
+            if not course:
+                return Response({"message": "Course not found"}, status=status.HTTP_404_NOT_FOUND)
+            enrollment = Enrollments.objects.filter(
+                Q(course=course) & Q(student=student)).first()
+            if not enrollment:
+                return Response({"message": "Student not Enrolled to this Course"}, status=status.HTTP_404_NOT_FOUND)
+            enrollment.delete()
+            student_name = f"{student.user.first_name} {student.user.last_name}'s"
+            response_data = {
+                "message": f"{student_name} enrollment to {course.course_name} has been deleted"}
+            return Response(response_data, status=status.HTTP_204_NO_CONTENT)
+        return Response({'message': 'Contact the tutor of this course to delete your enrollment'}, status=status.HTTP_403_FORBIDDEN)
+
 
 # class ChatListView(APIView):
 #     def get(self, request):

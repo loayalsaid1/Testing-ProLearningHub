@@ -19,7 +19,12 @@ urlpatterns = [
     path('user/<int:user_id>', views.UserIdView.as_view(), name='api_user_by_id'),
     path('students', views.StudentListView.as_view(), name='api_students'),
     path('lecturers', views.LecturerListView.as_view(), name='api_lecturers'),
-    # GET & POST(must be a tutor to post)
+
+    #     EDIT OR DELETE USER
+    path('user', views.UserEditView.as_view(), name='api_edit_view'),
+    # EDIT PROFILE IMAGE
+    path('profileimage', views.edit_user_image, name='api_edit_user_image'),
+
 
     # GET
     # Course
@@ -83,6 +88,10 @@ urlpatterns = [
          views.FacialRecognitionListView.as_view(), name='api_facial_recognitions'),
     #     path('chats/', views.ChatListView.as_view()),
     path('enrollments', views.EnrollmentListView.as_view(), name='api_enrollments'),
+    path('enrollment/student/<int:course_id>',
+         views.EnrollmentForStudentView.as_view(), name='api_student_enrollments'),
+    path('enrollment/lecturer/<int:course_id>/<int:student_id>',
+         views.EnrollmentForLecturerView.as_view(), name='api_lecturer_enrollments'),
     path("course/details/<int:course_id>",
          views.course_detail_view, name="course_detail_view"),  # GET: View details for a particular course
 
