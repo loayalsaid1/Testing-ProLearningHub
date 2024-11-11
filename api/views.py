@@ -170,6 +170,7 @@ def login(request):
         user = Users.objects.filter(email=email).first()
         if user and check_password(password, user.password_hash):
             request.session['user_id'] = user.user_id
+            print("Session ID:", request.session.session_key)
             dictList = {
                 'userid': user.user_id,
                 'firstname': user.first_name,

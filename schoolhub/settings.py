@@ -161,6 +161,10 @@ REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
     ),
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ],
 }
 
 AUTHENTICATION_BACKENDS = (
@@ -196,8 +200,13 @@ APPEND_SLASH = False
 # LOGIN_URL = '/login/'
 # SOCIAL_AUTH_OAUTH2_IGNORE_STATE = True
 
+CSRF_TRUSTED_ORIGINS = ['http://localhost:3001', 'http://127.0.0.1:3001']
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3001",
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_COOKIE_SECURE = False
