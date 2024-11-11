@@ -190,7 +190,7 @@ export default function discussionsReducer(state = initialState, action = {}) {
           )
           .updateIn(['lecturesDiscussions', lectureId], (questionsList) =>
             questionsList.map((question) => {
-              question.get('id') === questionId
+              return question.get('id') === questionId
                 ? question.set(
                     'upvotes',
                     isUpvoted

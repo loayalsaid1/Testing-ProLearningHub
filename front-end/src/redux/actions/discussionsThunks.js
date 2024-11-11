@@ -201,7 +201,7 @@ export const addDiscussionReply =
     }
   };
 
-const toggleDiscussionEntryVote = (entryId, isLecture) => async (dispatch, getState) => {
+export const toggleDiscussionEntryVote = (entryId, isLecture) => async (dispatch, getState) => {
   const state = getState();
   const isUpvoted = state.discussions.getIn([
     isLecture ? 'lecturesDiscussions' : 'courseGeneralDiscussion',
