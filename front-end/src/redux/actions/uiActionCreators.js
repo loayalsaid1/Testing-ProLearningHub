@@ -74,6 +74,7 @@ const login = (request) => async (dispatch) => {
     }
 
     const data = await response.json();
+    console.log(data);
     dispatch(loginSuccess(data.user));
   } catch (error) {
     dispatch(loginFailure(error.message));

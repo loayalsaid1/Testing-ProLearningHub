@@ -183,9 +183,8 @@ def login(request):
             user_response = {"user": dictList}
             response_data.update(user_response)
             return Response(response_data, status=status.HTTP_200_OK)
-        return Response({'message': 'Invalid email or password'}, status=status.HTTP_400_BAD_REQUEST)
-    return Response({'message': 'Input Not Valid'}, status=status.HTTP_403_FORBIDDEN)
-
+        return Response({'message': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
+    return Response({'message': 'Input Not Valid'}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 def logout(request):
