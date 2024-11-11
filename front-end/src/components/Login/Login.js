@@ -61,7 +61,7 @@ export default function Login({ setType }) {
 	<p>Please login to continue as {adminLogin ? 'admin' : 'student'}</p>
 	<form onSubmit={handleSubmit}>
 		<label htmlFor='email'>Email</label>
-		<input name='email' id='email' type='text' placeholder='Here insert your mail please' />
+		<input name='email' id='email' type='email' placeholder='Here insert your mail please' />
 		<hr />
 		<label htmlFor='password'>Password</label>
 		<input name='password' id='password' type='password' placeholder='And here.. Your password!' />
