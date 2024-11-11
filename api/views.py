@@ -68,8 +68,7 @@ def register(request):
         email = serializer.validated_data.get('email')
         user = Users.objects.filter(email=email).first()
         if user is not None:
-            return Response({'message': 'User already exists'}, status=status.HTTP_400_BAD_REQUEST)
-
+            return Response({'message': 'User already exists'}, status=status.HTTP_409_CONFLICT)
         user = serializer.save(password_hash=make_password(password))
         user.save()
 
