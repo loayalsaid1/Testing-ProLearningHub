@@ -107,7 +107,7 @@ class UserEditView(APIView):
             if serializer.is_valid():
                 serializer.save()
                 new_data = serializer.data.copy()
-                new_data.pop('pictureId')
+                # new_data.pop('pictureId')
                 return Response(new_data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response({'message': 'You are not a user. Please register first.'}, status=status.HTTP_403_FORBIDDEN)
