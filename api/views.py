@@ -22,8 +22,17 @@ from social_core.exceptions import AuthMissingParameter, AuthForbidden
 from django.conf import settings
 import logging
 from django.views.decorators.csrf import csrf_exempt
+from imagekitio import ImageKit
+import requests
+import base64
+from schoolhub.passkeys import IMAGE_KIT_AUTH
 logger = logging.getLogger(__name__)
 # Create your views here.
+
+
+def encode64(private_key):
+    encoded_credentials = base64.b64encode(f"{private_key}:".encode()).decode()
+    return encoded_credentials
 
 
 def home_view(request):
@@ -86,10 +95,72 @@ def register(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class UserEditView(APIView):
+    def edit_user(request):
+        session_id = request.session.get('user_id')
+        if session_id is None:
+            return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
+        user = Users.objects.filter(user_id=session_id).first()
+        if user:
+            serializer = UserEditSerializer(
+                user, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                new_data = serializer.data.copy()
+                new_data.pop('pictureId')
+                return Response(new_data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': 'You are not a user. Please register first.'}, status=status.HTTP_403_FORBIDDEN)
+
+    def delete_user(request):
+        session_id = request.session.get('user_id')
+        if session_id is None:
+            return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
+        user = Users.objects.filter(user_id=session_id).first()
+        if user:
+            url = f"https://api.imagekit.io/v1/files/{user.pictureId}"
+            headers = {
+                "Authorization": f"Basic {encode64(IMAGE_KIT_AUTH.get('private_key'))}",
+                "Accept": "application/json"
+            }
+            response = requests.delete(url, headers=headers)
+            print("Status Code:", response.status_code)
+            print("Response Text:", response.text)
+            user.delete()
+            request.session.flush()
+            return Response({"message": "Your account has been successfully deleted"}, status=status.HTTP_204_NO_CONTENT)
+        return Response({"message": "Cant find user, please register first"}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+@api_view(['PUT'])
+def edit_user_image(request):
+    session_id = request.session.get('user_id')
+    if session_id is None:
+        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
+    user = Users.objects.filter(user_id=session_id).first()
+    if user:
+        serializer = UserImageEditSerializer(
+            user, data=request.data, partial=True)
+        if serializer.is_valid():
+            url = f"https://api.imagekit.io/v1/files/{user.pictureId}"
+            headers = {
+                "Authorization": f"Basic {encode64(IMAGE_KIT_AUTH.get('private_key'))}",
+                "Accept": "application/json"
+            }
+            response = requests.delete(url, headers=headers)
+            print("Status Code:", response.status_code)
+            print("Response Text:", response.text)
+            serializer.save()
+            new_data = serializer.data.copy()
+            new_data.pop('pictureId')
+            return Response(new_data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({'message': 'You are not a user. Please register first.'}, status=status.HTTP_403_FORBIDDEN)
+
 # @csrf_exempt
-
-
 # @ensure_csrf_cookie
+
+
 @api_view(['POST'])
 def login(request):
     serializer = UserLoginSerializer(data=request.data)
@@ -591,6 +662,11 @@ class EnrollmentForLecturerView(APIView):
             if not enrollment:
                 return Response({"message": "Student not Enrolled to this Course"}, status=status.HTTP_404_NOT_FOUND)
             enrollment.delete()
+            student_name = f"{student.user.first_name} {student.user.last_name}'s"
+            response_data = {
+                "message": f"{student_name} enrollment to {course.course_name} has been deleted"}
+            return Response(response_data, status=status.HTTP_204_NO_CONTENT)
+        return Response({'message': 'Contact the tutor of this course to delete your enrollment'}, status=status.HTTP_403_FORBIDDEN)
 
 
 # class ChatListView(APIView):

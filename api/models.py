@@ -49,6 +49,23 @@ class UserResetTokenSerializer(serializers.ModelSerializer):
         fields = ['reset_token']
 
 
+class UserEditSerializer(serializers.ModelSerializer):
+    pictureURL = serializers.URLField(required=False)
+
+    class Meta:
+        model = Users
+        fields = ['first_name', 'last_name']
+
+
+class UserImageEditSerializer(serializers.ModelSerializer):
+    # profile_image = serializers.ImageField(required=False)
+    # pictureURL = serializers.URLField(required=False)
+
+    class Meta:
+        model = Users
+        fields = ['pictureId', 'pictureURL', 'pictureThumbnail']
+
+
 class StudentSerializer(serializers.ModelSerializer):
 
     class Meta:
