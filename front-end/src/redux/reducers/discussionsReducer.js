@@ -176,30 +176,31 @@ export default function discussionsReducer(state = initialState, action = {}) {
     }
 
     case actions.TOGGLE_LECTURE_QUESTION_UPVOTE_SUCCESS: {
-      const { questionId, lectureId, isUpvoted } = action.payload;
+      const { id, lectureId, isUpvoted } = action.payload;
       return state.withMutations((state) => {
-        state
-          .set('isLoading', false)
-          .set('discussionsError', null)
-          .updateIn(['lecturesDiscussions', lectureId], (questionsList) =>
-            questionsList.map((question) =>
-              question.get('id') === questionId
-                ? question.set('upvoted', isUpvoted)
-                : question
-            )
-          )
-          .updateIn(['lecturesDiscussions', lectureId], (questionsList) =>
-            questionsList.map((question) => {
-              return question.get('id') === questionId
-                ? question.set(
-                    'upvotes',
-                    isUpvoted
-                      ? question.get('upvotes') + 1
-                      : question.get('upvotes') - 1
-                  )
-                : question;
-            })
-          );
+        const questionsList = state.getIn(['lecturesDiscussions', lectureId]);
+
+        const question = questionsList.find((q) => q.get('id') === id);
+        if (question) {
+          return state
+            .set('isLoading', false)
+            .set('discussionsError', null)
+            .updateIn(
+              ['lecturesDiscussions', lectureId],
+              (questionsList) =>
+                questionsList.map((q) =>
+                  q.get('id') === id
+                    ? q.merge({
+                        upvoted: isUpvoted,
+                        upvotes: isUpvoted
+                          ? q.get('upvotes') + 1
+                          : q.get('upvotes') - 1,
+                      })
+                    : q
+                )
+            );
+        }
+        return state;
       });
     }
 
