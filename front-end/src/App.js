@@ -20,6 +20,7 @@ import Replies from './components/Replies/Replies';
 import Login from './components/Login/Login';
 import Register from './components/Register/Register';
 import FakeHome from './components/FakeHome/FakeHome';
+import Sidebar from './components/Sidebar/sidebar';
 
 
 function ProtectedLayout() {
@@ -44,8 +45,9 @@ function App() {
   return (
     <div className="APP">
       {isLoading && <Spinner />}
+      <Sidebar />
       <header className="App-header">
-        <button type="button" onClick={handleLogout}>
+        {/* <button type="button" onClick={handleLogout}>
           Logout
         </button>
         <button><Link to="/">Home</Link></button>
@@ -53,6 +55,9 @@ function App() {
         <button><Link to="/lectures">Lectures</Link></button>
         <button><Link to="/announcements">Announcements</Link></button>
         <button><Link to="/discussion">Discussion</Link></button>
+ */}
+
+
         <Routes>
           <Route path='/login' element={<Login />} />
           <Route path='/Register' element={<Register />} />
