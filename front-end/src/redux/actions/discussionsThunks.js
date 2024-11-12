@@ -270,7 +270,7 @@ export const toggleDiscussionEntryVote =
   };
 
 
-const toggleReplyVote = (entryId, questionId) => async (dispatch, getState) => {
+export const toggleReplyVote = (entryId, questionId) => async (dispatch, getState) => {
   const state = getState();
   const isUpvoted = state.discussions
     .getIn(['replies', questionId])
@@ -298,9 +298,9 @@ const toggleReplyVote = (entryId, questionId) => async (dispatch, getState) => {
       error: 'Error toggling vote',
     });
 
-    dispatch(discussionsActions.toggleReplyVoteSuccess(entryId, questionId, !isUpvoted));
+    dispatch(discussionsActions.toggleReplyUpvoteSuccess(entryId, questionId, !isUpvoted));
   } catch (error) {
     console.error(error.message);
-    dispatch(discussionsActions.toggleReplyVoteFailure(`Error toggling the vote: ${error.message}`));
+    dispatch(discussionsActions.toggleReplyUpvoteFailure(`Error toggling the vote: ${error.message}`));
   }
 }
