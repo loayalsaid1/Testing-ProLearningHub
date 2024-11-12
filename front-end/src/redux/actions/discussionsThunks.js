@@ -239,6 +239,7 @@ export const toggleDiscussionEntryVote =
     } = whatever(entryId, isLecture, lectureId, getState);
 
     try {
+      /* eslint-disable no-unused-vars */
       const data = await toast.promise(
         fetch(`${DOMAIN}/questions/${entryId}/vote`, {
           method: 'POST',
@@ -269,38 +270,51 @@ export const toggleDiscussionEntryVote =
     }
   };
 
+export const toggleReplyVote =
+  (entryId, questionId) => async (dispatch, getState) => {
+    const state = getState();
+    const isUpvoted = state.discussions
+      .getIn(['replies', questionId])
+      .find((reply) => reply.get('id') === entryId)
+      .get('upvoted');
 
-export const toggleReplyVote = (entryId, questionId) => async (dispatch, getState) => {
-  const state = getState();
-  const isUpvoted = state.discussions
-    .getIn(['replies', questionId])
-    .find((reply) => reply.get('id') === entryId)
-    .get('upvoted');
-
-  const action = isUpvoted ? 'downvote' : 'upvote';
-  try {
-    const data = await toast.promise(
-      fetch(`${DOMAIN}/replies/${entryId}/vote`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({action})
-      }).then((response) => {
-        if (!response.ok) {
-          const data = response.json();
-          throw new Error(data.message);
+    const action = isUpvoted ? 'downvote' : 'upvote';
+    try {
+      /* eslint-disable no-unused-vars */
+      const data = await toast.promise(
+        fetch(`${DOMAIN}/replies/${entryId}/vote`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ action }),
+        }).then((response) => {
+          if (!response.ok) {
+            const data = response.json();
+            throw new Error(data.message);
+          }
+          return response.json();
+        }),
+        {
+          loading: isUpvoted ? 'Downvoting' : 'Upvoting',
+          success: isUpvoted ? 'Downvoted' : 'Upvoted',
+          error: 'Error toggling vote',
         }
-        return response.json();
-      }), {
-      loading: isUpvoted ? 'Downvoting' : 'Upvoting',
-      success: isUpvoted ? 'Downvoted' : 'Upvoted',
-      error: 'Error toggling vote',
-    });
+      );
 
-    dispatch(discussionsActions.toggleReplyUpvoteSuccess(entryId, questionId, !isUpvoted));
-  } catch (error) {
-    console.error(error.message);
-    dispatch(discussionsActions.toggleReplyUpvoteFailure(`Error toggling the vote: ${error.message}`));
-  }
-}
+      dispatch(
+        discussionsActions.toggleReplyUpvoteSuccess(
+          entryId,
+          questionId,
+          !isUpvoted
+        )
+      );
+    } catch (error) {
+      console.error(error.message);
+      dispatch(
+        discussionsActions.toggleReplyUpvoteFailure(
+          `Error toggling the vote: ${error.message}`
+        )
+      );
+    }
+  };
