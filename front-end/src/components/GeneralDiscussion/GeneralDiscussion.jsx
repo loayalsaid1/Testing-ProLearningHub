@@ -39,7 +39,7 @@ export default function LectureDiscussion() {
       {isLoading ? (
         <Loading />
       ) : (
-        <DiscussionEntries entries={entries} chunkSize={15} />
+        <DiscussionEntries entries={entries} chunkSize={15} isLecture={false} />
       )}
       <div>
         {askNewQuestion ? (

@@ -2,11 +2,25 @@ import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { CircleArrowUp, EllipsisVertical } from 'lucide-react';
 import { formatDate } from '../../utils/utilFunctions';
+import { useSelector } from 'react-redux';
+import {
+  makeReplyIsUpvotedSelector,
+  makeReplyUpvotesSelector,
+} from '../../redux/selectors/DiscussionsSelectors';
+import { toggleReplyVote } from '../../redux/actions/discussionsThunks';
 
-export default function ReplyEntry({ content }) {
+export default function ReplyEntry({ content, questionId }) {
+  const upvotes = useSelector(
+    makeReplyUpvotesSelector(questionId, content.get('id'))
+  );
+  const upvoted = useSelector(
+    makeReplyIsUpvotedSelector(questionId, content.get('id'))
+  );
   const date = formatDate(content.get('updatedAt'));
-  // This should be comming fomr the reponse already;
-  const [upvoted, setUpvoted] = useState(content.get('upvoted') || false);
+
+  function toggleVote() {
+    toggleReplyVote(content.get('id'), questionId);
+  }
 
   return (
     <div data-id={content.get('id')}>
@@ -21,8 +35,8 @@ export default function ReplyEntry({ content }) {
       </div>
       {/* side buttons */}
       <div>
-        <button type="button" onClick={() => setUpvoted(!upvoted)}>
-          {content.get('upvotes')}
+        <button type="button" onClick={toggleVote}>
+          {upvotes}
 
           {!upvoted ? (
             <CircleArrowUp color="grey" strokeWidth={2} />

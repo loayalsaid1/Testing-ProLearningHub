@@ -12,7 +12,7 @@ import DiscussionEntry from './DiscussionEntry';
  *
  * @return {React.ReactElement}
  */
-export default function DiscussionEntries({ entries, chunkSize }) {
+export default function DiscussionEntries({ entries, chunkSize, isLecture }) {
 	const [limit, setLimit] = useState(chunkSize);
 
   return (
@@ -25,7 +25,7 @@ export default function DiscussionEntries({ entries, chunkSize }) {
       ) : (
         <div>
           {entries.slice(0, limit).map((entry, index) => (
-            <DiscussionEntry key={index} content={entry} />
+            <DiscussionEntry key={index} content={entry} isLecture={isLecture} />
           ))}
           {limit < entries.size && (
             <button type="button" onClick={() => setLimit(limit + chunkSize)}>

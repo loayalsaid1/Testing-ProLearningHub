@@ -18,3 +18,48 @@ const selectReplies = (state) => state.discussions.get('replies');
 
 export const makeRepliesSelector = (questionId) =>
   createSelector([selectReplies], (replies) => replies.get(questionId));
+
+export const makeLectureQuestionIsUpvotedSelector = (lectureId, questionId) =>
+  createSelector(
+    [makeLectureDiscussionsSelector(lectureId)],
+    (lectureQuestions) =>
+      lectureQuestions
+        .find((question) => question.get('id') === questionId)
+        .get('upvoted')
+  );
+
+export const makeLectureQuestionUpvotesSelector = (lectureId, questionId) =>
+  createSelector(
+    [makeLectureDiscussionsSelector(lectureId)],
+    (lectureQuestions) =>
+      lectureQuestions
+        .find((question) => question.get('id') === questionId)
+        .get('upvotes')
+  );
+
+export const makeGeneralQuestionIsUpvotedSelector = (questionId) =>
+  createSelector([selectCourseGeneralDiscussion], (questions) => {
+    return questions
+      .find((question) => question.get('id') === questionId)
+      .get('upvoted');
+  });
+
+export const makeGeneralQuestionUpvotesSelector = (questionId) =>
+  createSelector([selectCourseGeneralDiscussion], (questions) => {
+    return questions
+      .find((question) => question.get('id') === questionId)
+      .get('upvotes');
+  });
+
+export const makeReplyUpvotesSelector = (questionId, replyId) =>
+  createSelector(
+    [makeRepliesSelector(questionId)],
+    (replies) => replies.find((reply) => reply.get('id') === replyId).get('upvotes')
+  );
+
+export const makeReplyIsUpvotedSelector = (questionId, replyId) =>
+  createSelector(
+    [makeRepliesSelector(questionId)],
+    (replies) => replies.find((reply) => reply.get('id') === replyId).get('upvoted')
+  );
+  
