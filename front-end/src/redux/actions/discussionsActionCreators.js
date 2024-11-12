@@ -166,18 +166,18 @@ export const toggleGeneralQuestionUpvoteSuccess = (id, isUpvoted) => ({
   },
 });
 
-const toggleReplyUpvoteRequest = () => ({
+export const toggleReplyUpvoteRequest = () => ({
   type: actions.TOGGLE_REPLY_UPVOTE_FAILURE,
 })
 
-const toggleReplyUpvoteFailure = (errorMessage)  => ({
+export const toggleReplyUpvoteFailure = (errorMessage)  => ({
   type: actions.TOGGLE_REPLY_UPVOTE_FAILURE,
   payload: {
     errorMessage,
   },
 })
 
-const toggleReplyUpvoteSuccess = (id, questionId, isUpvoted) => ({
+export const toggleReplyUpvoteSuccess = (id, questionId, isUpvoted) => ({
   type: actions.TOGGLE_REPLY_UPVOTE_SUCCESS,
   payload: {
     id,
