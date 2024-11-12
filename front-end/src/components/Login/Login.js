@@ -107,32 +107,44 @@ export default function Login({ setType }) {
         console.error(error);
     }
 
-{/* May be put this in top right corner, needed to switch between admin & student */}
-// 	 <button type="button" onClick={() => setAdminLogin(!adminLogin)}>
-// 	 {adminLogin ? (
-// 		 <>
-// 		 <University />
-// 		 'Admin Login'
-// 		 </>
-// 	 ) : (
-// 		 <>
-// 		 <User />
-// 		 'Student Login' 
-// 		 </>
-// 	 )
-//  }
-//  </button>
-//  <h1>ProLearningHub</h1>
-//  <p>Please login to continue as {adminLogin ? 'admin' : 'student'}</p>
-
     return (
         <div style={{ minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
 		    <div className="limiter">
                 <div className="container-login100">
                     <div className="wrap-login100">
                         <form className="login100-form validate-form" onSubmit={handleSubmit}>
+							{/* Lecturer/Student Toggle Buttons */}
+							<div className="toggle-buttons text-center mb-5">
+								<button 
+									type="button" 
+									className="toggle-button" 
+									onClick={() => setAdminLogin(false)}
+									style={{ 
+										backgroundColor: !adminLogin ? '#004085' : '#6c757d',
+										color: '#ffffff', 
+										padding: '10px 15px', 
+										marginRight: '10px', 
+										borderRadius: '5px' 
+									}}
+								>
+									<User /> Student Login
+								</button>
+								<button 
+									type="button" 
+									className="toggle-button" 
+									onClick={() => setAdminLogin(true)}
+									style={{ 
+										backgroundColor: adminLogin ? '#004085' : '#6c757d',
+										color: '#ffffff', 
+										padding: '10px 15px', 
+										borderRadius: '5px' 
+									}}
+								>
+									<University /> Lecturer Login
+								</button>
+							</div>
                             <span className="login100-form-title p-b-43">
-                                Login to continue
+                                Login to continue as {adminLogin ? 'Lecturer' : 'student'}
                             </span>
 
                             <div className="wrap-input100 validate-input" data-validate="Valid email is required: ex@abc.xyz">
