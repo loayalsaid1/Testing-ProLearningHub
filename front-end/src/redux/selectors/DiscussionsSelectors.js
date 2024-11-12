@@ -50,3 +50,16 @@ export const makeGeneralQuestionUpvotesSelector = (questionId) =>
       .find((question) => question.get('id') === questionId)
       .get('upvotes');
   });
+
+export const makeReplyUpvotesSelector = (questionId, replyId) =>
+  createSelector(
+    [makeRepliesSelector(questionId)],
+    (replies) => replies.find((reply) => reply.get('id') === replyId).get('upvotes')
+  );
+
+export const makeReplyIsUpvotedSelector = (questionId, replyId) =>
+  createSelector(
+    [makeRepliesSelector(questionId)],
+    (replies) => replies.find((reply) => reply.get('id') === replyId).get('upvoted')
+  );
+  
