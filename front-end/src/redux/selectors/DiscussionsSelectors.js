@@ -19,26 +19,22 @@ const selectReplies = (state) => state.discussions.get('replies');
 export const makeRepliesSelector = (questionId) =>
   createSelector([selectReplies], (replies) => replies.get(questionId));
 
-export const makeLectureQuestionUpvotedSelector = (lectureId, questionId) => {
-  const selectLectureQuestions = makeLectureDiscussionsSelector(lectureId);
-
-  return createSelector(
-    [selectLecturesDiscussions, selectLectureQuestions],
+export const makeLectureQuestionUpvotedSelector = (lectureId, questionId) =>
+  createSelector(
+    [makeLectureDiscussionsSelector(lectureId)],
     (lectureQuestions) =>
       lectureQuestions
         .find((question) => question.get('id') === questionId)
         .get('upvoted')
   );
-};
 
-export const makeLectureQuestionUpvotesSelector = (lectureId, questionId) => {
-  const selectLectureQuestions = makeLectureDiscussionsSelector(lectureId);
 
-  return createSelector(
-    [selectLecturesDiscussions, selectLectureQuestions],
+export const makeLectureQuestionUpvotesSelector = (lectureId, questionId) =>
+  createSelector(
+    [makeLectureDiscussionsSelector(lectureId)],
     (lectureQuestions) =>
       lectureQuestions
         .find((question) => question.get('id') === questionId)
         .get('upvotes')
   );
-};
+
