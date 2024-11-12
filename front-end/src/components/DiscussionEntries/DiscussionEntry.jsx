@@ -1,11 +1,15 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import {CircleArrowUp, Dot, MessagesSquare} from  'lucide-react';
+import { CircleArrowUp, Dot, MessagesSquare } from 'lucide-react';
 import { formatDate } from '../../utils/utilFunctions';
 import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
-import { makeGeneralQuestionIsUpvotedSelector, makeGeneralQuestionUpvotesSelector, makeLectureQuestionIsUpvotedSelector,
-          makeLectureQuestionUpvotesSelector } from '../../redux/selectors/DiscussionsSelectors';
+import {
+  makeGeneralQuestionIsUpvotedSelector,
+  makeGeneralQuestionUpvotesSelector,
+  makeLectureQuestionIsUpvotedSelector,
+  makeLectureQuestionUpvotesSelector,
+} from '../../redux/selectors/DiscussionsSelectors';
 import { toggleDiscussionEntryVote } from '../../redux/actions/discussionsThunks';
 
 export default function DiscussionEntry({ content, isLecture }) {
@@ -15,22 +19,28 @@ export default function DiscussionEntry({ content, isLecture }) {
   console.log(lectureId);
   upvoted = useSelector(
     isLecture
-    ? makeLectureQuestionIsUpvotedSelector(lectureId, content.get('id'))
-    : makeGeneralQuestionIsUpvotedSelector(content.get('id'))
-  )
+      ? makeLectureQuestionIsUpvotedSelector(lectureId, content.get('id'))
+      : makeGeneralQuestionIsUpvotedSelector(content.get('id'))
+  );
   upvotes = useSelector(
     isLecture
-    ? makeLectureQuestionUpvotesSelector(lectureId, content.get('id'))
-    : makeGeneralQuestionUpvotesSelector(content.get('id'))
-  )
+      ? makeLectureQuestionUpvotesSelector(lectureId, content.get('id'))
+      : makeGeneralQuestionUpvotesSelector(content.get('id'))
+  );
 
   console.log(upvoted, upvotes);
   const date = formatDate(content.get('updatedAt'));
 
   const dispatch = useDispatch();
   const toggleUpvote = () => {
-    dispatch(toggleDiscussionEntryVote(content.get('id'), isLecture, content.get('lectureId')) || undefined);
-  }
+    dispatch(
+      toggleDiscussionEntryVote(
+        content.get('id'),
+        isLecture,
+        content.get('lectureId')
+      ) || undefined
+    );
+  };
 
   return (
     <div data-id={content.get('id')}>
@@ -50,11 +60,12 @@ export default function DiscussionEntry({ content, isLecture }) {
       </div>
       <div>
         <button onClick={toggleUpvote}>
-          {upvotes} 
-					{ !upvoted 
-						? <CircleArrowUp color="grey" strokeWidth={2}/>
-						: <CircleArrowUp color="black" strokeWidth={2.2}/>
-					}
+          {upvotes}
+          {!upvoted ? (
+            <CircleArrowUp color="grey" strokeWidth={2} />
+          ) : (
+            <CircleArrowUp color="black" strokeWidth={2.2} />
+          )}
         </button>
         {/* I don't know why this is a link in a button honestly..
           but i'm going to continue like that..
@@ -84,11 +95,11 @@ export default function DiscussionEntry({ content, isLecture }) {
           front-end
           https://remindme-l.vercela.app
         */}
-        
+
         <button type="button">
           <Link
             to={`/questions/${content.get('id')}`}
-            state={{backRoute: window.location.pathname}}
+            state={{ backRoute: window.location.pathname }}
           >
             {content.get('commentsCount')} <MessagesSquare />
           </Link>

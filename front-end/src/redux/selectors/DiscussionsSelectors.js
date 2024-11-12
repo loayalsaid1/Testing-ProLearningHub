@@ -28,7 +28,6 @@ export const makeLectureQuestionIsUpvotedSelector = (lectureId, questionId) =>
         .get('upvoted')
   );
 
-
 export const makeLectureQuestionUpvotesSelector = (lectureId, questionId) =>
   createSelector(
     [makeLectureDiscussionsSelector(lectureId)],
@@ -39,21 +38,15 @@ export const makeLectureQuestionUpvotesSelector = (lectureId, questionId) =>
   );
 
 export const makeGeneralQuestionIsUpvotedSelector = (questionId) =>
-  createSelector(
-    [selectCourseGeneralDiscussion],
-    (questions) => {
-      return questions
-        .find((question) => question.get('id') === questionId)
-        .get('upvoted')
-    } 
-  )
+  createSelector([selectCourseGeneralDiscussion], (questions) => {
+    return questions
+      .find((question) => question.get('id') === questionId)
+      .get('upvoted');
+  });
 
 export const makeGeneralQuestionUpvotesSelector = (questionId) =>
-  createSelector(
-    [selectCourseGeneralDiscussion],
-    (questions) => {
-      return questions
-        .find((question) => question.get('id') === questionId)
-        .get('upvotes')
-    } 
-  )
+  createSelector([selectCourseGeneralDiscussion], (questions) => {
+    return questions
+      .find((question) => question.get('id') === questionId)
+      .get('upvotes');
+  });

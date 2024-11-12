@@ -185,19 +185,17 @@ export default function discussionsReducer(state = initialState, action = {}) {
           return state
             .set('isLoading', false)
             .set('discussionsError', null)
-            .updateIn(
-              ['lecturesDiscussions', lectureId],
-              (questionsList) =>
-                questionsList.map((q) =>
-                  q.get('id') === id
-                    ? q.merge({
-                        upvoted: isUpvoted,
-                        upvotes: isUpvoted
-                          ? q.get('upvotes') + 1
-                          : q.get('upvotes') - 1,
-                      })
-                    : q
-                )
+            .updateIn(['lecturesDiscussions', lectureId], (questionsList) =>
+              questionsList.map((q) =>
+                q.get('id') === id
+                  ? q.merge({
+                      upvoted: isUpvoted,
+                      upvotes: isUpvoted
+                        ? q.get('upvotes') + 1
+                        : q.get('upvotes') - 1,
+                    })
+                  : q
+              )
             );
         }
         return state;
@@ -226,19 +224,17 @@ export default function discussionsReducer(state = initialState, action = {}) {
           return state
             .set('isLoading', false)
             .set('discussionsError', null)
-            .update(
-              'courseGeneralDiscussion',
-              (questionsList) =>
-                questionsList.map((q) =>
-                  q.get('id') === id
-                    ? q.merge({
-                        upvoted: isUpvoted,
-                        upvotes: isUpvoted
-                          ? q.get('upvotes') + 1
-                          : q.get('upvotes') - 1,
-                      })
-                    : q
-                )
+            .update('courseGeneralDiscussion', (questionsList) =>
+              questionsList.map((q) =>
+                q.get('id') === id
+                  ? q.merge({
+                      upvoted: isUpvoted,
+                      upvotes: isUpvoted
+                        ? q.get('upvotes') + 1
+                        : q.get('upvotes') - 1,
+                    })
+                  : q
+              )
             );
         }
         return state;
