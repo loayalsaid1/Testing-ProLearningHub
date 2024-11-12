@@ -241,6 +241,39 @@ export default function discussionsReducer(state = initialState, action = {}) {
       });
     }
 
+    case actions.TOGGLE_REPLY_UPVOTE_REQUEST: {
+      return state.set('isLoading', true);
+    }
+
+    case actions.TOGGLE_REPLY_UPVOTE_FAILURE: {
+      return state.withMutations((state) => {
+        state
+          .set('isLoading', false)
+          .set('discussionsError', action.payload.errorMessage);
+      });
+    }
+
+    case actions.TOGGLE_REPLY_UPVOTE_SUCCESS: {
+      const { id, questionId, isUpvoted } = action.payload;
+      return state.withMutations((state) => {
+        state
+          .set('isLoading', false)
+          .set('discussionsError', null)
+          .updateIn(['replies', questionId], (replies) =>
+            replies.map((reply) =>
+              reply.get('id') === id
+                ? reply.merge({
+                    upvoted: isUpvoted,
+                    upvotes: isUpvoted
+                      ? reply.get('upvotes') + 1
+                      : reply.get('upvotes') - 1,
+                  })
+                : reply
+            )
+          );
+      });
+    }
+
     default: {
       return state;
     }
