@@ -268,3 +268,39 @@ export const toggleDiscussionEntryVote =
       dispatch(failureAction(`Error toggling the vote: ${error.message}`));
     }
   };
+
+
+const toggleReplyVote = (entryId, questionId) => async (dispatch, getState) => {
+  const state = getState();
+  const isUpvoted = state.discussions
+    .getIn(['replies', questionId])
+    .find((reply) => reply.get('id') === entryId)
+    .get('upvoted');
+
+  const action = isUpvoted ? 'downvote' : 'upvote';
+  try {
+    const data = await toast.promise(
+      fetch(`${DOMAIN}/replies/${entryId}/vote`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({action})
+      }).then((response) => {
+        if (!response.ok) {
+          const data = response.json();
+          throw new Error(data.message);
+        }
+        return response.json();
+      }), {
+      loading: isUpvoted ? 'Downvoting' : 'Upvoting',
+      success: isUpvoted ? 'Downvoted' : 'Upvoted',
+      error: 'Error toggling vote',
+    });
+
+    dispatch(discussionsActions.toggleReplyVoteSuccess(entryId, questionId, !isUpvoted));
+  } catch (error) {
+    console.error(error.message);
+    dispatch(discussionsActions.toggleReplyVoteFailure(`Error toggling the vote: ${error.message}`));
+  }
+}
