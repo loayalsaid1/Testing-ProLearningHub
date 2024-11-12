@@ -4,7 +4,7 @@ import {CircleArrowUp, Dot, MessagesSquare} from  'lucide-react';
 import { formatDate } from '../../utils/utilFunctions';
 import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
-import { makeLectureQuestionIsUpvotedSelector,
+import { makeGeneralQuestionIsUpvotedSelector, makeGeneralQuestionUpvotesSelector, makeLectureQuestionIsUpvotedSelector,
           makeLectureQuestionUpvotesSelector } from '../../redux/selectors/DiscussionsSelectors';
 import { toggleDiscussionEntryVote } from '../../redux/actions/discussionsThunks';
 
@@ -14,11 +14,16 @@ export default function DiscussionEntry({ content, isLecture }) {
   const lectureId = content.get('lectureId');
   console.log(lectureId);
   upvoted = useSelector(
-    makeLectureQuestionIsUpvotedSelector(lectureId, content.get('id'))
+    isLecture
+    ? makeLectureQuestionIsUpvotedSelector(lectureId, content.get('id'))
+    : makeGeneralQuestionIsUpvotedSelector(content.get('id'))
   )
   upvotes = useSelector(
-    makeLectureQuestionUpvotesSelector(lectureId, content.get('id'))
+    isLecture
+    ? makeLectureQuestionUpvotesSelector(lectureId, content.get('id'))
+    : makeGeneralQuestionUpvotesSelector(content.get('id'))
   )
+
   console.log(upvoted, upvotes);
   const date = formatDate(content.get('updatedAt'));
 
