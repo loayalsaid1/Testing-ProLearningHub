@@ -177,7 +177,7 @@ export const addDiscussionReply =
             userId,
             body,
           }),
-        }).then(response => {
+        }).then((response) => {
           if (!response.ok) {
             throw new Error(data.message);
           }
@@ -201,13 +201,16 @@ export const addDiscussionReply =
     }
   };
 
-export const toggleDiscussionEntryVote = (entryId, isLecture) => async (dispatch, getState) => {
+// I genuenly have no idea what to call this function
+// May be "toggleVoteThunkHelper"
+function whatever(entryId, isLecture, lectureId = '', dispatch, getState) {
   const state = getState();
-  const isUpvoted = state.discussions.getIn([
-    isLecture ? 'lecturesDiscussions' : 'courseGeneralDiscussion',
-    entryId,
-    'upvoted',
-  ]);
+  const questions = isLecture
+    ? state.discussions.getIn(['lectureQuestions', lectureId])
+    : state.discussions.get('generalQuestions');
+  const isUpvoted = questions
+    .find((question) => question.get('id') === entryId)
+    .get('upvoted');
 
   const action = isUpvoted ? 'downvote' : 'upvote';
 
@@ -217,36 +220,49 @@ export const toggleDiscussionEntryVote = (entryId, isLecture) => async (dispatch
   const successAction = isLecture
     ? discussionsActions.toggleLectureQuestionUpvoteFailure
     : discussionsActions.toggleGeneralQuestionUpvoteSuccess;
+  return {
+    action,
+    isUpvoted,
+    failureAction,
+    successAction,
+  };
+}
 
-  try {
-    const data = await toast.promise(
-      fetch(`${DOMAIN}/questions/${entryId}/vote`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({action})
-      }).then(response => {
-        if (!response.ok) {
-          const data = response.json();
-          throw new Error(data.message);
+export const toggleDiscussionEntryVote =
+  (entryId, isLecture, lectureId) => async (dispatch, getState) => {
+    const {
+      action,
+      isUpvoted,
+      failureAction,
+      successAction,
+      // I genuenly have no idea what to call this helper function 😅
+    } = whatever(entryId, isLecture, lectureId, dispatch, getState);
+
+    try {
+      const data = await toast.promise(
+        fetch(`${DOMAIN}/questions/${entryId}/vote`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ action }),
+        }).then((response) => {
+          if (!response.ok) {
+            const data = response.json();
+            throw new Error(data.message);
+          }
+          return response.json();
+        }),
+        {
+          loading: isUpvoted ? 'Downvoting' : 'Upvoting',
+          success: isUpvoted ? 'Downvoted' : 'Upvoted',
+          error: 'Error toggling vote',
         }
-        return response.json();
-      }),
-      {
-        loading: isUpvoted ? 'Downvoting' : 'Upvoting',
-        success: isUpvoted ? 'Downvoted' : 'Upvoted',
-        error: 'Error toggling vote',
-      }
-    );
+      );
 
-    dispatch(successAction(entryId, !isUpvoted));
-  } catch (error) {
-    console.error(error.message);
-    dispatch(
-      failureAction(
-        `Error toggling the vote: ${error.message}`
-      )
-    );
-  }
-};
+      dispatch(successAction(entryId, !isUpvoted));
+    } catch (error) {
+      console.error(error.message);
+      dispatch(failureAction(`Error toggling the vote: ${error.message}`));
+    }
+  };
