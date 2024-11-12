@@ -203,11 +203,11 @@ export const addDiscussionReply =
 
 // I genuenly have no idea what to call this function
 // May be "toggleVoteThunkHelper"
-function whatever(entryId, isLecture, lectureId = '', dispatch, getState) {
+function whatever(entryId, isLecture, lectureId = '', getState) {
   const state = getState();
   const questions = isLecture
-    ? state.discussions.getIn(['lectureQuestions', lectureId])
-    : state.discussions.get('generalQuestions');
+    ? state.discussions.getIn(['lecturesDiscussions', lectureId])
+    : state.discussions.get('courseGeneralDiscussion');
   const isUpvoted = questions
     .find((question) => question.get('id') === entryId)
     .get('upvoted');
@@ -218,7 +218,7 @@ function whatever(entryId, isLecture, lectureId = '', dispatch, getState) {
     ? discussionsActions.toggleLectureQuestionUpvoteFailure
     : discussionsActions.toggleGeneralQuestionUpvoteFailure;
   const successAction = isLecture
-    ? discussionsActions.toggleLectureQuestionUpvoteFailure
+    ? discussionsActions.toggleLectureQuestionUpvoteSuccess
     : discussionsActions.toggleGeneralQuestionUpvoteSuccess;
   return {
     action,
@@ -236,7 +236,7 @@ export const toggleDiscussionEntryVote =
       failureAction,
       successAction,
       // I genuenly have no idea what to call this helper function 😅
-    } = whatever(entryId, isLecture, lectureId, dispatch, getState);
+    } = whatever(entryId, isLecture, lectureId, getState);
 
     try {
       const data = await toast.promise(
@@ -260,7 +260,7 @@ export const toggleDiscussionEntryVote =
         }
       );
 
-      dispatch(successAction(entryId, !isUpvoted));
+      dispatch(successAction(entryId, lectureId, !isUpvoted));
     } catch (error) {
       console.error(error.message);
       dispatch(failureAction(`Error toggling the vote: ${error.message}`));

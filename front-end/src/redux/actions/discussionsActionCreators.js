@@ -136,10 +136,11 @@ export const toggleLectureQuestionUpvoteFailure = (errorMessage) => ({
   }
 })
 
-export const toggleLectureQuestionUpvoteSuccess = (id, isUpvoted) => ({
+export const toggleLectureQuestionUpvoteSuccess = (id,lectureId, isUpvoted) => ({
   type: actions.TOGGLE_LECTURE_QUESTION_UPVOTE_SUCCESS,
   payload: {
     id,
+    lectureId,
     isUpvoted,
   }
 })
