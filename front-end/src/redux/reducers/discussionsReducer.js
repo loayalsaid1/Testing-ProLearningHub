@@ -204,6 +204,47 @@ export default function discussionsReducer(state = initialState, action = {}) {
       });
     }
 
+    case actions.TOGGLE_GENERAL_QUESTION_UPVOTE_REQUEST: {
+      return state.set('isLoading', true);
+    }
+
+    case actions.TOGGLE_GENERAL_QUESTION_UPVOTE_FAILURE: {
+      return state.withMutations((state) => {
+        state
+          .set('isLoading', false)
+          .set('discussionsError', action.payload.errorMessage);
+      });
+    }
+
+    case actions.TOGGLE_GENERAL_QUESTION_UPVOTE_SUCCESS: {
+      const { id, isUpvoted } = action.payload;
+      return state.withMutations((state) => {
+        const questionsList = state.get('courseGeneralDiscussion');
+
+        const question = questionsList.find((q) => q.get('id') === id);
+        if (question) {
+          return state
+            .set('isLoading', false)
+            .set('discussionsError', null)
+            .update(
+              'courseGeneralDiscussion',
+              (questionsList) =>
+                questionsList.map((q) =>
+                  q.get('id') === id
+                    ? q.merge({
+                        upvoted: isUpvoted,
+                        upvotes: isUpvoted
+                          ? q.get('upvotes') + 1
+                          : q.get('upvotes') - 1,
+                      })
+                    : q
+                )
+            );
+        }
+        return state;
+      });
+    }
+
     default: {
       return state;
     }
