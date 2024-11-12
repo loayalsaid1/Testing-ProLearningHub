@@ -1,13 +1,32 @@
 import React, {useState} from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import {CircleArrowUp, Dot, MessagesSquare} from  'lucide-react';
 import { formatDate } from '../../utils/utilFunctions';
 import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
+import { makeLectureQuestionUpvotedSelector,
+          makeLectureQuestionUpvotesSelector } from '../../redux/selectors/DiscussionsSelectors';
+import { toggleDiscussionEntryVote } from '../../redux/actions/discussionsThunks';
 
 export default function DiscussionEntry({ content, isLecture }) {
-  const [upvoted, setUpvoted] = useState(content.get('upvoted'));
-
+  let upvoted;
+  let upvotes;
+  const lectureId = content.get('lectureId');
+  console.log(lectureId);
+  upvoted = useSelector(
+    makeLectureQuestionUpvotedSelector(lectureId, content.get('id'))
+  )
+  upvotes = useSelector(
+    makeLectureQuestionUpvotesSelector(lectureId, content.get('id'))
+  )
+  console.log(upvoted, upvotes);
   const date = formatDate(content.get('updatedAt'));
+
+  const dispatch = useDispatch();
+  const toggleUpvote = () => {
+    dispatch(toggleDiscussionEntryVote(content.get('id'), isLecture, content.get('lectureId')) || undefined);
+  }
+
   return (
     <div data-id={content.get('id')}>
       <div>
@@ -25,8 +44,8 @@ export default function DiscussionEntry({ content, isLecture }) {
         </div>
       </div>
       <div>
-        <button onClick={() => {toast(content.get('id') + 'upvoted'); setUpvoted(!upvoted)}}>
-          {content.get('upvotes')} 
+        <button onClick={toggleUpvote}>
+          {upvotes} 
 					{ !upvoted 
 						? <CircleArrowUp color="grey" strokeWidth={2}/>
 						: <CircleArrowUp color="black" strokeWidth={2.2}/>
@@ -52,7 +71,7 @@ export default function DiscussionEntry({ content, isLecture }) {
           
 
           now.. If you read all this.. and I don't even know who are you.. 
-          let me tell you .. you are wither a great person.. and nosy curious person.. 
+          let me tell you .. you are either a great person.. or nosy curious person.. 
 
 
           I think i kept writing this wihle 1, this is not a break. 2, I know that probably this is going to be deleted next commit
