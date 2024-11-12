@@ -71,7 +71,7 @@ export default function Replies() {
       ) : (
         <>
           <QuestionHeader question={replies.get('question')} />
-          <RepliesList replies={replies.get('repliesList')} />
+          <RepliesList replies={replies.get('repliesList')}  questionId={questionId} />
           {!showReplyEditor ? (
             <div>
               <img

@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 import { CircleArrowUp, EllipsisVertical } from 'lucide-react';
 import { formatDate } from '../../utils/utilFunctions';
 
-export default function ReplyEntry({ content }) {
+export default function ReplyEntry({ content, questionId }) {
   const date = formatDate(content.get('updatedAt'));
   // This should be comming fomr the reponse already;
   const [upvoted, setUpvoted] = useState(content.get('upvoted') || false);
