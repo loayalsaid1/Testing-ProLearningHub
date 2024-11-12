@@ -19,7 +19,7 @@ const selectReplies = (state) => state.discussions.get('replies');
 export const makeRepliesSelector = (questionId) =>
   createSelector([selectReplies], (replies) => replies.get(questionId));
 
-export const makeLectureQuestionUpvotedSelector = (lectureId, questionId) =>
+export const makeLectureQuestionIsUpvotedSelector = (lectureId, questionId) =>
   createSelector(
     [makeLectureDiscussionsSelector(lectureId)],
     (lectureQuestions) =>
@@ -37,4 +37,3 @@ export const makeLectureQuestionUpvotesSelector = (lectureId, questionId) =>
         .find((question) => question.get('id') === questionId)
         .get('upvotes')
   );
-
