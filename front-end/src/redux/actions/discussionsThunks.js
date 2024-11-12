@@ -260,7 +260,10 @@ export const toggleDiscussionEntryVote =
         }
       );
 
-      dispatch(successAction(entryId, lectureId, !isUpvoted));
+
+      isLecture
+      ? dispatch(successAction(entryId, lectureId, !isUpvoted))
+      : dispatch(successAction(entryId, !isUpvoted)) 
     } catch (error) {
       console.error(error.message);
       dispatch(failureAction(`Error toggling the vote: ${error.message}`));
