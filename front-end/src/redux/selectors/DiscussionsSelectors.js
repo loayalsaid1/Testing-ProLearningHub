@@ -51,15 +51,23 @@ export const makeGeneralQuestionUpvotesSelector = (questionId) =>
       .get('upvotes');
   });
 
+
+// This only get's the replies list unlike the selector on teh top
+const makeQuestionRepliesListSelector = (questionId) =>
+  createSelector(
+    [selectReplies],
+    (questionsReplies) => questionsReplies.getIn([questionId, 'repliesList'])
+  )
+
 export const makeReplyUpvotesSelector = (questionId, replyId) =>
   createSelector(
-    [makeRepliesSelector(questionId)],
+    [makeQuestionRepliesListSelector(questionId)],
     (replies) => replies.find((reply) => reply.get('id') === replyId).get('upvotes')
   );
 
 export const makeReplyIsUpvotedSelector = (questionId, replyId) =>
   createSelector(
-    [makeRepliesSelector(questionId)],
+    [makeQuestionRepliesListSelector(questionId)],
     (replies) => replies.find((reply) => reply.get('id') === replyId).get('upvoted')
   );
   
