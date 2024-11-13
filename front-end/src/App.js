@@ -16,6 +16,7 @@ import Replies from './components/Replies/Replies';
 import Login from './components/Login/Login';
 import Register from './components/Register/Register';
 import FakeHome from './components/FakeHome/FakeHome';
+import CreateNewLecture from './components/CreateLectureForm/CreateLectureForm';
 
 
 function ProtectedLayout() {
@@ -37,11 +38,14 @@ function App() {
     googleLogout();
   };
 
+  const onSubmit = (lectureData) => console.log(lectureData); 
+
   return (
     <div className="APP">
       {isLoading && <Spinner />}
       <header className="App-header">
-        <button type="button" onClick={handleLogout}>
+        <CreateNewLecture sections={[11, 22, 33]} onSubmit={onSubmit}/>
+        {/* <button type="button" onClick={handleLogout}>
           Logout
         </button>
         <button><Link to="/">Home</Link></button>
@@ -61,7 +65,7 @@ function App() {
             <Route path="questions/:questionId" element={<Replies />} />
           </Route>
           <Route path="*" element={<h1>Oops, not found!</h1>} />
-        </Routes>
+        </Routes> */}
       <Toaster reverseOrder={true} />
       </header>
     </div>
