@@ -17,21 +17,21 @@ export default function Announcements() {
 
 
 		return (
-			<div>
-			<h1>Announcements</h1>
-			{
-				isLoading ? (
-					<Loading />
+			<div className="container line-spacing">
+				<h1 className="text-center mb-4">Announcements</h1>
+				{isLoading ? (
+				<Loading />
+				) : announcements.size === 0 ? (
+				<h4 className="text-center text-muted mt-5">No announcements yet</h4>
 				) : (
-					announcements.size === 0 ? (
-						<h1>No announcements yet</h1>
-					) : (
-						announcements.map((announcement) => (
-							<AnnouncementEntry key={announcement.get('id')} content={announcement} />
-						))
-					)
-				)
-			}
-		</div>
+				announcements.map((announcement) => (
+					<AnnouncementEntry
+					key={announcement.get('id')}
+					content={announcement}
+					className="my-4 p-3 rounded shadow-sm"
+					/>
+				))
+				)}
+			</div>
 	);
 }
