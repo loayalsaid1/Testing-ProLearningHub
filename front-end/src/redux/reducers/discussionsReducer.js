@@ -259,7 +259,7 @@ export default function discussionsReducer(state = initialState, action = {}) {
         state
           .set('isLoading', false)
           .set('discussionsError', null)
-          .updateIn(['replies', questionId], (replies) =>
+          .updateIn(['replies', questionId, 'repliesList'], (replies) =>
             replies.map((reply) =>
               reply.get('id') === id
                 ? reply.merge({

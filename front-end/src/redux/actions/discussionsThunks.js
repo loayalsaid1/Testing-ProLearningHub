@@ -274,7 +274,7 @@ export const toggleReplyVote =
   (entryId, questionId) => async (dispatch, getState) => {
     const state = getState();
     const isUpvoted = state.discussions
-      .getIn(['replies', questionId])
+      .getIn(['replies', questionId, 'repliesList'])
       .find((reply) => reply.get('id') === entryId)
       .get('upvoted');
 
