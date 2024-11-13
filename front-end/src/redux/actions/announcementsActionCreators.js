@@ -59,3 +59,17 @@ export const incrementCommentsCount = (announcementId) => ({
   type: actions.INCREMENT_COMMENTS_COUNT,
   payload: { announcementId },
 });
+
+export const addAnnouncementRequest = () => ({
+  type: actions.ADD_ANNOUNCEMENT_REQUEST,
+});
+
+export const addAnnouncementFailure = (errorMessage) => ({
+  type: actions.ADD_ANNOUNCEMENT_FAILURE,
+  payload: { errorMessage },
+});
+
+export const addAnnouncementSuccess = (newAnnouncement) => ({
+  type: actions.ADD_ANNOUNCEMENT_SUCCESS,
+  payload: { newAnnouncement },
+});
