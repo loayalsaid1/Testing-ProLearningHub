@@ -101,7 +101,7 @@ export default function DiscussionEntry({ content, isLecture }) {
             to={`/questions/${content.get('id')}`}
             state={{ backRoute: window.location.pathname, isLecture }}
           >
-            {content.get('commentsCount')} <MessagesSquare />
+            {content.get('repliesCount')} <MessagesSquare />
           </Link>
         </button>
       </div>
