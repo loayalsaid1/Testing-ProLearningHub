@@ -93,6 +93,19 @@ const handleAddExtra = () => setExtras([...extras, { name: '', link: '' }]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const lectureData = {
+      name,
+      description,
+      tags: tags.split(',').map((tag) => tag.trim()),
+      section: section,
+      youtubeLink,
+      notesLink: notesOption === 'link' ? notesLink : 'here goes uploaded file link',
+      slidesLink: slidesOption === 'link' ? slidesLink : 'here goes uploaded file link',
+      demos: handleMissingDemosNames(),
+      extras: handleMissingExtrasNames(),
+    };
+
+    onSubmit(lectureData);
   };
 
   return (
