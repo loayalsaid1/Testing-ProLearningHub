@@ -72,7 +72,7 @@ const handleAddExtra = () => setExtras([...extras, { name: '', link: '' }]);
   };
 
   const handleMissingDemosNames = () => {
-    const checkedDemos = demos.map(demo => {
+    return demos.map(demo => {
       if (!demo.name) {
         return {
           ...demo,
@@ -81,7 +81,6 @@ const handleAddExtra = () => setExtras([...extras, { name: '', link: '' }]);
       }
       return demo;
     })
-    setDemos(checkedDemos);
   }
 
   const handleMissingExtrasNames= () => {
