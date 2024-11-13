@@ -93,10 +93,6 @@ export default function announcementsReducer(
     }
 
     case actions.ADD_ANNOUNCEMENT_FAILURE: {
-      return state.set('isLoading', false);
-    }
-
-    case actions.ADD_ANNOUNCEMENT_FAILURE: {
       const { errorMessage } = action.payload;
       return state.merge({
         isLoading: false,
