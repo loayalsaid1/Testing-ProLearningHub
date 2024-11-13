@@ -110,7 +110,7 @@ const handleAddExtra = () => setExtras([...extras, { name: '', link: '' }]);
 
   return (
     <form onSubmit={handleSubmit}>
-      <label>Lecture Name</label>
+      <label htmlFor="name">Lecture Name</label>
       <input
         id='name'
         name='name'
@@ -121,7 +121,7 @@ const handleAddExtra = () => setExtras([...extras, { name: '', link: '' }]);
       />
       <hr />
 
-      <label>Description</label>
+      <label htmlFor="description">Description</label>
       <textarea
         id='description'
         name='description'
@@ -131,7 +131,7 @@ const handleAddExtra = () => setExtras([...extras, { name: '', link: '' }]);
       />
       <hr />
 
-      <label>Tags (comma-separated)</label>
+      <label htmlFor="tags">Tags (comma-separated)</label>
       <input
         type="text"
         value={tags}
@@ -139,7 +139,7 @@ const handleAddExtra = () => setExtras([...extras, { name: '', link: '' }]);
       />
       <hr />
 
-      <label>Section</label>
+      <label htmlFor="section">Section</label>
       <select id='section' name='section' value={section} onChange={(e) => setSection(e.target.value)} required>
         <option value="" disabled>
           Select a section
@@ -161,7 +161,7 @@ const handleAddExtra = () => setExtras([...extras, { name: '', link: '' }]);
       <button onClick={createNewSection}>Add Section</button>
       <hr />
 
-      <label>YouTube Link</label>
+      <label htmlFor="videoLink">YouTube Link</label>
       <input
         id='videoLink'
         name='videoLink'
