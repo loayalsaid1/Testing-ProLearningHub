@@ -47,17 +47,6 @@ function App() {
       {isLoading && <Spinner />}
       <Sidebar />
       <header className="App-header">
-        {/* <button type="button" onClick={handleLogout}>
-          Logout
-        </button>
-        <button><Link to="/">Home</Link></button>
-        <button><Link to="/register">Register</Link></button>
-        <button><Link to="/lectures">Lectures</Link></button>
-        <button><Link to="/announcements">Announcements</Link></button>
-        <button><Link to="/discussion">Discussion</Link></button>
- */}
-
-
         <Routes>
           <Route path='/login' element={<Login />} />
           <Route path='/Register' element={<Register />} />
