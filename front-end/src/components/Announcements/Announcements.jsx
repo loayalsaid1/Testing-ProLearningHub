@@ -5,7 +5,7 @@ import { CirclePlus } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectIsLoading, selectAnnouncements } from '../../redux/selectors/announcementsSelectors';
 import { selectUserRole } from '../../redux/selectors/uiSelectors';
-import { fetchAnnouncements } from '../../redux/actions/announcementsThunks';
+import { fetchAnnouncements, addNewAnnouncement } from '../../redux/actions/announcementsThunks';
 import DiscussionEntryEditor from '../DiscussionEntries/DiscussionEntryEditor';
 
 export default function Announcements() {
@@ -22,10 +22,8 @@ export default function Announcements() {
 
 		const createNewAnnouncement = (title, details) => {
 			setShowAnnouncementsEditor(false);
-			console.log(title)
-			console.log(details);
+			dispatch(addNewAnnouncement(title, details));
 		}
-
 
 		return (
 			<div>
