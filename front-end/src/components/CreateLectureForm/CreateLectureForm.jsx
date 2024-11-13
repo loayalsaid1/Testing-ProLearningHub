@@ -71,9 +71,21 @@ const handleAddExtra = () => setExtras([...extras, { name: '', link: '' }]);
     setExtras(updatedExtras);
   };
 
+  const handleMissingDemosNames = () => {
+    const checkedDemos = demos.map(demo => {
+      if (!demo.name) {
+        return {
+          ...demo,
+          name: demo.link
+        };
+      }
+      return demo;
+    })
+    setDemos(checkedDemos);
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault();
-
   };
 
   return (
