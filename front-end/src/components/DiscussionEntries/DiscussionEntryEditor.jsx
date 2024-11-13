@@ -10,10 +10,9 @@ const imagekit = new ImageKit({
   urlEndpoint: "https://ik.imagekit.io/loayalsaid1/proLearningHub",
 });
 
-export default function DiscussionEntryEditor({ onPublish }) {
+export default function DiscussionEntryEditor({ onPublish, editorPlaceholder = 'Optionally.. Add elaboration to your question if you need to' }) {
 	const [details, setDetails] = useState('');
 	const [files, setFiles] = useState([]);
-	const editorPlaceholder = 'Optionally.. Add elaboration to your question if you need to';
 	const dispatch = useDispatch();
 
 	const replaceTempImageUrls = async () => {
