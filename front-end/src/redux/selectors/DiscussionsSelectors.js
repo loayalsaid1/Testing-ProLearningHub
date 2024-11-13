@@ -75,7 +75,7 @@ export const makeReplyIsUpvotedSelector = (questionId, replyId) =>
 export const makeRepliesQuestionSelector = (questionId) =>
   createSelector(
     [selectReplies],
-    (replies) => replies.get(questionId)
+    (replies) => replies.getIn([questionId, 'question'])
   )
 
 export const makeRepliesQuestionUpvotesSelector = (questionId) =>
@@ -89,4 +89,3 @@ export const makeRepliesQuestionIsUpvotedSelector = (questionId) =>
     [makeRepliesQuestionSelector(questionId)],
     (question) => question.get('upvoted')
   )
-
