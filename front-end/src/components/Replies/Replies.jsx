@@ -18,6 +18,7 @@ export default function Replies() {
   // if this is not commint from lecture discussion or general discussion
   // meaning.. it's just direct link in teh browser.. if fals back to general discussion
   const { backRoute } = location.state || { backRoute: '/discussion' };
+  const { isLecture } = location.state;
 
   const [showReplyEditor, setShowReplyEditor] = useState(false);
   const [reply, setReply] = useState('');
@@ -70,7 +71,7 @@ export default function Replies() {
         <h1>No replies</h1>
       ) : (
         <>
-          <QuestionHeader question={replies.get('question')} />
+          <QuestionHeader question={replies.get('question')} isLecture={isLecture} />
           <RepliesList replies={replies.get('repliesList')}  questionId={questionId} />
           {!showReplyEditor ? (
             <div>

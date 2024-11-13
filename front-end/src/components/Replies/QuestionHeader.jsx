@@ -2,7 +2,7 @@ import React from 'react';
 import { Dot, CircleArrowUp, EllipsisVertical } from 'lucide-react';
 import { formatDate } from '../../utils/utilFunctions';
 
-export default function QuestionHeader({ question }) {
+export default function QuestionHeader({ question, isLecture }) {
   return (
     <>
       <div>
