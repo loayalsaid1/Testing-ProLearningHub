@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { CircleArrowUp, EllipsisVertical } from 'lucide-react';
 import { formatDate } from '../../utils/utilFunctions';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   makeReplyIsUpvotedSelector,
   makeReplyUpvotesSelector,
@@ -17,9 +17,9 @@ export default function ReplyEntry({ content, questionId }) {
     makeReplyIsUpvotedSelector(questionId, content.get('id'))
   );
   const date = formatDate(content.get('updatedAt'));
-
+  const dispatch = useDispatch();
   function toggleVote() {
-    toggleReplyVote(content.get('id'), questionId);
+    dispatch(toggleReplyVote(content.get('id'), questionId));
   }
 
   return (
