@@ -92,6 +92,26 @@ export default function announcementsReducer(
       );
     }
 
+    case actions.ADD_ANNOUNCEMENT_FAILURE: {
+      const { errorMessage } = action.payload;
+      return state.merge({
+        isLoading: false,
+        announcementsError: errorMessage,
+      });
+    }
+
+    case actions.ADD_ANNOUNCEMENT_SUCCESS: {
+      const { newAnnouncement } = action.payload;
+      return state
+        .update('announcements', (announcements) =>
+          announcements.unshift(fromJS(newAnnouncement))
+        )
+        .merge({
+          isLoading: false,
+          announcementsError: null,
+        });
+    }
+
     default:
       return state;
   }
