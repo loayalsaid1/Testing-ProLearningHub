@@ -71,3 +71,22 @@ export const makeReplyIsUpvotedSelector = (questionId, replyId) =>
     (replies) => replies.find((reply) => reply.get('id') === replyId).get('upvoted')
   );
   
+
+export const makeRepliesQuestionSelector = (questionId) =>
+  createSelector(
+    [selectReplies],
+    (replies) => replies.get(questionId)
+  )
+
+export const makeRepliesQuestionUpvotesSelector = (questionId) =>
+  createSelector(
+    [makeRepliesQuestionSelector(questionId)],
+    (question) => question.get('upvotes')
+  )
+
+export const makeRepliesQuestionIsUpvotedSelector = (questionId) =>
+  createSelector(
+    [makeRepliesQuestionSelector(questionId)],
+    (question) => question.get('upvoted')
+  )
+
