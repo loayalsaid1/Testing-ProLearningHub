@@ -1,4 +1,8 @@
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.db import models
+from django.contrib.auth.hashers import make_password, check_password
+from django.contrib.auth.backends import BaseBackend
+from django.contrib.auth import authenticate
 
 # Create your models here.
 from rest_framework import serializers
@@ -11,6 +15,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = Users
         exclude = ['password_hash', 'reset_token']
+        # fields = ['user_id', 'first_name', 'last_name', 'email', 'role']
 
 
 class UserPostSerializer(serializers.ModelSerializer):
@@ -144,3 +149,52 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
         fields = '__all__'
         read_only_fields = ['announcement', 'user']
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+
+    username_field = 'email'
+
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        # Add additional user information to the response data
+        email = attrs.get('email')
+        password = attrs.get('password')
+
+        # Use custom authentication backend
+        user = authenticate(email=email, password=password)
+
+        if user is None:
+            raise serializers.ValidationError(
+                "No active account found with the given credentials")
+        refresh = self.get_token(self.user)
+        access_token = refresh.access_token
+
+        # Add custom claims
+        refresh['user_id'] = self.user.user_id
+        refresh['first_name'] = self.user.first_name
+        refresh['last_name'] = self.user.last_name
+        refresh['email'] = self.user.email
+        refresh['role'] = self.user.role
+
+        return {
+            'refresh': str(refresh),
+            'access': str(access_token),
+        }
+
+
+class CustomAuthenticationBackend(BaseBackend):
+    def authenticate(self, request, email=None, password=None, **kwargs):
+        try:
+            user = Users.objects.get(email=email)
+            # Validate the password with password_hash
+            if check_password(password, user.password_hash):
+                return user
+        except Users.DoesNotExist:
+            return None
+
+    def get_user(self, user_id):
+        try:
+            return Users.objects.get(user_id=user_id)
+        except Users.DoesNotExist:
+            return None
