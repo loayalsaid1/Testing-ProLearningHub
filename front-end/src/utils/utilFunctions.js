@@ -73,3 +73,19 @@ export async function replaceTempImageUrls(content, files, dispatch) {
 
   return newContent;
 }
+
+export async function uploadFile(file, dispatch, name='') {
+  try {
+    const authParamsResponse = await fetch(`${DOMAIN}/auth/imagekit`);
+    const authParams = await authParamsResponse.json();
+    const uploadResponse = await imagekit.upload({
+      file,
+      fileName: name ? name : `UploadedFile_${Date.now()}`,
+      ...authParams,
+    })
+    return uploadResponse.url;
+  } catch (error) {
+    dispatch(setError('upload', `Error uploading file: ${error.message}`));
+    return null;
+  }
+}
