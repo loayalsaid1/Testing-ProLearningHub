@@ -3,42 +3,22 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Dot, CircleArrowUp, EllipsisVertical } from 'lucide-react';
 import { formatDate } from '../../utils/utilFunctions';
 import {
-  makeGeneralQuestionIsUpvotedSelector,
-  makeGeneralQuestionUpvotesSelector,
-  makeLectureQuestionIsUpvotedSelector,
-  makeLectureQuestionUpvotesSelector,
+  makeRepliesQuestionUpvotesSelector,
+  makeRepliesQuestionIsUpvotedSelector,
 } from '../../redux/selectors/DiscussionsSelectors';
-import { toggleDiscussionEntryVote } from '../../redux/actions/discussionsThunks';
+import { toggleQuestionVote } from '../../redux/actions/discussionsThunks';
 
 
 export default function QuestionHeader({ question, isLecture }) {
-  let upvoted;
-  let upvotes;
-  const lectureId = question.get('lectureId');
-  console.log(lectureId);
-  upvoted = useSelector(
-    isLecture
-      ? makeLectureQuestionIsUpvotedSelector(lectureId, question.get('id'))
-      : makeGeneralQuestionIsUpvotedSelector(question.get('id'))
-  );
-  upvotes = useSelector(
-    isLecture
-      ? makeLectureQuestionUpvotesSelector(lectureId, question.get('id'))
-      : makeGeneralQuestionUpvotesSelector(question.get('id'))
-  );
+  const upvoted = useSelector(makeRepliesQuestionIsUpvotedSelector(question.get('id')));
+  const upvotes = useSelector(makeRepliesQuestionUpvotesSelector(question.get('id')));
 
   console.log(upvoted, upvotes);
   const date = formatDate(question.get('updatedAt'));
 
   const dispatch = useDispatch();
   const toggleUpvote = () => {
-    dispatch(
-      toggleDiscussionEntryVote(
-        question.get('id'),
-        isLecture,
-        question.get('lectureId')
-      ) || undefined
-    );
+    dispatch(toggleQuestionVote(question.get('id')));
   };
 
   return (
