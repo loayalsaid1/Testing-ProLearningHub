@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import DiscussionEntry from './DiscussionEntry';
+import './css/discussionentry.css';
 
 /**
  * Component that renders a paginated list of DiscussionEntry components.
@@ -13,28 +14,31 @@ import DiscussionEntry from './DiscussionEntry';
  * @return {React.ReactElement}
  */
 export default function DiscussionEntries({ entries, chunkSize }) {
-	const [limit, setLimit] = useState(chunkSize);
+  const [limit, setLimit] = useState(chunkSize);
 
   return (
     <>
       {!entries || !entries.size ? (
-        <>
-          <h2> No Discussion entries Yet..</h2>
+        <div className="no-discussions">
+          <h2>No Discussion Entries Yet...</h2>
           <p>Feel free to add one...</p>
-        </>
+        </div>
       ) : (
-        <div>
+        <div className="discussion-list">
           {entries.slice(0, limit).map((entry, index) => (
             <DiscussionEntry key={index} content={entry} />
           ))}
-          {limit < entries.size && (
-            <button type="button" onClick={() => setLimit(limit + chunkSize)}>
-              See more
+          
+          {/* Pagination Controls */}      
+          {limit > chunkSize && (
+            <button className="pagination-button p-2" type="button" onClick={() => setLimit(limit - chunkSize)}>
+              See Less
             </button>
           )}
-          {limit > chunkSize && (
-            <button type="button" onClick={() => setLimit(limit - chunkSize)}>
-              See less
+
+          {limit < entries.size && (
+            <button className="pagination-button p-2 mx-3" type="button" onClick={() => setLimit(limit + chunkSize)}>
+              See More
             </button>
           )}
         </div>
