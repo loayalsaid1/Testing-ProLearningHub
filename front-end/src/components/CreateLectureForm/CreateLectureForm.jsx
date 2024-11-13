@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
-
+import { useDispatch } from 'react-redux';
+import toast from 'react-hot-toast';
+import { uploadFile } from '../../utils/utilFunctions';
 const CreateNewLecture = ({ onSubmit }) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -17,6 +19,7 @@ const CreateNewLecture = ({ onSubmit }) => {
   const [extras, setExtras] = useState([{ name: '', link: '' }]);
   const [slidesOption, setSlidesOption] = useState('link');
 
+  const dispatch = useDispatch();
   useEffect(() => {
     setSections([
       'Section 1',
@@ -91,16 +94,42 @@ const handleAddExtra = () => setExtras([...extras, { name: '', link: '' }]);
     })
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    let notesFileUrl = '';
+    let slidesFileUrl = '';
+
+    if (notesOption === 'file' && notesFile) {
+      notesFileUrl = await toast.promise(
+        uploadFile(notesFile, dispatch, `${name}-notes`),
+        {
+          loading: 'Uploading notes...',
+          success: 'Notes uploaded successfully!',
+          error: 'Error uploading notes.',
+        }
+      );
+    }
+
+    if (slidesOption === 'file' && slidesFile) {
+      slidesFileUrl = await toast.promise(
+        uploadFile(slidesFile, dispatch, `${name}-slides`),
+        {
+          loading: 'Uploading slides...',
+          success: 'Slides uploaded successfully!',
+          error: 'Error uploading slides.',
+        }
+      );
+    }
+
     const lectureData = {
       name,
       description,
       tags: tags.split(',').map((tag) => tag.trim()),
       section: section,
       youtubeLink,
-      notesLink: notesOption === 'link' ? notesLink : 'here goes uploaded file link',
-      slidesLink: slidesOption === 'link' ? slidesLink : 'here goes uploaded file link',
+      notesLink: notesOption === 'link' ? notesLink : notesFileUrl,
+      slidesLink: slidesOption === 'link' ? slidesLink : slidesFileUrl,
       demos: handleMissingDemosNames(),
       extras: handleMissingExtrasNames(),
     };
