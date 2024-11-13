@@ -3,7 +3,7 @@ import { setError } from '../redux/actions/uiActionCreators';
 
 import { DOMAIN } from './constants';
 
-const imagekit = new ImageKit({
+export const imagekit = new ImageKit({
   publicKey: 'public_tTc9vCi5O7L8WVAQquK6vQWNx08=',
   urlEndpoint: 'https://ik.imagekit.io/loayalsaid1/proLearningHub',
 });
