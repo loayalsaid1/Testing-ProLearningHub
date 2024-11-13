@@ -84,6 +84,14 @@ const handleAddExtra = () => setExtras([...extras, { name: '', link: '' }]);
     setDemos(checkedDemos);
   }
 
+  const handleMissingExtrasNames= () => {
+    return extras.map(extra => {
+      return extra.name 
+      ? extra
+      : {...extra, name: extra.link}
+    })
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault();
   };
