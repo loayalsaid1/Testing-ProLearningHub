@@ -4,35 +4,31 @@ import { formatDate } from '../../utils/utilFunctions';
 
 export default function QuestionHeader({ question }) {
   return (
-    <>
-      <div>
-        <img
-          src={question.getIn(['user', 'pictureThumbnail'])}
-          alt="Questioner"
-        />
-      </div>
-      <div>
-        <h3>{question.get('title')}</h3>
-        <p>
+    <div className="d-flex align-items-start p-3 border rounded mb-3">
+      <img
+        src={question.getIn(['user', 'pictureThumbnail'])}
+        alt="Questioner"
+        className="rounded-circle me-3"
+        width="50"
+        height="50"
+      />
+      <div className="flex-grow-1">
+        <h5 className="mb-1">{question.get('title')}</h5>
+        <p className="text-muted mb-1">
           {question.getIn(['user', 'name'])} <Dot />{' '}
           {formatDate(question.get('updatedAt'))}
         </p>
-        <div>{question.get('body')}</div>
+        <p>{question.get('body')}</p>
       </div>
-      <div>
-        <button type="button">
-          {question.get('upvotes')}{' '}
-          <CircleArrowUp color="grey" strokeWidth={2} />
+      <div className="text-end">
+        <button className="btn btn-light">
+          {question.get('upvotes')} <CircleArrowUp />
         </button>
-        <button
-          type="button"
-          onClick={() =>
-            console.log(question.get('id') + 'options')
-          }
-        >
+        <button className="btn btn-light">
           <EllipsisVertical />
         </button>
       </div>
-    </>
+    </div>
+
   );
 }
