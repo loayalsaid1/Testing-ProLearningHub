@@ -1,6 +1,7 @@
 from django.db import models
 import uuid
-
+from .managers import UsersManager
+from django.contrib.auth.hashers import make_password, check_password as django_check_password
 
 # Create your models here.
 
@@ -10,7 +11,7 @@ class Users(models.Model):
     user_id = models.BigAutoField(auto_created=True, primary_key=True)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
-    email = models.EmailField()
+    email = models.EmailField(unique=True)
     password_hash = models.CharField(max_length=200)
     role = models.CharField(max_length=50)
     pictureId = models.CharField(max_length=50, blank=True, null=True)
@@ -18,9 +19,43 @@ class Users(models.Model):
     pictureThumbnail = models.URLField(max_length=200, blank=True, null=True)
     reset_token = models.CharField(
         max_length=32, blank=True, null=True)  # For password reset
+    is_active = models.BooleanField(default=True)
+    USERNAME_FIELD = 'email'  # Specify the unique field for authentication
+    # Optional fields required for creating a superuser
+    REQUIRED_FIELDS = ['first_name', 'last_name']
+    is_anonymous = False
+    is_staff = True
+    objects = UsersManager()
+    # Custom method to check if the user is authenticated
+
+    @property
+    def is_authenticated(self):
+        # Indicates that this user is authenticated
+        return True
+
+    @property
+    def is_superuser(self):
+        # Indicates that this user is a superuser
+        return True
+
+    def has_perm(self, perm, obj=None):
+        # Indicates that this user has all permissions
+        return True
+
+    def has_module_perms(self, app_label):
+        # Indicates that this user has permissions to access all modules
+        return True
 
     def __str__(self):
         return self.first_name + " " + self.last_name
+    # Custom method to set password
+
+    def set_password(self, raw_password):
+        self.password_hash = make_password(raw_password)
+
+    # Custom method to check password
+    def check_password(self, raw_password):
+        return django_check_password(raw_password, self.password_hash)
 
 
 class Lecturer(models.Model):
@@ -181,3 +216,8 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"Comment by {self.user} on {self.announcement}"
+
+
+class BlacklistedToken(models.Model):
+    token = models.CharField(max_length=500, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)

@@ -5,7 +5,7 @@ from . import models
 
 
 class UsersAdmin(admin.ModelAdmin):
-    list_display = ('first_name', 'last_name')
+    list_display = ('user_id', 'role', 'first_name', 'last_name')
 
 
 class StudentsAdmin(admin.ModelAdmin):

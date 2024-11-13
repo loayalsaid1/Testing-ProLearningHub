@@ -3,12 +3,9 @@ import requests
 import secrets
 import logging
 from django.shortcuts import render, get_object_or_404, redirect
-from rest_framework.decorators import action, api_view
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action, api_view, permission_classes, authentication_classes
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework import viewsets
-from rest_framework.views import APIView
 from django.db.models import Q
 from django.http import JsonResponse, HttpResponseForbidden, HttpResponseRedirect
 from django.contrib.auth.hashers import make_password, check_password
@@ -26,6 +23,7 @@ from imagekitio import ImageKit
 import requests
 import base64
 from schoolhub.passkeys import IMAGE_KIT_AUTH
+from .class_views import *
 logger = logging.getLogger(__name__)
 # Create your views here.
 
@@ -37,36 +35,6 @@ def encode64(private_key):
 
 def home_view(request):
     return JsonResponse({"message": "Welcome to School Hub Api page"})
-
-
-class UserListView(APIView):
-    def get(self, request):
-        session_id = request.session.get('user_id')
-        if session_id is None:
-            return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
-        users = Users.objects.all()
-        serializer = UserSerializer(users, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    # def post(self, request):
-    #     serializer = UserSerializer(data=request.data)
-    #     if serializer.is_valid():
-    #         serializer.save()
-    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class UserIdView(APIView):
-    def get(self, request, user_id):
-        session_id = request.session.get('user_id')
-        if session_id is None:
-            return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
-        try:
-            user = Users.objects.get(user_id=user_id)
-            serializer = UserSerializer(user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except Users.DoesNotExist:
-            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['POST'])
@@ -95,49 +63,11 @@ def register(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserEditView(APIView):
-    def put(self, request):
-        session_id = request.session.get('user_id')
-        if session_id is None:
-            return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
-        user = Users.objects.filter(user_id=session_id).first()
-        if user:
-            serializer = UserEditSerializer(
-                user, data=request.data, partial=True)
-            if serializer.is_valid():
-                serializer.save()
-                new_data = serializer.data.copy()
-                new_data.pop('pictureId')
-                return Response(new_data, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response({'message': 'You are not a user. Please register first.'}, status=status.HTTP_403_FORBIDDEN)
-
-    def delete(self, request):
-        session_id = request.session.get('user_id')
-        if session_id is None:
-            return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
-        user = Users.objects.filter(user_id=session_id).first()
-        if user:
-            url = f"https://api.imagekit.io/v1/files/{user.pictureId}"
-            headers = {
-                "Authorization": f"Basic {encode64(IMAGE_KIT_AUTH.get('private_key'))}",
-                "Accept": "application/json"
-            }
-            response = requests.delete(url, headers=headers, timeout=200)
-            print("Status Code:", response.status_code)
-            print("Response Text:", response.text)
-            user.delete()
-            request.session.flush()
-            return Response({"message": "Your account has been successfully deleted"}, status=status.HTTP_204_NO_CONTENT)
-        return Response({"message": "Cant find user, please register first"}, status=status.HTTP_401_UNAUTHORIZED)
-
-
 @api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def edit_user_image(request):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
-    user = Users.objects.filter(user_id=session_id).first()
+    user = request.user
     if user:
         serializer = UserImageEditSerializer(
             user, data=request.data, partial=True)
@@ -162,37 +92,25 @@ def edit_user_image(request):
 
 
 @api_view(['POST'])
-def login(request):
-    serializer = UserLoginSerializer(data=request.data)
-    if serializer.is_valid():
-        email = serializer.validated_data.get('email')
-        password = serializer.validated_data.get('password_hash')
-        user = Users.objects.filter(email=email).first()
-        if user and check_password(password, user.password_hash):
-            request.session['user_id'] = user.user_id
-            dictList = {
-                'userid': user.user_id,
-                'firstname': user.first_name,
-                'lastname': user.last_name,
-                'email': user.email,
-                'pictureURL': user.pictureURL if user.pictureURL else None,
-                'pictureThumbnail': user.pictureThumbnail if user.pictureThumbnail else None
-            }
-            # Create a list and append dictList directly
-            response_data = {'message': 'Login successful'}
-            user_response = {"user": dictList}
-            response_data.update(user_response)
-            return Response(response_data, status=status.HTTP_200_OK)
-        return Response({'message': 'Invalid email or password'}, status=status.HTTP_400_BAD_REQUEST)
-    return Response({'message': 'Input Not Valid'}, status=status.HTTP_403_FORBIDDEN)
-
-
-@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([CustomJWTAuthentication])
 def logout(request):
-    if request.session.get('user_id') is None:
-        return Response({'message': 'You are already Logged out'}, status=status.HTTP_401_UNAUTHORIZED)
-    request.session.flush()
-    return Response({'message': 'Logout successful'}, status=status.HTTP_200_OK)
+    auth_header = request.headers.get('Authorization', None)
+    print(f"Authorization Header: {auth_header}")
+    if auth_header:
+        # Expected format: "Bearer <token>"
+        token = auth_header.split(' ')[-1]
+        print(f"Token: {token}")
+
+        if token:
+            # Add the token to the blacklist
+            BlacklistedToken.objects.create(token=token)
+            return Response({"detail": "Logged out successfully."})
+        else:
+            # If token is not present after 'Bearer', it's invalid
+            return Response({"detail": "Invalid token format."}, status=400)
+
+    return Response({"detail": "Authorization header missing."}, status=400)
 
 
 @api_view(['POST'])
@@ -301,122 +219,9 @@ def google_callback(request):
         return Response({'message': 'Request Unsuccessfull'}, status=status.HTTP_403_FORBIDDEN)
 
 
-class StudentListView(APIView):
-    def get(self, request):
-        session_id = request.session.get('user_id')
-        if session_id is None:
-            return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
-        students = Students.objects.all()
-        serializer = StudentSerializer(students, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class LecturerListView(APIView):
-    def get(self, request):
-        session_id = request.session.get('user_id')
-        if session_id is None:
-            return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
-        lecturer = Lecturer.objects.all()
-        serializer = LecturerSerializer(lecturer, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class CoursesListView(APIView):
-    def get(self, request):
-        session_id = request.session.get('user_id')
-        if session_id is None:
-            return Response({'message': 'You are not logged in'}, status=status.HTTP_403_FORBIDDEN)
-        courses = Courses.objects.all()
-        serializer = CoursesSerializer(courses, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class CoursesListByLecturerView(APIView):
-    def get(self, request, user_id):
-        session_id = request.session.get('user_id')
-        if session_id is None:
-            return Response({'message': 'You are not logged in'}, status=status.HTTP_403_FORBIDDEN)
-        user = get_object_or_404(Users, user_id=user_id)
-        if user.role == 'tutor':
-            lecturer = Lecturer.objects.filter(user=user).first()
-            courses = Courses.objects.filter(lecturer=lecturer)
-        serializer = CoursesSerializer(courses, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class CoursesCreateView(APIView):
-    def post(self, request):
-        session_id = request.session.get('user_id')
-        if session_id is None:
-            return Response({'message': 'You are not logged in'}, status=status.HTTP_403_FORBIDDEN)
-        user = Users.objects.get(user_id=session_id)
-        if user.role == 'tutor':
-            serializer = CoursesSerializer(data=request.data)
-            if serializer.is_valid():
-                lecturer = get_object_or_404(Lecturer, user=user)
-                course = serializer.save(lecturer=lecturer)
-                course.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response({'message': 'You are not a tutor'}, status=status.HTTP_403_FORBIDDEN)
-
-
-class CoursesEditDeleteView(APIView):
-    def put(self, request, course_id):
-        session_id = request.session.get('user_id')
-        if session_id is None:
-            return Response({'message': 'You are not logged in'}, status=status.HTTP_403_FORBIDDEN)
-        user = Users.objects.get(user_id=session_id)
-        if user.role == 'tutor':
-            lecturer = get_object_or_404(Lecturer, user=user)
-            course = get_object_or_404(
-                Courses, lecturer=lecturer, course_id=course_id)
-            serializer = CoursesSerializer(
-                course, data=request.data, partial=True)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response({'message': 'You are not a tutor'}, status=status.HTTP_403_FORBIDDEN)
-
-    def delete(self, request, course_id):
-        session_id = request.session.get('user_id')
-        if session_id is None:
-            return Response({'message': 'You are not logged in'}, status=status.HTTP_403_FORBIDDEN)
-        user = Users.objects.get(user_id=session_id)
-        if user.role == 'tutor':
-            lecturer = get_object_or_404(Lecturer, user=user)  # get lecturer
-
-            course = Courses.objects.filter(
-                Q(lecturer=lecturer) & Q(course_id=course_id)).first()
-            if course:
-                course.delete()
-                return Response({"message": "Course deleted"}, status=status.HTTP_200_OK)
-            return Response({"message": "Course not found"}, status=status.HTTP_404_NOT_FOUND)
-        return Response({'message': 'You are not a tutor'}, status=status.HTTP_401_UNAUTHORIZED)
-
-
-class CourseResourcesListView(APIView):
-    def get(self, request):
-        course_resources = Course_Resources.objects.all()
-        serializer = CoursesResourcesSerializer(course_resources, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def post(self, request):
-        session_id = request.session.get('user_id')
-        if session_id is None:
-            return Response({'message': 'You are not logged in'}, status=status.HTTP_403_FORBIDDEN)
-        user = Users.objects.get(user=session_id)
-        if user.role == 'tutor':
-            serializer = CoursesResourcesSerializer(data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response({'message': 'You are not a tutor'}, status=status.HTTP_403_FORBIDDEN)
-
-
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def course_lectures(request, course_id):
     session_id = request.session.get('user_id')
     if session_id is None:
@@ -428,6 +233,8 @@ def course_lectures(request, course_id):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def course_lecture_by_id(request, course_id, lecture_id):
     session_id = request.session.get('user_id')
     if session_id is None:
@@ -440,51 +247,48 @@ def course_lecture_by_id(request, course_id, lecture_id):
 
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def create_lecture(request, course_id):
-    session_id = request.session.get('user_id')
-    if session_id is not None:
-        user = Users.objects.get(user_id=session_id)
-        if user.role == 'tutor':
-            serializer = LectureSerializer(data=request.data)
-            course = Courses.objects.filter(course_id=course_id).first()
-            if course is None:
-                return Response({"message": "Course not found"}, status=status.HTTP_404_NOT_FOUND)
-            if serializer.is_valid():
-                serializer.save(course=course)
-                # lecture.save()
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response({"message": "You are not a tutor"}, status=status.HTTP_401_UNAUTHORIZED)
-    return Response({"message": "You must login first"}, status=status.HTTP_403_FORBIDDEN)
+    user = request.user
+    if user.role == 'tutor':
+        serializer = LectureSerializer(data=request.data)
+        course = Courses.objects.filter(course_id=course_id).first()
+        if course is None:
+            return Response({"message": "Course not found"}, status=status.HTTP_404_NOT_FOUND)
+        if serializer.is_valid():
+            serializer.save(course=course)
+            # lecture.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({"message": "You are not a tutor"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 @api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def edit_lecture(request, course_id, lecture_id):
-    session_id = request.session.get('user_id')
-    if session_id is not None:
-        user = Users.objects.get(user_id=session_id)
-        if user.role == 'tutor':
-            course = Courses.objects.filter(course_id=course_id).first()
-            lecture = Lecture.objects.filter(
-                Q(course=course) & Q(lecture_id=lecture_id)).first()
-            serializer = LectureSerializer(
-                lecture, data=request.data, partial=True)
+    user = request.user
+    if user.role == 'tutor':
+        course = Courses.objects.filter(course_id=course_id).first()
+        lecture = Lecture.objects.filter(
+            Q(course=course) & Q(lecture_id=lecture_id)).first()
+        serializer = LectureSerializer(
+            lecture, data=request.data, partial=True)
 
-            if serializer.is_valid():
+        if serializer.is_valid():
 
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response({"message": "You are not a tutor"}, status=status.HTTP_401_UNAUTHORIZED)
-    return Response({"message": "You must login first"}, status=status.HTTP_403_FORBIDDEN)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({"message": "You are not a tutor"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 @api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def delete_lecture(request, course_id, lecture_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
-    user = Users.objects.get(user_id=session_id)
+    user = request.user
     if user.role == 'tutor':
         course = Courses.objects.filter(course_id=course_id).first()
         lecture = Lecture.objects.filter(Q(course=course) & Q(
@@ -497,10 +301,9 @@ def delete_lecture(request, course_id, lecture_id):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def all_resources_by_lecture(request, course_id, lecture_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
     course = get_object_or_404(Courses, course_id=course_id)
     lecture = get_object_or_404(Lecture, course=course, lecture_id=lecture_id)
     resource = Course_Resources.objects.filter(lecture=lecture)
@@ -509,6 +312,8 @@ def all_resources_by_lecture(request, course_id, lecture_id):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def resource_by_lecture(request, course_id, lecture_id, resource_id):
     course = get_object_or_404(Courses, course_id=course_id)
     lecture = get_object_or_404(Lecture, course=course, lecture_id=lecture_id)
@@ -519,57 +324,54 @@ def resource_by_lecture(request, course_id, lecture_id, resource_id):
 
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def create_resource_by_lecture(request, course_id, lecture_id):
-    session_id = request.session.get('user_id')
-    if session_id is not None:
-        user = Users.objects.get(user_id=session_id)
-        if user.role == 'tutor':
-            serializer = CoursesResourcesSerializer(data=request.data)
+    user = request.user
+    if user.role == 'tutor':
+        serializer = CoursesResourcesSerializer(data=request.data)
 
-            if serializer.is_valid():
-                course = Courses.objects.filter(course_id=course_id).first()
-                lecture = get_object_or_404(
-                    Lecture, course=course, lecture_id=lecture_id)
-                resource_name = serializer.validated_data.get('resource_name')
-                resource_file = serializer.validated_data.get('resource_file')
-                resource_link = serializer.validated_data.get('resource_link')
-                resource = Course_Resources.objects.create(lecture=lecture,
-                                                           resource_name=resource_name, resource_file=resource_file, resource_link=resource_link)
-                resource.save()
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response({"message": "You are not a tutor"}, status=status.HTTP_401_UNAUTHORIZED)
-    return Response({"message": "You must login first"}, status=status.HTTP_403_FORBIDDEN)
+        if serializer.is_valid():
+            course = Courses.objects.filter(course_id=course_id).first()
+            lecture = get_object_or_404(
+                Lecture, course=course, lecture_id=lecture_id)
+            resource_name = serializer.validated_data.get('resource_name')
+            resource_file = serializer.validated_data.get('resource_file')
+            resource_link = serializer.validated_data.get('resource_link')
+            resource = Course_Resources.objects.create(lecture=lecture,
+                                                       resource_name=resource_name, resource_file=resource_file, resource_link=resource_link)
+            resource.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({"message": "You are not a tutor"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 @api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def edit_resource_by_lecture(request, course_id, lecture_id, resource_id):
-    session_id = request.session.get('user_id')
-    if session_id is not None:
-        user = Users.objects.get(user_id=session_id)
-        if user.role == 'tutor':
-            course = Courses.objects.filter(course_id=course_id).first()
-            lecture = Lecture.objects.filter(Q(course=course) & Q(
-                lecture_id=lecture_id)).first()
-            resource = get_object_or_404(
-                Course_Resources, lecture=lecture, resource_id=resource_id)
-            serializer = CoursesResourcesSerializer(
-                resource, data=request.data, partial=True)
+    user = request.user
+    if user.role == 'tutor':
+        course = Courses.objects.filter(course_id=course_id).first()
+        lecture = Lecture.objects.filter(Q(course=course) & Q(
+            lecture_id=lecture_id)).first()
+        resource = get_object_or_404(
+            Course_Resources, lecture=lecture, resource_id=resource_id)
+        serializer = CoursesResourcesSerializer(
+            resource, data=request.data, partial=True)
 
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response({"message": "You are not a tutor"}, status=status.HTTP_401_UNAUTHORIZED)
-    return Response({"message": "You must login first"}, status=status.HTTP_403_FORBIDDEN)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({"message": "You are not a tutor"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 @api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def delete_resource_by_lecture(request, course_id, lecture_id, resource_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
-    user = Users.objects.get(user_id=session_id)
+    user = request.user
     if user.role == 'tutor':
         course = Courses.objects.filter(course_id=course_id).first()
         lecture = Lecture.objects.filter(Q(course=course) & Q(
@@ -581,92 +383,6 @@ def delete_resource_by_lecture(request, course_id, lecture_id, resource_id):
         resources.delete()
         return Response({"message": "Resource deleted successfully"}, status=status.HTTP_200_OK)
     return Response({"message": "You are not a tutor"}, status=status.HTTP_401_UNAUTHORIZED)
-
-
-class FacialRecognitionListView(APIView):
-    def get(self, request):
-        facial = Facial_Recognition.objects.all()
-        serializer = FacialRecognitionsSerializer(facial, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def post(self, request):
-        serializer = FacialRecognitionsSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class EnrollmentListView(APIView):
-    def get(self, request):
-        session_id = request.session.get('user_id')
-        if session_id is None:
-            return Response({'message': 'You are not logged in'}, status=status.HTTP_403_FORBIDDEN)
-        enrollments = Enrollments.objects.all()
-        serializer = EnrollmentsSerializer(enrollments, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class EnrollmentForStudentView(APIView):
-    def post(self, request, course_id):
-        session_id = request.session.get('user_id')
-        if session_id is None:
-            return Response({'message': 'You are not logged in'}, status=status.HTTP_403_FORBIDDEN)
-        user = get_object_or_404(Users, user_id=session_id)
-        course = Courses.objects.filter(course_id=course_id).first()
-        if user.role == 'student':
-            student = Students.objects.filter(user=user).first()
-            serializer = EnrollmentsSerializer(data=request.data)
-            if serializer.is_valid():
-                serializer.save(student=student, course=course)
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response({'message': 'You can only enroll here as a student'}, status=status.HTTP_401_UNAUTHORIZED)
-
-
-class EnrollmentForLecturerView(APIView):
-    def post(self, request, course_id, student_id):
-        session_id = request.session.get('user_id')
-        if session_id is None:
-            return Response({'message': 'You are not logged in'}, status=status.HTTP_403_FORBIDDEN)
-        user = get_object_or_404(Users, user_id=session_id)
-
-        if user.role == 'tutor':
-            lecturer = Lecturer.objects.filter(user=user).first()
-            student = Students.objects.filter(student_id=student_id).first()
-            course = Courses.objects.filter(
-                Q(course_id=course_id) & Q(lecturer=lecturer)).first()
-            if course:
-                serializer = EnrollmentsSerializer(data=request.data)
-                if serializer.is_valid():
-                    serializer.save(student=student, course=course)
-                    return Response(serializer.data, status=status.HTTP_201_CREATED)
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-            return Response({'message': 'No course matching the query found'}, status=status.HTTP_404_NOT_FOUND)
-        return Response({'message': 'You can only enroll here as a student'}, status=status.HTTP_401_UNAUTHORIZED)
-
-    def delete(self, request, course_id, student_id):
-        session_id = request.session.get('user_id')
-        if session_id is None:
-            return Response({'message': 'You are not logged in'}, status=status.HTTP_403_FORBIDDEN)
-        user = get_object_or_404(Users, user_id=session_id)
-        if user.role == 'tutor':
-            lecturer = Lecturer.objects.filter(user=user).first()
-            student = Students.objects.filter(student_id=student_id).first()
-            course = Courses.objects.filter(
-                Q(course_id=course_id) & Q(lecturer=lecturer)).first()
-            if not course:
-                return Response({"message": "Course not found"}, status=status.HTTP_404_NOT_FOUND)
-            enrollment = Enrollments.objects.filter(
-                Q(course=course) & Q(student=student)).first()
-            if not enrollment:
-                return Response({"message": "Student not Enrolled to this Course"}, status=status.HTTP_404_NOT_FOUND)
-            enrollment.delete()
-            student_name = f"{student.user.first_name} {student.user.last_name}'s"
-            response_data = {
-                "message": f"{student_name} enrollment to {course.course_name} has been deleted"}
-            return Response(response_data, status=status.HTTP_204_NO_CONTENT)
-        return Response({'message': 'Contact the tutor of this course to delete your enrollment'}, status=status.HTTP_403_FORBIDDEN)
 
 
 # class ChatListView(APIView):
@@ -684,6 +400,8 @@ class EnrollmentForLecturerView(APIView):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def forums_by_course(request, course_id):
     course = Courses.objects.filter(course_id=course_id).first()
     forum = Forum.objects.filter(course=course)
@@ -692,11 +410,10 @@ def forums_by_course(request, course_id):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def forum_by_course(request, course_id, forum_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
-    user = Users.objects.get(user_id=session_id)
+    user = request.user
     course = Courses.objects.filter(course_id=course_id).first()
     forum_of_course = Forum.objects.filter(
         Q(creator=user) & Q(course=course) & Q(forum_id=forum_id)).first()
@@ -705,12 +422,10 @@ def forum_by_course(request, course_id, forum_id):
 
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def create_forum(request, course_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
-
-    user = Users.objects.get(user_id=session_id)
+    user = request.user
     serializer = ForumSerializer(data=request.data)
     if serializer.is_valid():
         course = Courses.objects.filter(course_id=course_id).first()
@@ -724,12 +439,10 @@ def create_forum(request, course_id):
 
 
 @api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def edit_forum(request, course_id, forum_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
-
-    user = Users.objects.get(user_id=session_id)
+    user = request.user
     course = Courses.objects.filter(course_id=course_id).first()
     forum = Forum.objects.filter(Q(course=course) & Q(
         forum_id=forum_id) & Q(creator=user)).first()
@@ -741,12 +454,10 @@ def edit_forum(request, course_id, forum_id):
 
 
 @api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def delete_forum(request, course_id, forum_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
-
-    user = Users.objects.get(user_id=session_id)
+    user = request.user
     course = Courses.objects.filter(course_id=course_id).first()
     forum = Forum.objects.filter(Q(course=course) & Q(
         forum_id=forum_id) & Q(creator=user))
@@ -757,10 +468,9 @@ def delete_forum(request, course_id, forum_id):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def chats_in_forum_by_course(request, course_id, forum_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
     course = Courses.objects.filter(course_id=course_id).first()
     forum = Forum.objects.filter(
         Q(course=course) & Q(forum_id=forum_id)).first()
@@ -774,10 +484,9 @@ def chats_in_forum_by_course(request, course_id, forum_id):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def chat_in_forum_by_course(request, course_id, forum_id, chat_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
     course = Courses.objects.filter(course_id=course_id).first()
     forum = Forum.objects.filter(
         Q(course=course) & Q(forum_id=forum_id)).first()
@@ -792,10 +501,9 @@ def chat_in_forum_by_course(request, course_id, forum_id, chat_id):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def chats_in_thread_by_forum(request, course_id, forum_id, thread_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
     course = Courses.objects.filter(course_id=course_id).first()
     forum = Forum.objects.filter(
         Q(course=course) & Q(forum_id=forum_id)).first()
@@ -811,10 +519,9 @@ def chats_in_thread_by_forum(request, course_id, forum_id, thread_id):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def chat_in_thread_by_forum(request, course_id, forum_id, thread_id, chat_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
     course = Courses.objects.filter(course_id=course_id).first()
     forum = Forum.objects.filter(
         Q(course=course) & Q(forum_id=forum_id)).first()
@@ -828,11 +535,10 @@ def chat_in_thread_by_forum(request, course_id, forum_id, thread_id, chat_id):
 
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def create_chat(request, course_id, forum_id, thread_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
-    user = Users.objects.get(user_id=session_id)
+    user = request.user
     course = Courses.objects.filter(course_id=course_id).first()
     forum = Forum.objects.filter(
         Q(course=course) & Q(forum_id=forum_id)).first()
@@ -846,11 +552,10 @@ def create_chat(request, course_id, forum_id, thread_id):
 
 
 @api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def edit_chat(request, course_id, forum_id, thread_id, chat_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
-    user = Users.objects.get(user_id=session_id)
+    user = request.user
     course = Courses.objects.filter(course_id=course_id).first()
     forum = Forum.objects.filter(
         Q(forum_id=forum_id) & Q(course=course)).first()
@@ -866,11 +571,10 @@ def edit_chat(request, course_id, forum_id, thread_id, chat_id):
 
 
 @api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def delete_chat(request, course_id, forum_id, thread_id, chat_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
-    user = Users.objects.get(user_id=session_id)
+    user = request.user
     course = Courses.objects.filter(course_id=course_id).first()
     forum = Forum.objects.filter(
         Q(forum_id=forum_id) & Q(course=course)).first()
@@ -885,11 +589,10 @@ def delete_chat(request, course_id, forum_id, thread_id, chat_id):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def threads_in_forum_by_course(request, course_id, forum_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
-    user = Users.objects.get(user_id=session_id)
+    user = request.user
     course = Courses.objects.filter(course_id=course_id).first()
     forum = Forum.objects.filter(
         Q(course=course) & Q(forum_id=forum_id)).first()
@@ -903,10 +606,8 @@ def threads_in_forum_by_course(request, course_id, forum_id):
 
 @api_view(['GET'])
 def thread_in_forum_by_course(request, course_id, forum_id, thread_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
-    course = Courses.objects.filter(course_id=course_id).first()
+    user = request.usercourse = Courses.objects.filter(
+        course_id=course_id).first()
     forum = Forum.objects.filter(
         Q(course=course) & Q(forum_id=forum_id)).first()
     threads = Thread.objects.filter(
@@ -919,11 +620,10 @@ def thread_in_forum_by_course(request, course_id, forum_id, thread_id):
 
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def create_thread(request, course_id, forum_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
-    user = Users.objects.get(user_id=session_id)
+    user = request.user
     course = Courses.objects.filter(course_id=course_id).first()
     forum = Forum.objects.filter(
         Q(forum_id=forum_id) & Q(course=course)).first()
@@ -935,11 +635,10 @@ def create_thread(request, course_id, forum_id):
 
 
 @api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def edit_thread(request, course_id, forum_id, thread_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
-    user = Users.objects.get(user_id=session_id)
+    user = request.user
     course = Courses.objects.filter(course_id=course_id).first()
     forum = Forum.objects.filter(
         Q(course=course) & Q(forum_id=forum_id)).first()
@@ -953,11 +652,10 @@ def edit_thread(request, course_id, forum_id, thread_id):
 
 
 @api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def delete_thread(request, course_id, forum_id, thread_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
-    user = Users.objects.get(user_id=session_id)
+    user = request.user
     course = Courses.objects.filter(course_id=course_id).first()
     forum = Forum.objects.filter(forum_id=forum_id).first()
     thread = Thread.objects.filter(
@@ -969,10 +667,10 @@ def delete_thread(request, course_id, forum_id, thread_id):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def announcements(request, course_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
+    user = request.user
     course = Courses.objects.filter(course_id=course_id).first()
     announcement = Announcement.objects.filter(course=course)
     serializer = AnnouncementSerializer(announcement, many=True)
@@ -980,10 +678,10 @@ def announcements(request, course_id):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def announcement_by_id(request, course_id, announcement_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
+    user = request.user
     course = Courses.objects.filter(course_id=course_id).first()
     announcement = Announcement.objects.filter(
         Q(course=course) & Q(announcement_id=announcement_id)).first()
@@ -992,48 +690,45 @@ def announcement_by_id(request, course_id, announcement_id):
 
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def create_announcement(request, course_id):
-    session_id = request.session.get('user_id')
-    if session_id is not None:
-        user = Users.objects.get(user_id=session_id)
-        if user.role == 'tutor':
-            serializer = AnnouncementSerializer(data=request.data)
-            course = Courses.objects.filter(course_id=course_id).first()
-            lecturer = Lecturer.objects.filter(user=user).first()
-            if serializer.is_valid():
-                serializer.save(course=course, lecturer=lecturer)
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response({"message": "You are not a tutor"}, status=status.HTTP_401_UNAUTHORIZED)
-    return Response({"message": "You must login first"}, status=status.HTTP_403_FORBIDDEN)
+    user = request.user
+    if user.role == 'tutor':
+        serializer = AnnouncementSerializer(data=request.data)
+        course = Courses.objects.filter(course_id=course_id).first()
+        lecturer = Lecturer.objects.filter(user=user).first()
+        if serializer.is_valid():
+            serializer.save(course=course, lecturer=lecturer)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({"message": "You are not a tutor"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 @api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def edit_announcement(request, course_id, announcement_id):
-    session_id = request.session.get('user_id')
-    if session_id is not None:
-        user = Users.objects.get(user_id=session_id)
-        if user.role == 'tutor':
-            course = Courses.objects.filter(course_id=course_id).first()
-            lecturer = Lecturer.objects.filter(user=user).first()
-            announcement = Announcement.objects.filter(Q(course=course) & Q(
-                lecturer=lecturer) & Q(announcement_id=announcement_id)).first()
-            serializer = AnnouncementSerializer(
-                announcement, data=request.data, partial=True)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response({"message": "You are not a tutor"}, status=status.HTTP_401_UNAUTHORIZED)
-    return Response({"message": "You must login first"}, status=status.HTTP_403_FORBIDDEN)
+    user = request.user
+    if user.role == 'tutor':
+        course = Courses.objects.filter(course_id=course_id).first()
+        lecturer = Lecturer.objects.filter(user=user).first()
+        announcement = Announcement.objects.filter(Q(course=course) & Q(
+            lecturer=lecturer) & Q(announcement_id=announcement_id)).first()
+        serializer = AnnouncementSerializer(
+            announcement, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({"message": "You are not a tutor"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 @api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def delete_announcement(request, course_id, announcement_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
-    user = Users.objects.get(user_id=session_id)
+    user = request.user
     if user.role == 'tutor':
         course = Courses.objects.filter(course_id=course_id).first()
         lecturer = Lecturer.objects.filter(user=user).first()
@@ -1047,11 +742,10 @@ def delete_announcement(request, course_id, announcement_id):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def comments(request, course_id, announcement_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
-    user = Users.objects.get(user_id=session_id)
+    user = request.user
     course = Courses.objects.filter(course_id=course_id).first()
     announcement = Announcement.objects.filter(
         Q(course=course) & Q(announcement_id=announcement_id)).first()
@@ -1062,11 +756,10 @@ def comments(request, course_id, announcement_id):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def comment_by_id(request, course_id, announcement_id, comment_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
-    user = Users.objects.get(user_id=session_id)
+    user = request.user
     course = Courses.objects.filter(course_id=course_id).first()
     announcement = Announcement.objects.filter(
         Q(course=course) & Q(announcement_id=announcement_id)).first()
@@ -1077,52 +770,46 @@ def comment_by_id(request, course_id, announcement_id, comment_id):
 
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def create_comment(request, course_id, announcement_id):
-    session_id = request.session.get('user_id')
-    if session_id is not None:
-        user = Users.objects.get(user_id=session_id)
+    user = request.user
 
-        serializer = CommentSerializer(data=request.data)
-        course = Courses.objects.filter(course_id=course_id).first()
-        announcement = Announcement.objects.filter(
-            Q(announcement_id=announcement_id) & Q(course=course)).first()
-        if serializer.is_valid():
-            serializer.save(announcement=announcement, user=user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    return Response({"message": "You must login first"}, status=status.HTTP_403_FORBIDDEN)
+    serializer = CommentSerializer(data=request.data)
+    course = Courses.objects.filter(course_id=course_id).first()
+    announcement = Announcement.objects.filter(
+        Q(announcement_id=announcement_id) & Q(course=course)).first()
+    if serializer.is_valid():
+        serializer.save(announcement=announcement, user=user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def edit_comment(request, course_id, announcement_id,  comment_id):
+    user = request.user
+    lecturer = Lecturer.objects.filter(user=user).first()
+    course = Courses.objects.filter(course_id=course_id).first()
+    announcement = Announcement.objects.filter(
+        Q(announcement_id=announcement_id) & Q(course=course)).first()
+    comment = Comment.objects.filter(Q(announcement=announcement) & Q(
+        user=user) & Q(comment_id=comment_id)).first()
+    serializer = CommentSerializer(
+        comment, data=request.data, partial=True)
 
-    session_id = request.session.get('user_id')
-    if session_id is not None:
-        user = Users.objects.get(user_id=session_id)
-        lecturer = Lecturer.objects.filter(user=user).first()
-        course = Courses.objects.filter(course_id=course_id).first()
-        announcement = Announcement.objects.filter(
-            Q(announcement_id=announcement_id) & Q(course=course)).first()
-        comment = Comment.objects.filter(Q(announcement=announcement) & Q(
-            user=user) & Q(comment_id=comment_id)).first()
-        serializer = CommentSerializer(
-            comment, data=request.data, partial=True)
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    return Response({"message": "You must login first"}, status=status.HTTP_403_FORBIDDEN)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def delete_comment(request, course_id, announcement_id, comment_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
-    user = Users.objects.get(user_id=session_id)
+    user = request.user
     if user.role == 'tutor':
         course = Courses.objects.filter(course_id=course_id).first()
         lecturer = Lecturer.objects.filter(user=user).first()
@@ -1138,10 +825,10 @@ def delete_comment(request, course_id, announcement_id, comment_id):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def thread_upvote(request, thread_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
+    user = request.user
     thread = get_object_or_404(Thread, thread_id=thread_id)
     thread.upvotes += 1
     thread.save()
@@ -1149,10 +836,10 @@ def thread_upvote(request, thread_id):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def chat_upvote(request, chat_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
+    user = request.user
     chat = get_object_or_404(Chats, chat_id=chat_id)
     chat.upvotes += 1
     chat.save()
@@ -1160,10 +847,10 @@ def chat_upvote(request, chat_id):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def thread_unvote(request, thread_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
+    user = request.user
     thread = get_object_or_404(Thread, thread_id=thread_id)
     thread.upvotes -= 1 if thread.upvotes > 0 else 0
     thread.save()
@@ -1171,10 +858,10 @@ def thread_unvote(request, thread_id):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([CustomJWTAuthentication])
 def chat_unvote(request, chat_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
+    user = request.user
     chat = get_object_or_404(Chats, chat_id=chat_id)
     chat.upvotes -= 1 if chat.upvotes > 0 else 0
     chat.save()

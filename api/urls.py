@@ -10,7 +10,7 @@ urlpatterns = [
     path('register', views.register, name='api_register'),
     path('reset_password', views.reset_password, name='api_reset_password'),
     path('reset_token/<str:token>', views.reset_token, name='api_reset_token'),
-    path('login', views.login, name='api_login'),
+    path('login', views.CustomTokenObtainPairView.as_view(), name='api_login'),
     path('logout', views.logout, name='api_logout'),
 
     # GET LIST OF ITEMS AND RESOURCES OR CREATE THEM
@@ -20,7 +20,7 @@ urlpatterns = [
     path('students', views.StudentListView.as_view(), name='api_students'),
     path('lecturers', views.LecturerListView.as_view(), name='api_lecturers'),
 
-    #     EDIT OR DELETE USER
+    # EDIT OR DELETE USER
     path('user', views.UserEditView.as_view(), name='api_edit_view'),
     # EDIT PROFILE IMAGE
     path('profileimage', views.edit_user_image, name='api_edit_user_image'),
@@ -31,6 +31,8 @@ urlpatterns = [
     path('courses', views.CoursesListView.as_view(), name='api_courses'),
     path('course/<int:user_id>', views.CoursesListByLecturerView.as_view(),
          name='api_course_by lecturer'),
+    path('available_courses', views.AvailableCoursesView.as_view(),
+         name='api_available_courses'),
 
     # Lectures
     path("course/<int:course_id>/lectures",
@@ -87,37 +89,46 @@ urlpatterns = [
     path('facial_recognitions',
          views.FacialRecognitionListView.as_view(), name='api_facial_recognitions'),
     #     path('chats/', views.ChatListView.as_view()),
+
     path('enrollments', views.EnrollmentListView.as_view(), name='api_enrollments'),
     path('enrollment/student/<int:course_id>',
          views.EnrollmentForStudentView.as_view(), name='api_student_enrollments'),
     path('enrollment/lecturer/<int:course_id>/<int:student_id>',
          views.EnrollmentForLecturerView.as_view(), name='api_lecturer_enrollments'),
+
     path("course/details/<int:course_id>",
-         views.course_detail_view, name="course_detail_view"),  # GET: View details for a particular course
+         # GET: View details for a particular course
+         views.course_detail_view, name="course_detail_view"),
 
     # CHATS, THREADS AND FORUMS ENDPOINTS. CREATE GET, OR DELETE THEM
 
     # GET
     # Forums
     path("course/<int:course_id>/forums",
-         views.forums_by_course, name="forums_by_course"),  # GET: View all forums for a particular course
+         # GET: View all forums for a particular course
+         views.forums_by_course, name="forums_by_course"),
     path("course/<int:course_id>/forum/<int:forum_id>",
-         views.forum_by_course, name="forum_by_course"),  # GET: View a particular forum for a particular course
+         # GET: View a particular forum for a particular course
+         views.forum_by_course, name="forum_by_course"),
 
     # Threads
     path("course/<int:course_id>/forum/<int:forum_id>/threads",
-         views.threads_in_forum_by_course, name="thread_in_forum_by_course"),  # GET: threads for a forum of a course
+         # GET: threads for a forum of a course
+         views.threads_in_forum_by_course, name="thread_in_forum_by_course"),
     path("course/<int:course_id>/forum/<int:forum_id>/threads/<int:thread_id>",
-         views.thread_in_forum_by_course, name="thread_in_forum_by_course"),  # GET: threads for a forum of a course
+         # GET: threads for a forum of a course
+         views.thread_in_forum_by_course, name="thread_in_forum_by_course"),
 
     # Chats in threads
     path("course/<int:course_id>/forum/<int:forum_id>/chats",
-         views.chats_in_forum_by_course, name="chats_in_forum_by_course"),  # GET: View all forums for a particular course
+         # GET: View all forums for a particular course
+         views.chats_in_forum_by_course, name="chats_in_forum_by_course"),
     path("course/<int:course_id>/forum/<int:forum_id>/chat/<int:chat_id>",
          views.chat_in_forum_by_course, name="chat_in_forum_by_course"),
 
     path("course/<int:course_id>/forum/<int:forum_id>/threads/<int:thread_id>/chats",
-         views.chats_in_thread_by_forum, name="chats_in_thread_by_forum"),  # GET: View all forums for a particular course
+         # GET: View all forums for a particular course
+         views.chats_in_thread_by_forum, name="chats_in_thread_by_forum"),
     path("course/<int:course_id>/forum/<int:forum_id>/threads/<int:thread_id>/chat/<int:chat_id>",
          views.chat_in_thread_by_forum, name="chat_in_thread_by_forum"),
 

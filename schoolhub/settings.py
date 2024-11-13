@@ -10,11 +10,12 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+from datetime import timedelta
 import logging
 from pathlib import Path
 import os
 from . import passkeys
-
+# from student.jwt_utils import custom_jwt_payload_handler
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -32,8 +33,8 @@ GOOGLE_APPS_KEY = os.getenv('GOOGLE_APPS_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1',
-                 'georgekwm1.pythonanywhere.com', "http://localhost:3001"]
+# ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'georgekwm1.pythonanywhere.com']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'georgekwm1.pythonanywhere.com']
 
 
 # Application definition
@@ -164,11 +165,17 @@ REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
     ),
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
 }
 
 AUTHENTICATION_BACKENDS = (
     'social_core.backends.google.GoogleOAuth2',  # Add Google OAuth2 backend
     'django.contrib.auth.backends.ModelBackend',  # Default authentication
+    'api.models.CustomAuthenticationBackend'
 
 )
 
@@ -199,10 +206,26 @@ APPEND_SLASH = False
 # LOGIN_URL = '/login/'
 # SOCIAL_AUTH_OAUTH2_IGNORE_STATE = True
 
+CSRF_TRUSTED_ORIGINS = ['http://localhost:3001', 'http://127.0.0.1:3001']
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3001",
     "http://localhost:3000"
 ]
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = True
-CSRF_TRUSTED_ORIGINS = ['http://localhost']
+CORS_ALLOW_CREDENTIALS = True
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_COOKIE_SECURE = False
+
+
+SIMPLE_JWT = {
+    'USER_ID_FIELD': 'user_id',  # Use 'user_id' as the identifier
+    'USER_ID_CLAIM': 'user_id',  # Set the claim name to 'user_id' in the JWT
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+}
+AUTH_USER_MODEL = 'student.Users'
