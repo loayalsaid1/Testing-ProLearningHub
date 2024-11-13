@@ -121,6 +121,7 @@ class EnrollmentsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Enrollments
         fields = '__all__'
+        read_only_fields = ['student', 'course']
 
 
 class ForumSerializer(serializers.ModelSerializer):
@@ -176,10 +177,13 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         refresh['last_name'] = self.user.last_name
         refresh['email'] = self.user.email
         refresh['role'] = self.user.role
-
+        data = {'user_id': self.user.user_id, 'first_name': self.user.first_name,
+                'last_name': self.user.last_name, 'email': self.user.email,
+                'role': self.user.role}
         return {
             'refresh': str(refresh),
             'access': str(access_token),
+            'user': data
         }
 
 

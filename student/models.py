@@ -24,11 +24,26 @@ class Users(models.Model):
     # Optional fields required for creating a superuser
     REQUIRED_FIELDS = ['first_name', 'last_name']
     is_anonymous = False
+    is_staff = True
     objects = UsersManager()
+    # Custom method to check if the user is authenticated
 
     @property
     def is_authenticated(self):
         # Indicates that this user is authenticated
+        return True
+
+    @property
+    def is_superuser(self):
+        # Indicates that this user is a superuser
+        return True
+
+    def has_perm(self, perm, obj=None):
+        # Indicates that this user has all permissions
+        return True
+
+    def has_module_perms(self, app_label):
+        # Indicates that this user has permissions to access all modules
         return True
 
     def __str__(self):

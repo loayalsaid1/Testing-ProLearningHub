@@ -92,14 +92,25 @@ def edit_user_image(request):
 
 
 @api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([CustomJWTAuthentication])
 def logout(request):
-    token = request.headers.get('Authorization', '').split(' ')[-1]
+    auth_header = request.headers.get('Authorization', None)
+    print(f"Authorization Header: {auth_header}")
+    if auth_header:
+        # Expected format: "Bearer <token>"
+        token = auth_header.split(' ')[-1]
+        print(f"Token: {token}")
 
-    if token:
-        # Add the token to the blacklist
-        BlacklistedToken.objects.create(token=token)
+        if token:
+            # Add the token to the blacklist
+            BlacklistedToken.objects.create(token=token)
+            return Response({"detail": "Logged out successfully."})
+        else:
+            # If token is not present after 'Bearer', it's invalid
+            return Response({"detail": "Invalid token format."}, status=400)
 
-    return Response({"detail": "Logged out successfully."})
+    return Response({"detail": "Authorization header missing."}, status=400)
 
 
 @api_view(['POST'])
@@ -476,9 +487,6 @@ def chats_in_forum_by_course(request, course_id, forum_id):
 @permission_classes([IsAuthenticated])
 @authentication_classes([CustomJWTAuthentication])
 def chat_in_forum_by_course(request, course_id, forum_id, chat_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
     course = Courses.objects.filter(course_id=course_id).first()
     forum = Forum.objects.filter(
         Q(course=course) & Q(forum_id=forum_id)).first()
@@ -547,10 +555,7 @@ def create_chat(request, course_id, forum_id, thread_id):
 @permission_classes([IsAuthenticated])
 @authentication_classes([CustomJWTAuthentication])
 def edit_chat(request, course_id, forum_id, thread_id, chat_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
-    user = Users.objects.get(user_id=session_id)
+    user = request.user
     course = Courses.objects.filter(course_id=course_id).first()
     forum = Forum.objects.filter(
         Q(forum_id=forum_id) & Q(course=course)).first()
@@ -569,10 +574,7 @@ def edit_chat(request, course_id, forum_id, thread_id, chat_id):
 @permission_classes([IsAuthenticated])
 @authentication_classes([CustomJWTAuthentication])
 def delete_chat(request, course_id, forum_id, thread_id, chat_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
-    user = Users.objects.get(user_id=session_id)
+    user = request.user
     course = Courses.objects.filter(course_id=course_id).first()
     forum = Forum.objects.filter(
         Q(forum_id=forum_id) & Q(course=course)).first()
@@ -590,10 +592,7 @@ def delete_chat(request, course_id, forum_id, thread_id, chat_id):
 @permission_classes([IsAuthenticated])
 @authentication_classes([CustomJWTAuthentication])
 def threads_in_forum_by_course(request, course_id, forum_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
-    user = Users.objects.get(user_id=session_id)
+    user = request.user
     course = Courses.objects.filter(course_id=course_id).first()
     forum = Forum.objects.filter(
         Q(course=course) & Q(forum_id=forum_id)).first()
@@ -607,10 +606,8 @@ def threads_in_forum_by_course(request, course_id, forum_id):
 
 @api_view(['GET'])
 def thread_in_forum_by_course(request, course_id, forum_id, thread_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
-    course = Courses.objects.filter(course_id=course_id).first()
+    user = request.usercourse = Courses.objects.filter(
+        course_id=course_id).first()
     forum = Forum.objects.filter(
         Q(course=course) & Q(forum_id=forum_id)).first()
     threads = Thread.objects.filter(
@@ -626,10 +623,7 @@ def thread_in_forum_by_course(request, course_id, forum_id, thread_id):
 @permission_classes([IsAuthenticated])
 @authentication_classes([CustomJWTAuthentication])
 def create_thread(request, course_id, forum_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
-    user = Users.objects.get(user_id=session_id)
+    user = request.user
     course = Courses.objects.filter(course_id=course_id).first()
     forum = Forum.objects.filter(
         Q(forum_id=forum_id) & Q(course=course)).first()
@@ -644,10 +638,7 @@ def create_thread(request, course_id, forum_id):
 @permission_classes([IsAuthenticated])
 @authentication_classes([CustomJWTAuthentication])
 def edit_thread(request, course_id, forum_id, thread_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
-    user = Users.objects.get(user_id=session_id)
+    user = request.user
     course = Courses.objects.filter(course_id=course_id).first()
     forum = Forum.objects.filter(
         Q(course=course) & Q(forum_id=forum_id)).first()
@@ -664,10 +655,7 @@ def edit_thread(request, course_id, forum_id, thread_id):
 @permission_classes([IsAuthenticated])
 @authentication_classes([CustomJWTAuthentication])
 def delete_thread(request, course_id, forum_id, thread_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
-    user = Users.objects.get(user_id=session_id)
+    user = request.user
     course = Courses.objects.filter(course_id=course_id).first()
     forum = Forum.objects.filter(forum_id=forum_id).first()
     thread = Thread.objects.filter(
@@ -682,9 +670,7 @@ def delete_thread(request, course_id, forum_id, thread_id):
 @permission_classes([IsAuthenticated])
 @authentication_classes([CustomJWTAuthentication])
 def announcements(request, course_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
+    user = request.user
     course = Courses.objects.filter(course_id=course_id).first()
     announcement = Announcement.objects.filter(course=course)
     serializer = AnnouncementSerializer(announcement, many=True)
@@ -695,9 +681,7 @@ def announcements(request, course_id):
 @permission_classes([IsAuthenticated])
 @authentication_classes([CustomJWTAuthentication])
 def announcement_by_id(request, course_id, announcement_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
+    user = request.user
     course = Courses.objects.filter(course_id=course_id).first()
     announcement = Announcement.objects.filter(
         Q(course=course) & Q(announcement_id=announcement_id)).first()
@@ -709,51 +693,42 @@ def announcement_by_id(request, course_id, announcement_id):
 @permission_classes([IsAuthenticated])
 @authentication_classes([CustomJWTAuthentication])
 def create_announcement(request, course_id):
-    session_id = request.session.get('user_id')
-    if session_id is not None:
-        user = Users.objects.get(user_id=session_id)
-        if user.role == 'tutor':
-            serializer = AnnouncementSerializer(data=request.data)
-            course = Courses.objects.filter(course_id=course_id).first()
-            lecturer = Lecturer.objects.filter(user=user).first()
-            if serializer.is_valid():
-                serializer.save(course=course, lecturer=lecturer)
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response({"message": "You are not a tutor"}, status=status.HTTP_401_UNAUTHORIZED)
-    return Response({"message": "You must login first"}, status=status.HTTP_403_FORBIDDEN)
+    user = request.user
+    if user.role == 'tutor':
+        serializer = AnnouncementSerializer(data=request.data)
+        course = Courses.objects.filter(course_id=course_id).first()
+        lecturer = Lecturer.objects.filter(user=user).first()
+        if serializer.is_valid():
+            serializer.save(course=course, lecturer=lecturer)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({"message": "You are not a tutor"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 @authentication_classes([CustomJWTAuthentication])
 def edit_announcement(request, course_id, announcement_id):
-    session_id = request.session.get('user_id')
-    if session_id is not None:
-        user = Users.objects.get(user_id=session_id)
-        if user.role == 'tutor':
-            course = Courses.objects.filter(course_id=course_id).first()
-            lecturer = Lecturer.objects.filter(user=user).first()
-            announcement = Announcement.objects.filter(Q(course=course) & Q(
-                lecturer=lecturer) & Q(announcement_id=announcement_id)).first()
-            serializer = AnnouncementSerializer(
-                announcement, data=request.data, partial=True)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response({"message": "You are not a tutor"}, status=status.HTTP_401_UNAUTHORIZED)
-    return Response({"message": "You must login first"}, status=status.HTTP_403_FORBIDDEN)
+    user = request.user
+    if user.role == 'tutor':
+        course = Courses.objects.filter(course_id=course_id).first()
+        lecturer = Lecturer.objects.filter(user=user).first()
+        announcement = Announcement.objects.filter(Q(course=course) & Q(
+            lecturer=lecturer) & Q(announcement_id=announcement_id)).first()
+        serializer = AnnouncementSerializer(
+            announcement, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({"message": "You are not a tutor"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 @authentication_classes([CustomJWTAuthentication])
 def delete_announcement(request, course_id, announcement_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
-    user = Users.objects.get(user_id=session_id)
+    user = request.user
     if user.role == 'tutor':
         course = Courses.objects.filter(course_id=course_id).first()
         lecturer = Lecturer.objects.filter(user=user).first()
@@ -770,10 +745,7 @@ def delete_announcement(request, course_id, announcement_id):
 @permission_classes([IsAuthenticated])
 @authentication_classes([CustomJWTAuthentication])
 def comments(request, course_id, announcement_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
-    user = Users.objects.get(user_id=session_id)
+    user = request.user
     course = Courses.objects.filter(course_id=course_id).first()
     announcement = Announcement.objects.filter(
         Q(course=course) & Q(announcement_id=announcement_id)).first()
@@ -787,10 +759,7 @@ def comments(request, course_id, announcement_id):
 @permission_classes([IsAuthenticated])
 @authentication_classes([CustomJWTAuthentication])
 def comment_by_id(request, course_id, announcement_id, comment_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
-    user = Users.objects.get(user_id=session_id)
+    user = request.user
     course = Courses.objects.filter(course_id=course_id).first()
     announcement = Announcement.objects.filter(
         Q(course=course) & Q(announcement_id=announcement_id)).first()
@@ -804,55 +773,43 @@ def comment_by_id(request, course_id, announcement_id, comment_id):
 @permission_classes([IsAuthenticated])
 @authentication_classes([CustomJWTAuthentication])
 def create_comment(request, course_id, announcement_id):
-    session_id = request.session.get('user_id')
-    if session_id is not None:
-        user = Users.objects.get(user_id=session_id)
+    user = request.user
 
-        serializer = CommentSerializer(data=request.data)
-        course = Courses.objects.filter(course_id=course_id).first()
-        announcement = Announcement.objects.filter(
-            Q(announcement_id=announcement_id) & Q(course=course)).first()
-        if serializer.is_valid():
-            serializer.save(announcement=announcement, user=user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    return Response({"message": "You must login first"}, status=status.HTTP_403_FORBIDDEN)
+    serializer = CommentSerializer(data=request.data)
+    course = Courses.objects.filter(course_id=course_id).first()
+    announcement = Announcement.objects.filter(
+        Q(announcement_id=announcement_id) & Q(course=course)).first()
+    if serializer.is_valid():
+        serializer.save(announcement=announcement, user=user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 @authentication_classes([CustomJWTAuthentication])
 def edit_comment(request, course_id, announcement_id,  comment_id):
+    user = request.user
+    lecturer = Lecturer.objects.filter(user=user).first()
+    course = Courses.objects.filter(course_id=course_id).first()
+    announcement = Announcement.objects.filter(
+        Q(announcement_id=announcement_id) & Q(course=course)).first()
+    comment = Comment.objects.filter(Q(announcement=announcement) & Q(
+        user=user) & Q(comment_id=comment_id)).first()
+    serializer = CommentSerializer(
+        comment, data=request.data, partial=True)
 
-    session_id = request.session.get('user_id')
-    if session_id is not None:
-        user = Users.objects.get(user_id=session_id)
-        lecturer = Lecturer.objects.filter(user=user).first()
-        course = Courses.objects.filter(course_id=course_id).first()
-        announcement = Announcement.objects.filter(
-            Q(announcement_id=announcement_id) & Q(course=course)).first()
-        comment = Comment.objects.filter(Q(announcement=announcement) & Q(
-            user=user) & Q(comment_id=comment_id)).first()
-        serializer = CommentSerializer(
-            comment, data=request.data, partial=True)
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    return Response({"message": "You must login first"}, status=status.HTTP_403_FORBIDDEN)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 @authentication_classes([CustomJWTAuthentication])
 def delete_comment(request, course_id, announcement_id, comment_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
-    user = Users.objects.get(user_id=session_id)
+    user = request.user
     if user.role == 'tutor':
         course = Courses.objects.filter(course_id=course_id).first()
         lecturer = Lecturer.objects.filter(user=user).first()
@@ -871,9 +828,7 @@ def delete_comment(request, course_id, announcement_id, comment_id):
 @permission_classes([IsAuthenticated])
 @authentication_classes([CustomJWTAuthentication])
 def thread_upvote(request, thread_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
+    user = request.user
     thread = get_object_or_404(Thread, thread_id=thread_id)
     thread.upvotes += 1
     thread.save()
@@ -884,9 +839,7 @@ def thread_upvote(request, thread_id):
 @permission_classes([IsAuthenticated])
 @authentication_classes([CustomJWTAuthentication])
 def chat_upvote(request, chat_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
+    user = request.user
     chat = get_object_or_404(Chats, chat_id=chat_id)
     chat.upvotes += 1
     chat.save()
@@ -897,9 +850,7 @@ def chat_upvote(request, chat_id):
 @permission_classes([IsAuthenticated])
 @authentication_classes([CustomJWTAuthentication])
 def thread_unvote(request, thread_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
+    user = request.user
     thread = get_object_or_404(Thread, thread_id=thread_id)
     thread.upvotes -= 1 if thread.upvotes > 0 else 0
     thread.save()
@@ -910,9 +861,7 @@ def thread_unvote(request, thread_id):
 @permission_classes([IsAuthenticated])
 @authentication_classes([CustomJWTAuthentication])
 def chat_unvote(request, chat_id):
-    session_id = request.session.get('user_id')
-    if session_id is None:
-        return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
+    user = request.user
     chat = get_object_or_404(Chats, chat_id=chat_id)
     chat.upvotes -= 1 if chat.upvotes > 0 else 0
     chat.save()

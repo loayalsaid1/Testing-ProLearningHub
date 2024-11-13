@@ -21,9 +21,18 @@ from schoolhub.passkeys import IMAGE_KIT_AUTH
 
 
 class CustomJWTAuthentication(JWTAuthentication):
+    def has_permission(
+            self, request, view):
+        return request.user.is_authenticated
+    # has_permission = True
+
     def authenticate(self, request):
         # Get token from request header (Authorization: Bearer <token>)
         token = self.get_header(request)
+        print(f"Auth Access Token: {token}")
+        if isinstance(token, bytes):
+            token = token.decode('utf-8')
+        print(f"Decoded Auth Access Token: {token}")
         if not token:
             raise AuthenticationFailed("No token provided")
 
@@ -63,12 +72,12 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
 
 class UserIdView(APIView):
+    permission_classes = (IsAuthenticated,)
+    authentication_classes = [CustomJWTAuthentication]
+
     def get(self, request, user_id):
-        session_id = request.session.get('user_id')
-        if session_id is None:
-            return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
         try:
-            user = Users.objects.get(user_id=user_id)
+            user = request.user
             serializer = UserSerializer(user)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Users.DoesNotExist:
@@ -76,11 +85,11 @@ class UserIdView(APIView):
 
 
 class UserEditView(APIView):
+    permission_classes = (IsAuthenticated,)
+    authentication_classes = [CustomJWTAuthentication]
+
     def put(self, request):
-        session_id = request.session.get('user_id')
-        if session_id is None:
-            return Response({'error': 'You are not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
-        user = Users.objects.filter(user_id=session_id).first()
+        user = request.user
         if user:
             serializer = UserEditSerializer(
                 user, data=request.data, partial=True)
@@ -172,6 +181,9 @@ class LecturerListView(APIView):
 
 
 class CoursesListView(APIView):
+    permission_classes = (IsAuthenticated,)
+    authentication_classes = [CustomJWTAuthentication]
+
     def get(self, request):
         courses = Courses.objects.all()
         serializer = CoursesSerializer(courses, many=True)
@@ -179,6 +191,9 @@ class CoursesListView(APIView):
 
 
 class CoursesListByLecturerView(APIView):
+    permission_classes = (IsAuthenticated,)
+    authentication_classes = [CustomJWTAuthentication]
+
     def get(self, request, user_id):
         user = request.user
         if user.role == 'tutor':
@@ -189,11 +204,11 @@ class CoursesListByLecturerView(APIView):
 
 
 class CoursesCreateView(APIView):
+    permission_classes = (IsAuthenticated,)
+    authentication_classes = [CustomJWTAuthentication]
+
     def post(self, request):
-        session_id = request.session.get('user_id')
-        if session_id is None:
-            return Response({'message': 'You are not logged in'}, status=status.HTTP_403_FORBIDDEN)
-        user = Users.objects.get(user_id=session_id)
+        user = request.user
         if user.role == 'tutor':
             serializer = CoursesSerializer(data=request.data)
             if serializer.is_valid():
@@ -206,11 +221,11 @@ class CoursesCreateView(APIView):
 
 
 class CoursesEditDeleteView(APIView):
+    permission_classes = (IsAuthenticated,)
+    authentication_classes = [CustomJWTAuthentication]
+
     def put(self, request, course_id):
-        session_id = request.session.get('user_id')
-        if session_id is None:
-            return Response({'message': 'You are not logged in'}, status=status.HTTP_403_FORBIDDEN)
-        user = Users.objects.get(user_id=session_id)
+        user = request.user
         if user.role == 'tutor':
             lecturer = get_object_or_404(Lecturer, user=user)
             course = get_object_or_404(
@@ -224,10 +239,7 @@ class CoursesEditDeleteView(APIView):
         return Response({'message': 'You are not a tutor'}, status=status.HTTP_403_FORBIDDEN)
 
     def delete(self, request, course_id):
-        session_id = request.session.get('user_id')
-        if session_id is None:
-            return Response({'message': 'You are not logged in'}, status=status.HTTP_403_FORBIDDEN)
-        user = Users.objects.get(user_id=session_id)
+        user = request.user
         if user.role == 'tutor':
             lecturer = get_object_or_404(Lecturer, user=user)  # get lecturer
 
@@ -241,16 +253,16 @@ class CoursesEditDeleteView(APIView):
 
 
 class CourseResourcesListView(APIView):
+    permission_classes = (IsAuthenticated,)
+    authentication_classes = [CustomJWTAuthentication]
+
     def get(self, request):
         course_resources = Course_Resources.objects.all()
         serializer = CoursesResourcesSerializer(course_resources, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        session_id = request.session.get('user_id')
-        if session_id is None:
-            return Response({'message': 'You are not logged in'}, status=status.HTTP_403_FORBIDDEN)
-        user = Users.objects.get(user=session_id)
+        user = request.user
         if user.role == 'tutor':
             serializer = CoursesResourcesSerializer(data=request.data)
             if serializer.is_valid():
@@ -261,6 +273,9 @@ class CourseResourcesListView(APIView):
 
 
 class FacialRecognitionListView(APIView):
+    permission_classes = (IsAuthenticated,)
+    authentication_classes = [CustomJWTAuthentication]
+
     def get(self, request):
         facial = Facial_Recognition.objects.all()
         serializer = FacialRecognitionsSerializer(facial, many=True)
@@ -275,21 +290,21 @@ class FacialRecognitionListView(APIView):
 
 
 class EnrollmentListView(APIView):
+    permission_classes = (IsAuthenticated,)
+    authentication_classes = [CustomJWTAuthentication]
+
     def get(self, request):
-        session_id = request.session.get('user_id')
-        if session_id is None:
-            return Response({'message': 'You are not logged in'}, status=status.HTTP_403_FORBIDDEN)
         enrollments = Enrollments.objects.all()
         serializer = EnrollmentsSerializer(enrollments, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class EnrollmentForStudentView(APIView):
+    permission_classes = (IsAuthenticated,)
+    authentication_classes = [CustomJWTAuthentication]
+
     def post(self, request, course_id):
-        session_id = request.session.get('user_id')
-        if session_id is None:
-            return Response({'message': 'You are not logged in'}, status=status.HTTP_403_FORBIDDEN)
-        user = get_object_or_404(Users, user_id=session_id)
+        user = request.user
         course = Courses.objects.filter(course_id=course_id).first()
         if user.role == 'student':
             student = Students.objects.filter(user=user).first()
@@ -302,11 +317,11 @@ class EnrollmentForStudentView(APIView):
 
 
 class EnrollmentForLecturerView(APIView):
+    permission_classes = (IsAuthenticated,)
+    authentication_classes = [CustomJWTAuthentication]
+
     def post(self, request, course_id, student_id):
-        session_id = request.session.get('user_id')
-        if session_id is None:
-            return Response({'message': 'You are not logged in'}, status=status.HTTP_403_FORBIDDEN)
-        user = get_object_or_404(Users, user_id=session_id)
+        user = request.user
 
         if user.role == 'tutor':
             lecturer = Lecturer.objects.filter(user=user).first()
@@ -345,3 +360,31 @@ class EnrollmentForLecturerView(APIView):
                 "message": f"{student_name} enrollment to {course.course_name} has been deleted"}
             return Response(response_data, status=status.HTTP_204_NO_CONTENT)
         return Response({'message': 'Contact the tutor of this course to delete your enrollment'}, status=status.HTTP_403_FORBIDDEN)
+
+
+class AvailableCoursesView(APIView):
+    permission_classes = (IsAuthenticated,)
+    authentication_classes = [CustomJWTAuthentication]
+
+    def get(self, request):
+        user = request.user
+        if user.role == 'student':
+            student = Students.objects.filter(user=user).first()
+            enrollments = Enrollments.objects.filter(student=student)
+            course_list = []
+            for enrollment in enrollments:
+                courses = Courses.objects.filter(
+                    course_id=enrollment.course.course_id).first()
+                serializer = CoursesSerializer(courses, many=False)
+                course_list.append(serializer.data)
+            return Response(course_list, status=status.HTTP_200_OK)
+        elif user.role == 'tutor':
+            lecturer = Lecturer.objects.filter(user=user).first()
+            courses = Courses.objects.filter(lecturer=lecturer)
+            course_list = []
+            for course in courses:
+                serializer = CoursesSerializer(course, many=False)
+                course_list.append(serializer.data)
+            return Response(course_list, status=status.HTTP_200_OK)
+        else:
+            return Response({'message': 'You are not authorized to view this page'}, status=status.HTTP_403_FORBIDDEN)

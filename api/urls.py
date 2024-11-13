@@ -31,6 +31,8 @@ urlpatterns = [
     path('courses', views.CoursesListView.as_view(), name='api_courses'),
     path('course/<int:user_id>', views.CoursesListByLecturerView.as_view(),
          name='api_course_by lecturer'),
+    path('available_courses', views.AvailableCoursesView.as_view(),
+         name='api_available_courses'),
 
     # Lectures
     path("course/<int:course_id>/lectures",
