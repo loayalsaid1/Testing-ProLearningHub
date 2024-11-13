@@ -225,11 +225,11 @@ const handleAddExtra = () => setExtras([...extras, { name: '', link: '' }]);
           name='notesFile'
           type="url"
           placeholder="Add a link"
-          value={notesLink}
+          defaultValue={notesLink}
           onChange={(e) => setNotesLink(e.target.value)}
         />
       ) : (
-        <input id='notesFile' name='notesFile' value="" type="file" onChange={(e) => setNotesFile(e.target.files[0])} />
+        <input id='notesFile' name='notesFile' type="file" onChange={(e) => setNotesFile(e.target.files[0])} />
       )}
       <hr />
 
@@ -258,11 +258,11 @@ const handleAddExtra = () => setExtras([...extras, { name: '', link: '' }]);
           name='slidesLink'
           type="url"
           placeholder="Add a link"
-          value={slidesLink}
+          defaultValue={slidesLink}
           onChange={(e) => setSlidesLink(e.target.value)}
         />
       ) : (
-        <input id='slidesFile' name='slidesFile' value="" type="file" onChange={(e) => setSlidesFile(e.target.files[0])} />
+        <input id='slidesFile' name='slidesFile'  type="file" onChange={(e) => setSlidesFile(e.target.files[0])} />
       )}
       <hr />
 
