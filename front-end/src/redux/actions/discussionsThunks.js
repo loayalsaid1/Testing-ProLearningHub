@@ -324,7 +324,7 @@ export const toggleReplyVote =
 // and proper way to do tihs. especially that I see abit or repetition..
 // But I'm very late now!
 // Check that part
-const toggleQuestionVote = (questionId) => async (dispatch, getState) => {
+export const toggleQuestionVote = (questionId) => async (dispatch, getState) => {
   const state = getState();
   const question = state.discussions.getIn(['replies', questionId, 'question']);
   const isUpvoted = question.get('upvoted');
@@ -383,4 +383,3 @@ const toggleQuestionVote = (questionId) => async (dispatch, getState) => {
     );
   }
 }
-
