@@ -15,6 +15,7 @@ from pathlib import Path
 import os
 from . import passkeys
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -31,7 +32,8 @@ GOOGLE_APPS_KEY = os.getenv('GOOGLE_APPS_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'georgekwm1.pythonanywhere.com']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1',
+                 'georgekwm1.pythonanywhere.com', "http://localhost:3001"]
 
 
 # Application definition
@@ -63,6 +65,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
 ]
 
 ROOT_URLCONF = 'schoolhub.urls'
@@ -198,6 +201,8 @@ APPEND_SLASH = False
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3001",
+    "http://localhost:3000"
 ]
-
+CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = True
+CSRF_TRUSTED_ORIGINS = ['http://localhost']

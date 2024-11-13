@@ -15,8 +15,9 @@ Just like in register
 - userId
 - firstName
 - LastName
-- userName
-- pictureURL // picturethumbnail
+<!-- - userName -->
+- pictureURL
+- picturethumbnail
 - [May be his role.. as bolean {is studnet or not} or string or somethng]
 ....
 
