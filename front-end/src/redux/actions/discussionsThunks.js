@@ -318,3 +318,68 @@ export const toggleReplyVote =
       );
     }
   };
+
+
+// This part I'm abit concernded about, I dont' know if this is the best
+// and proper way to do tihs. especially that I see abit or repetition..
+// But I'm very late now!
+// Check that part
+export const toggleQuestionVote = (questionId) => async (dispatch, getState) => {
+  const state = getState();
+  const question = state.discussions.getIn(['replies', questionId, 'question']);
+  const isUpvoted = question.get('upvoted');
+
+  const action = isUpvoted ? 'downvote' : 'upvote';
+
+  try {
+    await toast.promise(
+      fetch(`${DOMAIN}/questions/${questionId}/vote`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ action }),
+      }).then((response) => {
+        if (!response.ok) {
+          const data = response.json();
+          throw new Error(data.message);
+        }
+        return response.json();
+      }),
+      {
+        loading: isUpvoted ? 'Downvoting' : 'Upvoting',
+        success: isUpvoted ? 'Downvoted' : 'Upvoted',
+        error: 'Error toggling vote',
+      }
+    );
+
+    dispatch(
+      discussionsActions.toggleQuestionUpvoteSuccess(questionId, !isUpvoted)
+    );
+
+    const lectureId = question.get('lectureId');
+    if (lectureId) {
+      dispatch(
+        discussionsActions.toggleLectureQuestionUpvoteSuccess(
+          questionId,
+          lectureId,
+          !isUpvoted
+        )
+      );
+    } else {
+      dispatch(
+        discussionsActions.toggleGeneralQuestionUpvoteSuccess(
+          questionId,
+          !isUpvoted
+        )
+      );
+    }
+  } catch (error) {
+    console.error(error);
+    dispatch(
+      discussionsActions.toggleQuestionUpvoteFailure(
+        `Error toggling the vote: ${error.message}`
+      )
+    );
+  }
+}
