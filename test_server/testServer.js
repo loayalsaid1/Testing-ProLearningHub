@@ -4,6 +4,7 @@ const app = express();
 const cors = require('cors');
 const port = 3000;
 
+
 app.use(express.json());
 app.use(cors({origin: '*'}));
 app.use((req, res, next) => {
@@ -11,6 +12,45 @@ app.use((req, res, next) => {
   res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
   next();
 });
+const ytdl = require('ytdl-core');
+const { getTranscript } = require('youtube-transcript');
+
+app.get('/audio-stream', async (req, res) => {
+  const videoUrl = req.query.url;
+
+  if (!ytdl.validateURL(videoUrl)) {
+      return res.status(400).send({ error: 'Invalid YouTube URL' });
+  }
+
+  try {
+      const info = await ytdl.getInfo(videoUrl);
+      const audioFormat = ytdl.chooseFormat(info.formats, { quality: 'highestaudio' });
+
+      res.setHeader('Content-Disposition', 'inline; filename="audio.mp3"');
+      res.setHeader('Content-Type', 'audio/mpeg');
+
+
+      ytdl(videoUrl, { format: audioFormat }).pipe(res);
+  } catch (error) {
+      console.error('Failed to stream audio:', error);
+      res.status(500).send({ error: 'Failed to stream audio' });
+  }
+});
+
+app.post('/subtitles', async (req, res) => {
+    const videoUrl = req.body.url;
+    const videoId = ytdl.getURLVideoID(videoUrl);
+
+    try {
+        const transcript = await getTranscript(videoId);
+        console.log(transcript);
+        res.send({ subtitles: transcript });
+    } catch (error) {
+      console.error(error);
+        res.status(500).send({ error: 'Failed to retrieve subtitles' });
+    }
+});
+
 app.post('/auth/login', (req, res) => {
 	console.log(req.body);
   const { email, password } = req.body;
