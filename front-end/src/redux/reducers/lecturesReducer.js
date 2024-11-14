@@ -72,6 +72,29 @@ export default function lecturesReducer(state = initialState, action = {}) {
       });
     }
 
+    case actions.CREATE_LECTURE_REQUEST: {
+      return state.set('isLoading', true);
+    }
+
+    case actions.CREATE_LECTURE_FAILURE: {
+      return state.withMutations((state) => {
+        return state
+          .set('isLoading', false)
+          .set('lectureError', action.payload.errorMessage);
+      });
+    }
+
+    case actions.CREATE_LECTURE_SUCCESS: {
+      return state.withMutations((state) => {
+        return state
+          .set('isLoading', false)
+          .set('lectureError', null)
+          .setIn(
+            ['lectures', action.payload.newLecture.id],
+            fromJS(action.payload.newLecture)
+          );
+      });
+    }
     default: {
       return state;
     }
