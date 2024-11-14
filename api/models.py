@@ -180,6 +180,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         data = {'user_id': self.user.user_id, 'first_name': self.user.first_name,
                 'last_name': self.user.last_name, 'email': self.user.email,
                 'role': self.user.role}
+        print(data)
         return {
             'refresh': str(refresh),
             'access': str(access_token),
