@@ -54,7 +54,7 @@ function App() {
           <Route path='/login' element={<Login />} />
           <Route path='/Register' element={<Register />} />
           <Route path="/" element={<ProtectedLayout />}>
-            <Route index element={<FakeHome />} />
+            <Route index element={<Lectures />} />
             <Route path="/lectures" element={<Lectures />} />
             <Route path="/lectures/:lectureId" element={<Lecture />} />
             <Route path="/lectures/new" element={<CreateNewLecture />} />
