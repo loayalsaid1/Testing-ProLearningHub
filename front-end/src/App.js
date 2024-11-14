@@ -31,6 +31,7 @@ function ProtectedLayout() {
 
 function App() {
   const isLoading = useSelector((state) => state.ui.get('isLoading'));
+  const isLoggedIn = useSelector((state) => state.ui.get('isLoggedIn'));
   const dispatch = useDispatch();
 
   const handleLogout = () => {
@@ -42,14 +43,19 @@ function App() {
     <div className="APP">
       {isLoading && <Spinner />}
       <header className="App-header">
-        <button type="button" onClick={handleLogout}>
-          Logout
-        </button>
-        <button><Link to="/">Home</Link></button>
-        <button><Link to="/register">Register</Link></button>
-        <button><Link to="/lectures">Lectures</Link></button>
-        <button><Link to="/announcements">Announcements</Link></button>
-        <button><Link to="/discussion">Discussion</Link></button>
+        
+        {isLoggedIn && (
+          <>
+            <button type="button" onClick={handleLogout}>
+              Logout
+            </button>
+            <button><Link to="/">Home</Link></button>
+            <button><Link to="/register">Register</Link></button>
+            <button><Link to="/lectures">Lectures</Link></button>
+            <button><Link to="/announcements">Announcements</Link></button>
+            <button><Link to="/discussion">Discussion</Link></button>
+          </>
+        )}
         <Routes>
           <Route path='/login' element={<Login />} />
           <Route path='/Register' element={<Register />} />
