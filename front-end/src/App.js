@@ -38,14 +38,11 @@ function App() {
     googleLogout();
   };
 
-  const onSubmit = (lectureData) => console.log(lectureData); 
-
   return (
     <div className="APP">
       {isLoading && <Spinner />}
       <header className="App-header">
-        <CreateNewLecture sections={[11, 22, 33]} onSubmit={onSubmit}/>
-        {/* <button type="button" onClick={handleLogout}>
+        <button type="button" onClick={handleLogout}>
           Logout
         </button>
         <button><Link to="/">Home</Link></button>
@@ -60,12 +57,13 @@ function App() {
             <Route index element={<FakeHome />} />
             <Route path="/lectures" element={<Lectures />} />
             <Route path="/lectures/:lectureId" element={<Lecture />} />
+            <Route path="/lectures/new" element={<CreateNewLecture />} />
             <Route path="/announcements" element={<Announcements />} />
             <Route path="/discussion" element={<GeneralDiscussion />} />
             <Route path="questions/:questionId" element={<Replies />} />
           </Route>
           <Route path="*" element={<h1>Oops, not found!</h1>} />
-        </Routes> */}
+        </Routes>
       <Toaster reverseOrder={true} />
       </header>
     </div>
