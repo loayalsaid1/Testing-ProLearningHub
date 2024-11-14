@@ -19,7 +19,7 @@ function Sidebar() {
   };
 
   return (
-    <nav className="navbar navbar-dark bgd-style fixed-top">
+    <nav className="navbar navbar-dark bgd-style fixed-top position-relative">
       <div className="container-fluid">
         {/* Hamburger Button */}
         <button
@@ -61,11 +61,6 @@ function Sidebar() {
                 </Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link text-white" to="/register">
-                  <i className="fa fa-user-plus"></i> Register
-                </Link>
-              </li>
-              <li className="nav-item">
                 <Link className="nav-link text-white" to="/lectures">
                   <i className="fa fa-book"></i> Lectures
                 </Link>
@@ -78,6 +73,11 @@ function Sidebar() {
               <li className="nav-item">
                 <Link className="nav-link text-white" to="/discussion">
                   <i className="fa fa-comments"></i> Discussion
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link className="nav-link text-white" to="/register">
+                  <i className="fa fa-user-plus"></i> Register
                 </Link>
               </li>
               <li className="nav-item">
