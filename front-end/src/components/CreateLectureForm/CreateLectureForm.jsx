@@ -2,7 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import toast from 'react-hot-toast';
 import { uploadFile } from '../../utils/utilFunctions';
-const CreateNewLecture = ({ onSubmit }) => {
+import { createLecture } from '../../redux/actions/lecturesThunks';
+import {useNavigate} from 'react-router-dom';
+
+
+const CreateNewLecture = () => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [tags, setTags] = useState('');
@@ -19,6 +23,7 @@ const CreateNewLecture = ({ onSubmit }) => {
   const [extras, setExtras] = useState([{ name: '', link: '' }]);
   const [slidesOption, setSlidesOption] = useState('link');
 
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   useEffect(() => {
     setSections([
@@ -134,7 +139,7 @@ const handleAddExtra = () => setExtras([...extras, { name: '', link: '' }]);
       extras: handleMissingExtrasNames(),
     };
 
-    onSubmit(lectureData);
+    dispatch(createLecture(lectureData, navigate));
   };
 
   return (

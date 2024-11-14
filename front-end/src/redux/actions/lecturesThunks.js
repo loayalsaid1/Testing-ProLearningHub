@@ -1,3 +1,4 @@
+import toast from 'react-hot-toast';
 import * as actionCreators from './lecturesActionCreators';
 
 import { DOMAIN } from '../../utils/constants';
@@ -37,5 +38,35 @@ export const getCourseLectures = (courseId) => async (dispatch) => {
   } catch (error) {
     console.error(error);
     dispatch(actionCreators.sectionsFailure(error.message));
+  }
+};
+
+export const createLecture = (lectureData, navigate) => async (dispatch) => {
+  dispatch(actionCreators.createLectureRequest());
+  console.log(lectureData);
+  try {
+    const data = await toast.promise(
+      fetch(`${DOMAIN}/courses/testId/lectures`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(lectureData),
+      }).then((response) => {
+        if (!response.ok) {
+          throw new Error(response.statusText);
+        }
+        return response.json();
+      }),
+      {
+        loading: 'Creating Lecture',
+        success: 'Lecture Created',
+        error: 'Error Creating Lecture',
+      }
+    );
+    console.log(data);
+    dispatch(actionCreators.createLectureSuccess(data));
+    navigate('/lectures');
+  } catch (error) {
+    console.error(error.message);
+    dispatch(actionCreators.createLectureFailure(error.message));    
   }
 };

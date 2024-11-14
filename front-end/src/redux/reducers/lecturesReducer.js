@@ -95,6 +95,7 @@ export default function lecturesReducer(state = initialState, action = {}) {
           );
       });
     }
+  
     default: {
       return state;
     }
