@@ -33,7 +33,7 @@ function Sidebar() {
         </button>
 
         {/* Title moved to the right */}
-        <a className="navbar-brand ms-auto" href="#">Pro Learning Hub</a>
+        <Link className="navbar-brand ms-auto" to="/">Pro Learning Hub</Link>
 
         {/* Offcanvas Sidebar */}
         <div
