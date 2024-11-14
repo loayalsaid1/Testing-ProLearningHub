@@ -8,10 +8,13 @@ import Loading from '../utilityComponents/Loading';
 import Section from './Section';
 import { getCourseLectures } from '../../redux/actions/lecturesThunks';
 import SearchField from '../sharedComponents/SearchField';
+import { Link } from 'react-router-dom'
+import { CirclePlus } from 'lucide-react';
 
 export default function Lectures() {
   const isLoading = useSelector(selectLecturesIsLoading);
   const sections = useSelector(selectcourseSectionsJS);
+  const userRole = useSelector((state) => state.ui.getIn(['user', 'role']));
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -38,6 +41,12 @@ export default function Lectures() {
           })}
         </div>
       )}
+      {
+        userRole !== 'student'
+        &&<button type='button'>
+            <Link to='/lectures/new'>Add a lecture</Link>
+          </button>
+      }
     </>
   );
 }
