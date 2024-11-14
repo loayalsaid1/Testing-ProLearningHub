@@ -61,11 +61,13 @@ export default function Lectures() {
                   <div className="card mb-4">
                     <div className="card-body">
                       <div className="d-md-flex mb-4">
-                        <div className="ms-md-4">
+                        <div className="ms-md-3">
                           <h2 className="fs-5 mb-3">{section.title}</h2>
                           <p className="fs-6 fw-semibold mb-0 text-uppercase d-flex">
                             <span className="btn btn-primary me-1">{section.lectures.length} Lessons</span>
-                            <span className="ms-3 btn btn-success me-1">{section.lectures.length * 2 + ' Hours ' + Math.floor(Math.random() * 60) + ' Minutes'}</span>
+                            <span className="ms-3 btn btn-success me-1">
+                              {section.lectures.length * 2 + ' Hours ' + Math.floor(Math.random() * 60) + ' Minutes'}
+                            </span>
                           </p>
                         </div>
                       </div>

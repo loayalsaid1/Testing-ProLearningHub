@@ -19,7 +19,7 @@ function Sidebar() {
   };
 
   return (
-    <nav className="navbar navbar-dark bgd-style fixed-top">
+    <nav className="navbar navbar-dark bgd-style fixed-top position-relative">
       <div className="container-fluid">
         {/* Hamburger Button */}
         <button
