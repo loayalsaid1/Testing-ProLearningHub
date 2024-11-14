@@ -16,7 +16,6 @@ export default function DiscussionEntry({ content, isLecture }) {
   let upvoted;
   let upvotes;
   const lectureId = content.get('lectureId');
-  console.log(lectureId);
   upvoted = useSelector(
     isLecture
       ? makeLectureQuestionIsUpvotedSelector(lectureId, content.get('id'))
@@ -28,7 +27,6 @@ export default function DiscussionEntry({ content, isLecture }) {
       : makeGeneralQuestionUpvotesSelector(content.get('id'))
   );
 
-  console.log(upvoted, upvotes);
   const date = formatDate(content.get('updatedAt'));
 
   const dispatch = useDispatch();
