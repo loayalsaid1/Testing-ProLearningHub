@@ -35,7 +35,7 @@ export default function Lectures() {
           <div className="row mb-8 justify-content-center">
               <h1 className="text-center mb-4 fs-1 fw-bold mt-5">Lectures</h1>
               <p className="text-center mb-5 fs-4">
-                Browse through the courses organized by time, chapters, or topic.
+                Browse through the course lectures  organized by time, chapters, or topic.
                 Find everything you need to enhance your learning experience.
               </p>
             
@@ -62,14 +62,13 @@ export default function Lectures() {
                         <div className="ms-md-4">
                           <h2 className="fs-5 mb-3">{section.title}</h2>
                           <p className="fs-6 fw-semibold mb-0 text-uppercase d-flex">
-                            <span className="text-dark btn btn-warning">Courses - 1</span>
-                            <span className="ms-3 btn btn-primary">3 Lessons</span>
-                            <span className="ms-3 btn btn-success">1 Hour 15 Min</span>
+                            <span className="btn btn-primary me-1">{section.lectures.length} Lessons</span>
+                            <span className="ms-3 btn btn-success me-1">{section.lectures.length * 2 + ' Hours ' + Math.floor(Math.random() * 60) + ' Minutes'}</span>
                           </p>
                         </div>
                       </div>
-                      <p className="mb-4 fs-5 p-3">
-                        {section.description || 'No description available for this course.'}
+                      <p className=" ms-3 mb-3 fs-6 mt-3">
+                        {section.description || 'No description available for this chapter.'}
                       </p>
                       <button
                         className="btn-link p-3"
@@ -111,7 +110,7 @@ export default function Lectures() {
             <div className="modal-body">
               <h2 className='p-2'>{selectedSection?.title}</h2>
               <p className="lead mb-2 p-2">
-                {selectedSection?.description || 'No description available for this course.'}
+                {selectedSection?.description || 'No description available for this chapter.'}
               </p>
 
               <div className="list-group">
