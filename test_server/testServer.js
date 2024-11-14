@@ -4,6 +4,7 @@ const app = express();
 const cors = require('cors');
 const port = 3000;
 
+
 app.use(express.json());
 app.use(cors({origin: '*'}));
 app.use((req, res, next) => {
@@ -11,6 +12,45 @@ app.use((req, res, next) => {
   res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
   next();
 });
+const ytdl = require('ytdl-core');
+const { getTranscript } = require('youtube-transcript');
+
+app.get('/audio-stream', async (req, res) => {
+  const videoUrl = req.query.url;
+
+  if (!ytdl.validateURL(videoUrl)) {
+      return res.status(400).send({ error: 'Invalid YouTube URL' });
+  }
+
+  try {
+      const info = await ytdl.getInfo(videoUrl);
+      const audioFormat = ytdl.chooseFormat(info.formats, { quality: 'highestaudio' });
+
+      res.setHeader('Content-Disposition', 'inline; filename="audio.mp3"');
+      res.setHeader('Content-Type', 'audio/mpeg');
+
+
+      ytdl(videoUrl, { format: audioFormat }).pipe(res);
+  } catch (error) {
+      console.error('Failed to stream audio:', error);
+      res.status(500).send({ error: 'Failed to stream audio' });
+  }
+});
+
+app.post('/subtitles', async (req, res) => {
+    const videoUrl = req.body.url;
+    const videoId = ytdl.getURLVideoID(videoUrl);
+
+    try {
+        const transcript = await getTranscript(videoId);
+        console.log(transcript);
+        res.send({ subtitles: transcript });
+    } catch (error) {
+      console.error(error);
+        res.status(500).send({ error: 'Failed to retrieve subtitles' });
+    }
+});
+
 app.post('/auth/login', (req, res) => {
 	console.log(req.body);
   const { email, password } = req.body;
@@ -209,8 +249,13 @@ app.get('/lectures/:id/discussion', (req, res) => {
   const allowedLectures = mockSections.flatMap(section => section.lectures.map(lecture => lecture.id));
 
   if (allowedLectures.includes(id)) {
-    res.json(mockDiscussion);
-  } else {
+      const discussionWithLectureId = mockDiscussion.map(discussion => ({
+        ...discussion,
+        lectureId: id,
+      }));
+      res.json(discussionWithLectureId);
+
+    } else {
     res.status(404).send({ message: 'Lecture not found' });
   }
 });
@@ -284,84 +329,13 @@ app.post('/courses/:id/general_discussion', (req, res) => {
 app.get('/questions/:id/replies', (req, res) => {
   const questionId = req.params.id;
 
-  // Mock question data
-  const question = {
-    id: 'question-1',
-    title: 'How does react hooks work?',
-    user: {
-      name: 'John Doe',
-      pictureThumbnail: 'https://picsum.photos/100',
-    },
-    updatedAt: '2022-01-01T00:00:00.000Z',
-    upvotes: 100,
-    upvoted: false,
-    repliesCount: 20,
-  };
+  const question = mockDiscussion.find(q => q.id === questionId);
 
-  // Mock replies data
-  const repliesList = [
-    {
-      id: 'reply-1',
-      user: {
-        name: 'Jane Doe',
-        pictureThumbnail: 'https://picsum.photos/100',
-      },
-      updatedAt: '2024-11-02T07:00:00.000Z',
-      upvotes: 50,
-      upvoted: true,
-      body: 'How does react hooks work?',
-    },
-    {
-      id: 'reply-2',
-      user: {
-        name: 'John Doe',
-        pictureThumbnail: 'https://picsum.photos/100',
-      },
-      updatedAt: '2022-01-03T00:00:00.000Z',
-      upvotes: 30,
-      upvoted: false,
-      body: 'How does react context work?',
-    },
-    {
-      id: 'reply-3',
-      user: {
-        name: 'Jane Doe',
-        pictureThumbnail: 'https://picsum.photos/100',
-      },
-      updatedAt: '2024-11-04T07:00:00.000Z',
-      upvotes: 20,
-      upvoted: false,
-      body: 'How does react hooks work?',
-    },
-    {
-      id: 'reply-4',
-      user: {
-        name: 'John Doe',
-        pictureThumbnail: 'https://picsum.photos/100',
-      },
-      updatedAt: '2022-01-05T00:00:00.000Z',
-      upvotes: 10,
-      upvoted: true,
-      body: 'How does react useState work?',
-    },
-    {
-      id: 'reply-5',
-      user: {
-        name: 'Jane Doe',
-        pictureThumbnail: 'https://picsum.photos/100',
-      },
-      updatedAt: '2024-11-06T07:00:00.000Z',
-      upvotes: 5,
-      upvoted: false,
-      body: 'How does react useEffect work?',
-    },
-  ];
-
-  if (questionId === 'question-1') {
-    res.json({ question, repliesList });
-  } else {
-    res.status(404).send({ message: 'Question not found' });
+  if (!question) {
+    return res.status(404).send({ message: 'Question not found' });
   }
+  
+  res.json({ question: {...question, lectureId: 'cs50-lecture-0'}, repliesList });
 });
 
 app.post('/questions/:id/replies', (req, res) => {
@@ -388,8 +362,32 @@ app.post('/questions/:id/replies', (req, res) => {
   // Here you would typically add the newReply to your database or data store.
   // For this example, we'll just return it in the response.
   mockReplies.unshift(newReply);
+  console.log(mockReplies)
 
   res.status(201).json(newReply);
+});
+
+app.post('/questions/:id/vote', (req, res) => {
+  const questionId = req.params.id;
+  const { action } = req.body;
+
+  if (!action) {
+    return res.status(400).send({ message: 'Missing required fields' });
+  }
+
+  const index = mockDiscussion.findIndex((question) => question.id === questionId);
+
+  if (index === -1) {
+    return res.status(404).send({ message: 'Question not found' });
+  }
+
+  if (action === 'upvote') {
+    mockDiscussion[index].upvotes += 1;
+  } else if (action === 'downvote') {
+    mockDiscussion[index].upvotes -= 1;
+  }
+
+  res.status(200).json(mockDiscussion[index]);
 });
 
 app.get('/courses/:id/announcements', (req, res) => {
@@ -404,6 +402,58 @@ app.get('/courses/:id/announcements', (req, res) => {
     res.status(404).send({ message: 'Course not found' });
   }
 });
+
+app.post('/courses/:id/announcements', (req, res) => {
+  const courseId = req.params.id;
+  const { userId, title, details } = req.body;
+
+  if (!userId || !title || !details) {
+    return res.status(400).send({ message: 'Missing required fields' });
+  }
+
+  const newAnnouncement = {
+    id: `announcement-${Date.now()}`,
+    courseId,
+    user: {
+      name: 'John Doe',
+      pictureThumbnail: `https://picsum.photos/200/${Math.floor(Math.random() * 100) + 300}`,
+    },
+    title,
+    body: title,
+    commentsCount: 0,
+    updatedAt: new Date().toISOString(),
+  };
+
+  // Here you would typically add the newAnnouncement to your database or data store.
+  // For this example, we'll just return it in the response.
+  mockAnnouncements.unshift(newAnnouncement);
+
+  res.status(201).json(newAnnouncement);
+});
+
+app.post('/replies/:id/vote', (req, res) => {
+  const replyId = req.params.id;
+  const { action } = req.body;
+
+  if (!action) {
+    return res.status(400).send({ message: 'Missing required fields' });
+  }
+
+  const index = mockReplies.findIndex((reply) => reply.id === replyId);
+
+  if (index === -1) {
+    return res.status(404).send({ message: 'Reply not found' });
+  }
+
+  if (action === 'upvote') {
+    mockReplies[index].upvotes += 1;
+  } else if (action === 'downvote') {
+    mockReplies[index].upvotes -= 1;
+  }
+  console.log(mockReplies)
+  res.status(200).json(mockReplies[index]);
+});
+
 app.get('/announcements/:id/comments', (req, res) => {
   const announcementId = req.params.id;
   const ids = mockAnnouncements.map((announcement) => announcement.id);
@@ -448,7 +498,63 @@ app.listen(port, () => {
   console.log(`Server started on port ${port}`);
 });
 
-
+const repliesList = [
+  {
+    id: 'reply-1',
+    user: {
+      name: 'Jane Doe',
+      pictureThumbnail: 'https://picsum.photos/100',
+    },
+    updatedAt: '2024-11-02T07:00:00.000Z',
+    upvotes: 50,
+    upvoted: true,
+    body: 'How does react hooks work?',
+  },
+  {
+    id: 'reply-2',
+    user: {
+      name: 'John Doe',
+      pictureThumbnail: 'https://picsum.photos/100',
+    },
+    updatedAt: '2022-01-03T00:00:00.000Z',
+    upvotes: 30,
+    upvoted: false,
+    body: 'How does react context work?',
+  },
+  {
+    id: 'reply-3',
+    user: {
+      name: 'Jane Doe',
+      pictureThumbnail: 'https://picsum.photos/100',
+    },
+    updatedAt: '2024-11-04T07:00:00.000Z',
+    upvotes: 20,
+    upvoted: false,
+    body: 'How does react hooks work?',
+  },
+  {
+    id: 'reply-4',
+    user: {
+      name: 'John Doe',
+      pictureThumbnail: 'https://picsum.photos/100',
+    },
+    updatedAt: '2022-01-05T00:00:00.000Z',
+    upvotes: 10,
+    upvoted: true,
+    body: 'How does react useState work?',
+  },
+  {
+    id: 'reply-5',
+    user: {
+      name: 'Jane Doe',
+      pictureThumbnail: 'https://picsum.photos/100',
+    },
+    updatedAt: '2024-11-06T07:00:00.000Z',
+    upvotes: 5,
+    upvoted: false,
+    body: 'How does react useEffect work?',
+  },
+];
 const mockSections = [
   {
     title: 'Low Level Programming',

@@ -72,3 +72,39 @@ export const addComment =
       dispatch(creators.addCommentFailure(error.message));
     }
   };
+
+export const addNewAnnouncement =
+  (title, details) => async (dispatch, getState) => {
+    const courseId = getState().ui.getIn(['course', 'id']) || 'testId';
+    const userId = getState().ui.getIn(['user', 'id']) || 'testId';
+
+    try {
+      const data = await toast.promise(
+        fetch(`${DOMAIN}/courses/${courseId}/announcements`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId,
+            title,
+            details,
+          }),
+        }).then((response) => {
+          if (!response.ok) {
+            throw new Error('Failed to add announcement');
+          }
+          return response.json();
+        }),
+        {
+          loading: 'Adding announcement...',
+          success: 'Announcement added successfully',
+          error: 'Failed to add the announcement',
+        }
+      );
+      dispatch(creators.addAnnouncementSuccess(data));
+    } catch (error) {
+      console.error(error.message);
+      dispatch(creators.addAnnouncementFailure(error.message));
+    }
+  };

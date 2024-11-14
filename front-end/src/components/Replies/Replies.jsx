@@ -74,7 +74,7 @@ export default function Replies() {
             {replies && replies.get('question') ? (
               <>
                 <QuestionHeader question={replies.get('question')} />
-                <RepliesList replies={replies.get('repliesList')} />
+                <RepliesList replies={replies.get('repliesList')}  questionId={questionId} />
               </>
             ) : (
               <p className='mt-5 fs-5'>No question or replies available.</p>

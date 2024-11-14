@@ -1,19 +1,26 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import ImageKit from "imagekit-javascript";
+import ImageKit from 'imagekit-javascript';
 import TextEditor from '../TextEditor/TextEditor';
+import {
+  clearError,
+  setError,
+  toggleLoading,
+} from '../../redux/actions/uiActionCreators';
 import { clearError, setError, toggleLoading } from '../../redux/actions/uiActionCreators';
 import './css/discussionentry.css';
 
 const imagekit = new ImageKit({
-  publicKey: "public_tTc9vCi5O7L8WVAQquK6vQWNx08=",
-  urlEndpoint: "https://ik.imagekit.io/loayalsaid1/proLearningHub",
+  publicKey: 'public_tTc9vCi5O7L8WVAQquK6vQWNx08=',
+  urlEndpoint: 'https://ik.imagekit.io/loayalsaid1/proLearningHub',
 });
 
-export default function DiscussionEntryEditor({ onPublish }) {
+export default function DiscussionEntryEditor({
+  onPublish,
+  editorPlaceholder = 'Optionally.. Add elaboration to your question if you need to',
+}) {
   const [details, setDetails] = useState('');
   const [files, setFiles] = useState([]);
-  const editorPlaceholder = 'Optionally.. Add elaboration to your question if you need to';
   const dispatch = useDispatch();
 
   const replaceTempImageUrls = async () => {
@@ -21,7 +28,9 @@ export default function DiscussionEntryEditor({ onPublish }) {
 
     for (const { file, fileUrl } of files) {
       try {
-        const authParamsResponse = await fetch('http://localhost:3000/auth/imagekit');
+        const authParamsResponse = await fetch(
+          'http://localhost:3000/auth/imagekit'
+        );
         if (!authParamsResponse.ok) {
           throw new Error('Failed to fetch authentication parameters');
         }
@@ -33,12 +42,15 @@ export default function DiscussionEntryEditor({ onPublish }) {
         const uploadResponse = await imagekit.upload({
           file,
           fileName: `LectureDiscussionEntry_${Date.now()}`,
+
           ...authParams,
         });
 
         newDetails = newDetails.replace(fileUrl, uploadResponse.url);
       } catch (error) {
-        dispatch(setError('discussion', `Error uploading file: ${error.message}`));
+        dispatch(
+          setError('discussion', `Error uploading file: ${error.message}`)
+        );
       }
     }
 
@@ -58,35 +70,27 @@ export default function DiscussionEntryEditor({ onPublish }) {
     onPublish(title, newDetails);
   };
 
-  return (
-    <form className="discussion-entry-form" onSubmit={handleSubmit}>
-      <label className="form-label">
-        Title or summary:
-        <input
-          className="form-input"
-          type="text"
-          id="title"
-          name="title"
-          required
-          placeholder="Short title/summary or your entry..."
-        />
-      </label>
+	return (
+		<form className="discussion-entry-form" onSubmit={handleSubmit}>
+			<label className="form-label">
+				Title or summary:
+				<input className="form-input" type="text" id='title' name='title'  required placeholder='Short title/summary or your entry... '/>
+			</label>
+			<label htmlFor='text-editor' className="form-label">
+				Details (optional):
+        </label>
+      <TextEditor
+        id='text-editor'
+        className="form-text-editor"
 
-      <label className="form-label">
-        Details (optional):
-        <TextEditor
-          className="form-text-editor"
-          placeholder={editorPlaceholder}
-          value={details}
-          setValue={setDetails}
-          files={files}
-          setFiles={setFiles}
+        placeholder={editorPlaceholder}
+        value={details}
+        setValue={setDetails}
+        files={files}
+        setFiles={setFiles}
         />
-      </label>
 
-      <button className="submit-button" type="submit">
-        Publish
-      </button>
-    </form>
-  );
+      <button type="submit">Publish</button>
+		</form>
+	)
 }

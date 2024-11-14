@@ -1,7 +1,7 @@
 import React from 'react';
 import ReplyEntry from './ReplyEntry';
 
-export default function RepliesList({ replies }) {
+export default function RepliesList({ replies, questionId }) {
   return (
     <div className="card mb-4">
       <p className="p-3">
@@ -10,7 +10,7 @@ export default function RepliesList({ replies }) {
       <div className="list-group">
         {Array.isArray(replies) && replies.length > 0 ? (
           replies.map((reply) => (
-            <ReplyEntry content={reply} key={reply.get('id')} />
+            <ReplyEntry content={reply} key={reply.get('id')} questionId={questionId} />
           ))
         ) : (
           <p className="text-center p-3">No replies available.</p>

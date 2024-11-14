@@ -56,7 +56,7 @@ export default function LectureDiscussion({ lectureId = '' }) {
         <Loading />
       ) : (
         <div className="discussion-entries">
-          <DiscussionEntries entries={entries} chunkSize={10} />
+          <DiscussionEntries entries={entries} chunkSize={10} isLecture />
         </div>
       )}
     
