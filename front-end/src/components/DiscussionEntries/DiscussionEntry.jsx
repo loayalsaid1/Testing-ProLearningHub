@@ -59,7 +59,7 @@ export default function DiscussionEntry({ content, isLecture }) {
       </div>
       <div>
       <button onClick={toggleUpvote} className={`upvote-button ${upvoted ? 'upvoted' : ''}`}>
-      {content.get('upvotes')} 
+      {upvotes} 
 					{ !upvoted 
 						? <CircleArrowUp color="grey" strokeWidth={2}/>
 						: <CircleArrowUp color="black" strokeWidth={2.2}/>
