@@ -7,7 +7,6 @@ import {
   setError,
   toggleLoading,
 } from '../../redux/actions/uiActionCreators';
-import { clearError, setError, toggleLoading } from '../../redux/actions/uiActionCreators';
 import './css/discussionentry.css';
 
 const imagekit = new ImageKit({
