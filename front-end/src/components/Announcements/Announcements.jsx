@@ -47,18 +47,19 @@ export default function Announcements() {
 				)
 			}
       {userRole !== 'student' && (
-        <>
+        <div className="d-flex justify-content-end">
           {!showAnnouncementsEditor ? (
             <button
               type="button"
               onClick={() => setShowAnnouncementsEditor(true)}
+              className="btn btn-primary btn-circle btn-lg"
             >
-              <CirclePlus size={48} />
+              <CirclePlus size={48} className="text-white" />
             </button>
           ) : (
             <DiscussionEntryEditor onPublish={createNewAnnouncement} />
           )}
-        </>
+        </div>
       )}
 		</div>
 	);
