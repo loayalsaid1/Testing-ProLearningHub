@@ -147,10 +147,22 @@ export default function Lectures() {
         </div>
       </div>
       {
-        userRole !== 'student'
-        &&<button type='button'>
-            <Link to='/lectures/new'>Add a lecture</Link>
+        userRole && userRole !== 'student' && (
+          <button style={{
+            position: 'fixed',
+            bottom: '10px',
+            right: '10px',
+            backgroundColor: 'black',
+            color: 'white',
+            fontSize: '1.2rem',
+            borderRadius: '0.5rem',
+            padding: '0.5rem',
+          }} type="button">
+            <Link to="/lectures/new" className="text-white text-decoration-none">
+              Add a lecture
+            </Link>
           </button>
+        )
       }
     </>
   );
