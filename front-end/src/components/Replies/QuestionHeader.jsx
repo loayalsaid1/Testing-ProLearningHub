@@ -22,23 +22,24 @@ export default function QuestionHeader({ question, isLecture }) {
   };
 
   return (
-    <>
-      <div>
-        <img
-          src={question.getIn(['user', 'pictureThumbnail'])}
-          alt="Questioner"
-        />
-      </div>
-      <div>
-        <h3>{question.get('title')}</h3>
-        <p>
+    <div className="d-flex align-items-start p-3 border rounded mb-3">
+      <img
+        src={question.getIn(['user', 'pictureThumbnail'])}
+        alt="Questioner"
+        className="rounded-circle me-3"
+        width="50"
+        height="50"
+      />
+      <div className="flex-grow-1">
+        <h5 className="mb-1">{question.get('title')}</h5>
+        <p className="text-muted mb-1">
           {question.getIn(['user', 'name'])} <Dot />{' '}
           {formatDate(question.get('updatedAt'))}
         </p>
-        <div>{question.get('body')}</div>
+        <div dangerouslySetInnerHTML={{ __html: question.get('body') }}></div>
       </div>
-      <div>
-        <button type="button" onClick={toggleUpvote}>
+      <div className="text-end">
+        <button type="button" className="btn btn-light" onClick={toggleUpvote}>
           {upvotes}{' '}
           {!upvoted ? (
             <CircleArrowUp color="grey" strokeWidth={2} />
@@ -46,15 +47,11 @@ export default function QuestionHeader({ question, isLecture }) {
             <CircleArrowUp color="black" strokeWidth={2.2} />
           )}
         </button>
-        <button
-          type="button"
-          onClick={() =>
-            console.log(question.get('id') + 'options')
-          }
-        >
+        <button className="btn btn-light">
           <EllipsisVertical />
         </button>
       </div>
-    </>
+    </div>
+
   );
 }
