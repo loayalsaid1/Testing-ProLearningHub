@@ -7,6 +7,7 @@ import {
   setError,
   toggleLoading,
 } from '../../redux/actions/uiActionCreators';
+import './css/discussionentry.css';
 
 const imagekit = new ImageKit({
   publicKey: 'public_tTc9vCi5O7L8WVAQquK6vQWNx08=',
@@ -68,23 +69,19 @@ export default function DiscussionEntryEditor({
     onPublish(title, newDetails);
   };
 
-  return (
-    <form onSubmit={handleSubmit}>
-      <label>
-        Title or summary:
-        <input
-          type="text"
-          id="title"
-          name="title"
-          required
-          placeholder="Short title/summary or your entry... "
-        />
-      </label>
-      <label htmlFor='text-editor'>
-        Details (optional):
-      </label>
+	return (
+		<form className="discussion-entry-form" onSubmit={handleSubmit}>
+			<label className="form-label">
+				Title or summary:
+				<input className="form-input" type="text" id='title' name='title'  required placeholder='Short title/summary or your entry... '/>
+			</label>
+			<label htmlFor='text-editor' className="form-label">
+				Details (optional):
+        </label>
       <TextEditor
         id='text-editor'
+        className="form-text-editor"
+
         placeholder={editorPlaceholder}
         value={details}
         setValue={setDetails}
@@ -93,6 +90,6 @@ export default function DiscussionEntryEditor({
         />
 
       <button type="submit">Publish</button>
-    </form>
-  );
+		</form>
+	)
 }

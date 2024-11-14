@@ -24,7 +24,7 @@ export const makeLectureQuestionIsUpvotedSelector = (lectureId, questionId) =>
     [makeLectureDiscussionsSelector(lectureId)],
     (lectureQuestions) =>
       lectureQuestions
-        .find((question) => question.get('id') === questionId)
+        ?.find((question) => question.get('id') === questionId)
         .get('upvoted')
   );
 
@@ -33,7 +33,7 @@ export const makeLectureQuestionUpvotesSelector = (lectureId, questionId) =>
     [makeLectureDiscussionsSelector(lectureId)],
     (lectureQuestions) =>
       lectureQuestions
-        .find((question) => question.get('id') === questionId)
+        ?.find((question) => question.get('id') === questionId)
         .get('upvotes')
   );
 

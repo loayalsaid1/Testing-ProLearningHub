@@ -23,19 +23,28 @@ export default function ReplyEntry({ content, questionId }) {
   }
 
   return (
-    <div data-id={content.get('id')}>
-      <div>
-        <img src={content.getIn(['user', 'pictureThumbnail'])} alt="Replier" />
+    <div className="card mb-2 p-3 d-flex flex-row align-items-start">
+      <img 
+        src={content?.getIn(['user', 'pictureThumbnail']) || 'https://picsum.photos/50'} 
+        alt="Replier" 
+        className="rounded-circle me-3"
+        width="50"
+        height="50"
+      />
+      <div className="flex-grow-1">
+        <h6>{content?.getIn(['user', 'name']) || 'Anonymous'}</h6>
+        <p className="text-muted">{content ? formatDate(content.get('updatedAt')) : ''}</p>
+        <div dangerouslySetInnerHTML={{ __html: content?.get('body') || '' }} />
       </div>
-      <div>
+      {/* <div>
         <p>{content.getIn(['user', 'name'])}</p>
         <p>{date}</p>
 
         <div dangerouslySetInnerHTML={{ __html: content.get('body') }} />
-      </div>
+      </div> */}
       {/* side buttons */}
-      <div>
-        <button type="button" onClick={toggleVote}>
+      <div  className="d-flex align-items-center ms-3">
+      <button  className={`btn btn-outline-${upvoted ? 'dark' : 'secondary'}`} type="button" onClick={toggleVote}>
           {upvotes}
 
           {!upvoted ? (
@@ -45,13 +54,14 @@ export default function ReplyEntry({ content, questionId }) {
           )}
         </button>
         {/* Let the menue menu empty for now */}
-        <button
-          type="button"
+        <button type="button" className="btn btn-light mt-2"
           onClick={() => toast('options for ' + content.get('id'))}
-        >
+          >
           <EllipsisVertical />
         </button>
       </div>
     </div>
+
+
   );
 }
