@@ -21,6 +21,7 @@ import Login from './components/Login/Login';
 import Register from './components/Register/Register';
 import FakeHome from './components/FakeHome/FakeHome';
 import Sidebar from './components/Sidebar/sidebar';
+import CreateNewLecture from './components/CreateLectureForm/CreateLectureForm';
 
 
 function ProtectedLayout() {
@@ -35,6 +36,7 @@ function ProtectedLayout() {
 
 function App() {
   const isLoading = useSelector((state) => state.ui.get('isLoading'));
+  const isLoggedIn = useSelector((state) => state.ui.get('isLoggedIn'));
   const dispatch = useDispatch();
 
   const handleLogout = () => {
@@ -51,9 +53,10 @@ function App() {
           <Route path='/login' element={<Login />} />
           <Route path='/Register' element={<Register />} />
           <Route path="/" element={<ProtectedLayout />}>
-            <Route index element={<FakeHome />} />
+            <Route index element={<Lectures />} />
             <Route path="/lectures" element={<Lectures />} />
             <Route path="/lectures/:lectureId" element={<Lecture />} />
+            <Route path="/lectures/new" element={<CreateNewLecture />} />
             <Route path="/announcements" element={<Announcements />} />
             <Route path="/discussion" element={<GeneralDiscussion />} />
             <Route path="questions/:questionId" element={<Replies />} />

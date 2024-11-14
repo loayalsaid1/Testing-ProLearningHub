@@ -6,11 +6,13 @@ import {
 } from '../../redux/selectors/lecturesSelectors';
 import Loading from '../utilityComponents/Loading';
 import { getCourseLectures } from '../../redux/actions/lecturesThunks';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom'
+import { CirclePlus } from 'lucide-react';
 
 export default function Lectures() {
   const isLoading = useSelector(selectLecturesIsLoading);
   const sections = useSelector(selectcourseSectionsJS);
+  const userRole = useSelector((state) => state.ui.getIn(['user', 'role']));
   const dispatch = useDispatch();
 
   // State to handle the modal visibility and selected section data
@@ -144,6 +146,12 @@ export default function Lectures() {
           </div>
         </div>
       </div>
+      {
+        userRole !== 'student'
+        &&<button type='button'>
+            <Link to='/lectures/new'>Add a lecture</Link>
+          </button>
+      }
     </>
   );
 }
