@@ -36,15 +36,15 @@ export default function ReplyEntry({ content, questionId }) {
         <p className="text-muted">{content ? formatDate(content.get('updatedAt')) : ''}</p>
         <div dangerouslySetInnerHTML={{ __html: content?.get('body') || '' }} />
       </div>
-      <div>
+      {/* <div>
         <p>{content.getIn(['user', 'name'])}</p>
         <p>{date}</p>
 
         <div dangerouslySetInnerHTML={{ __html: content.get('body') }} />
-      </div>
+      </div> */}
       {/* side buttons */}
-      <div  className="d-flex flex-column align-items-center ms-3">
-        <button  className={`btn btn-outline-${upvoted ? 'dark' : 'secondary'}`} type="button" onClick={toggleVote}>
+      <div  className="d-flex align-items-center ms-3">
+      <button  className={`btn btn-outline-${upvoted ? 'dark' : 'secondary'}`} type="button" onClick={toggleVote}>
           {upvotes}
 
           {!upvoted ? (
@@ -54,14 +54,9 @@ export default function ReplyEntry({ content, questionId }) {
           )}
         </button>
         {/* Let the menue menu empty for now */}
-        <button
-          type="button"
+        <button type="button" className="btn btn-light mt-2"
           onClick={() => toast('options for ' + content.get('id'))}
-        >
-          {content?.get('upvotes') || 0}
-          <CircleArrowUp />
-        </button>
-        <button type="button" className="btn btn-light mt-2">
+          >
           <EllipsisVertical />
         </button>
       </div>
