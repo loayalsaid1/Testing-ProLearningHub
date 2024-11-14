@@ -8,7 +8,7 @@ export default function RepliesList({ replies, questionId }) {
         {replies ? replies.size : 0} repl{replies && replies.size !== 1 ? 'ies' : 'y'}
       </p>
       <div className="list-group">
-        {Array.isArray(replies) && replies.length > 0 ? (
+        {replies && replies.size > 0 ? (
           replies.map((reply) => (
             <ReplyEntry content={reply} key={reply.get('id')} questionId={questionId} />
           ))
