@@ -36,7 +36,7 @@ export default function QuestionHeader({ question, isLecture }) {
           {question.getIn(['user', 'name'])} <Dot />{' '}
           {formatDate(question.get('updatedAt'))}
         </p>
-        <p>{question.get('body')}</p>
+        <div dangerouslySetInnerHTML={{ __html: question.get('body') }}></div>
       </div>
       <div className="text-end">
         <button type="button" className="btn btn-light" onClick={toggleUpvote}>
