@@ -145,6 +145,7 @@ const handleAddExtra = () => setExtras([...extras, { name: '', link: '' }]);
         name='name'
         type="text"
         value={name}
+        placeholder='Lecture Name'
         onChange={(e) => setName(e.target.value)}
         required
       />
@@ -155,6 +156,7 @@ const handleAddExtra = () => setExtras([...extras, { name: '', link: '' }]);
         id='description'
         name='description'
         value={description}
+        placeholder="Brief description of the lecture."
         onChange={(e) => setDescription(e.target.value)}
         required
       />
@@ -164,6 +166,7 @@ const handleAddExtra = () => setExtras([...extras, { name: '', link: '' }]);
       <input
         type="text"
         value={tags}
+        placeholder="Lecture related keywords"
         onChange={(e) => setTags(e.target.value)}
       />
       <hr />
@@ -196,6 +199,7 @@ const handleAddExtra = () => setExtras([...extras, { name: '', link: '' }]);
         name='videoLink'
         type="url"
         value={youtubeLink}
+        placeholder="The youtube video/live link of the lecture"
         onChange={(e) => setYoutubeLink(e.target.value)}
       />
       <hr />
