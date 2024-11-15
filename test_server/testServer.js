@@ -253,6 +253,37 @@ app.get('/courses/:id/lectures', (req, res) => {
   }
 });
 
+app.post('/courses/:id/lectures', (req, res) => {
+  const courseId = req.params.id;
+  const { demos, description, extras, name, notesLink, section, slidesLink, tags, youtubeLink } = req.body;
+  if (courseId === "testId") {
+    const newLecture = {
+      id: `lecture-${Date.now()}`,
+      title: name,
+      videoLink: youtubeLink,
+      notes: notesLink,
+      audioLink: '', // Add actual audio link if available
+      slides: slidesLink,
+      subtitles: '', // Add actual subtitles link if available
+      transcript: '', // Add actual transcript link if available
+      description,
+      demos,
+      shorts: [], // Add actual shorts if available
+      quizzez: [], // Add actual quizzes if available
+    };
+
+    const existingSection = mockSections.find(sec => sec.title === section);
+    if (existingSection) {
+      existingSection.lectures.push(newLecture);
+    } else {
+      mockSections.push({ title: section, lectures: [newLecture] });
+    }
+    res.json(newLecture);
+  } else {
+    res.status(404).send({ message: 'Course not found' });
+  }
+});
+
 app.get('/lectures/:id/discussion', (req, res) => {
   console.log(33)
   const id = req.params.id;
