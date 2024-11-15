@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/proLearningHub/static/css/main.9fcb2078.css",
+    "main.js": "/proLearningHub/static/js/main.d6f8f832.js",
+    "static/js/453.68693753.chunk.js": "/proLearningHub/static/js/453.68693753.chunk.js",
+    "service-worker.js": "/proLearningHub/service-worker.js",
+    "index.html": "/proLearningHub/index.html",
+    "main.9fcb2078.css.map": "/proLearningHub/static/css/main.9fcb2078.css.map",
+    "main.d6f8f832.js.map": "/proLearningHub/static/js/main.d6f8f832.js.map",
+    "453.68693753.chunk.js.map": "/proLearningHub/static/js/453.68693753.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.9fcb2078.css",
+    "static/js/main.d6f8f832.js"
+  ]
+}
