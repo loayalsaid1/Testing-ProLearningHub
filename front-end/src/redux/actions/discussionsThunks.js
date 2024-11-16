@@ -383,3 +383,32 @@ export const toggleQuestionVote = (questionId) => async (dispatch, getState) => 
     );
   }
 }
+
+export const deleteQuestion = (questionId, lectureId = null) => async (dispatch) => {
+  try {
+    await toast.promise(
+      fetch(`${DOMAIN}/questions/${questionId}`, {
+        method: 'DELETE',
+      }).then((response) => {
+        if (!response.ok) {
+          throw new Error(data.message);
+        }
+        return response.json();
+      }),
+      {
+        loading: 'Deleting question',
+        success: 'Question deleted',
+        error: 'Error deleting question',
+      }
+    );
+
+    dispatch(discussionsActions.deleteQuestionSuccess(questionId, lectureId));
+  } catch (error) {
+    console.error(error);
+    dispatch(
+      discussionsActions.deleteQuestionFailure(
+        `Error deleting the question: ${error.message}`
+      )
+    );
+  }
+};
