@@ -303,6 +303,36 @@ export default function discussionsReducer(state = initialState, action = {}) {
       });
     }
 
+    case actions.DELETE_QUESTION_REQUEST: {
+      return state.set('isLoading', true);
+    }
+
+    case actions.DELETE_QUESTION_FAILURE: {
+      return state.withMutations((state) => {
+        state
+          .set('isLoading', false)
+          .set('discussionsError', action.payload.errorMessage);
+      });
+    }
+
+    case actions.DELETE_QUESTION_SUCCESS: {
+      const { questionId, lectureId } = action.payload;
+      return state.withMutations((state) => {
+        return state
+          .set('isLoading', false)
+          .set('discussionsError', null)
+          .removeIn(['replies', questionId])
+          .update((state) => {
+            const path = lectureId
+              ? ['lecturesDiscussions', lectureId]
+              : ['courseGeneralDiscussion'];
+            return state.updateIn([...path], (questions) =>
+              questions.filter((question) => question.get('id') !== questionId)
+            );
+          })
+      });
+    }
+
     default: {
       return state;
     }
