@@ -61,6 +61,7 @@ function Sidebar() {
                 </Link>
               </li>
               <li className="nav-item">
+
                 <Link className="nav-link text-white" to="/lectures">
                   <i className="fa fa-book"></i> Lectures
                 </Link>
@@ -76,6 +77,7 @@ function Sidebar() {
                 </Link>
               </li>
               <li className="nav-item">
+
                 <Link className="nav-link text-white" to="/register">
                   <i className="fa fa-user-plus"></i> Register
                 </Link>
