@@ -26,8 +26,20 @@ export default function QuestionHeader({ question, isLecture }) {
   const deleteQuestion = () => {
     setShowOptions(false);
     if (window.confirm(`Are you sure you are deleting question ${question.get('id')}`)) {
-      // dispatch(deleteQuestion(question.get('id'), isLecture));
-      console.log(question.get('id'));
+      // LectureId will be null if this is not a lectureQuestion.. and the thunk is handling this
+      // Is this the best way to do this.. or there is a better pattern for this..
+      // this is something i'm not quite sure about it..
+      // But, wow.. I type super fast.. I like this..
+      // Wow.. it feels very nice to race the cursor on the screen..
+      // I like that!
+      // Alhamdulillah. ThankGod... hopefully I use this well!
+      // You whoever reading this.. I hope for you inshallah, a good life.. and productive.. full of
+      // Purpose inshallah.. May Allah guide us through the best for us,, in this earlier life and in 
+      // the afterlife..
+      // I think sinse I worte all this.. I hope you check about my other 2 projects..
+      // the-fog-is-lifting.pages.dev
+      // and remindme-l.vercel.app
+      dispatch(deleteQuestion(question.get('id'), isLecture ? question.get('lectureId') : '' ));
     }
   }
 
