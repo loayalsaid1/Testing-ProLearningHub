@@ -1,22 +1,36 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Dot, CircleArrowUp, EllipsisVertical } from 'lucide-react';
+import { Dot, CircleArrowUp, EllipsisVertical, Trash2 } from 'lucide-react';
 import { formatDate } from '../../utils/utilFunctions';
 import {
   makeRepliesQuestionUpvotesSelector,
   makeRepliesQuestionIsUpvotedSelector,
 } from '../../redux/selectors/DiscussionsSelectors';
+import {
+  selectUserRole,
+  selectUserId
+} from '../../redux/selectors/uiSelectors';
 import { toggleQuestionVote } from '../../redux/actions/discussionsThunks';
 
 
 export default function QuestionHeader({ question, isLecture }) {
   const upvoted = useSelector(makeRepliesQuestionIsUpvotedSelector(question.get('id')));
-  const upvotes = useSelector(makeRepliesQuestionUpvotesSelector(question.get('id')));
-
-  console.log(upvoted, upvotes);
+  const upvotes = useSelector(makeRepliesQuestionUpvotesSelector(question.get('id')));  
+  const userRole = useSelector(selectUserRole);
+  const userId = useSelector(selectUserId);
   const date = formatDate(question.get('updatedAt'));
-
+  const [showOptions, setShowOptions] = useState(false);
   const dispatch = useDispatch();
+
+  
+  const deleteQuestion = () => {
+    setShowOptions(false);
+    if (window.confirm(`Are you sure you are deleting question ${question.get('id')}`)) {
+      // dispatch(deleteQuestion(question.get('id'), isLecture));
+      console.log(question.get('id'));
+    }
+  }
+
   const toggleUpvote = () => {
     dispatch(toggleQuestionVote(question.get('id')));
   };
@@ -34,7 +48,7 @@ export default function QuestionHeader({ question, isLecture }) {
         <h5 className="mb-1">{question.get('title')}</h5>
         <p className="text-muted mb-1">
           {question.getIn(['user', 'name'])} <Dot />{' '}
-          {formatDate(question.get('updatedAt'))}
+          {date}
         </p>
         <div dangerouslySetInnerHTML={{ __html: question.get('body') }}></div>
       </div>
@@ -47,9 +61,27 @@ export default function QuestionHeader({ question, isLecture }) {
             <CircleArrowUp color="black" strokeWidth={2.2} />
           )}
         </button>
-        <button className="btn btn-light">
+        <button className="btn btn-light" onClick={() => setShowOptions(!showOptions)}>
           <EllipsisVertical />
         </button>
+
+        {
+          showOptions &&
+          <div>          
+          <ul>
+            {
+              (userRole !== 'student' || userId === question.getIn(['user', 'id'])) &&
+              <li>
+              <button type='button' onClick={deleteQuestion} >
+                <Trash2 color='red' />
+                Delete question
+              </button>
+            </li>
+            }
+          </ul>
+        </div>
+        }
+
       </div>
     </div>
 
