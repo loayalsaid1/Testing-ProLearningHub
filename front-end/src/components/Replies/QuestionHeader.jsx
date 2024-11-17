@@ -10,7 +10,7 @@ import {
   selectUserRole,
   selectUserId
 } from '../../redux/selectors/uiSelectors';
-import { toggleQuestionVote } from '../../redux/actions/discussionsThunks';
+import { toggleQuestionVote, deleteQuestion } from '../../redux/actions/discussionsThunks';
 
 
 export default function QuestionHeader({ question, isLecture }) {
@@ -23,8 +23,7 @@ export default function QuestionHeader({ question, isLecture }) {
   const dispatch = useDispatch();
 
   
-  const deleteQuestion = () => {
-    setShowOptions(false);
+  const handleDeleteQuestion = () => {
     if (window.confirm(`Are you sure you are deleting question ${question.get('id')}`)) {
       // LectureId will be null if this is not a lectureQuestion.. and the thunk is handling this
       // Is this the best way to do this.. or there is a better pattern for this..
@@ -41,6 +40,7 @@ export default function QuestionHeader({ question, isLecture }) {
       // and remindme-l.vercel.app
       dispatch(deleteQuestion(question.get('id'), isLecture ? question.get('lectureId') : '' ));
     }
+    setShowOptions(false);
   }
 
   const toggleUpvote = () => {
@@ -84,7 +84,7 @@ export default function QuestionHeader({ question, isLecture }) {
             {
               (userRole !== 'student' || userId === question.getIn(['user', 'id'])) &&
               <li>
-              <button type='button' onClick={deleteQuestion} >
+              <button type='button' onClick={handleDeleteQuestion} >
                 <Trash2 color='red' />
                 Delete question
               </button>

@@ -390,10 +390,11 @@ export const deleteQuestion = (questionId, lectureId = null) => async (dispatch)
       fetch(`${DOMAIN}/questions/${questionId}`, {
         method: 'DELETE',
       }).then((response) => {
+        const data = response.json();
         if (!response.ok) {
           throw new Error(data.message);
         }
-        return response.json();
+        return data;
       }),
       {
         loading: 'Deleting question',
