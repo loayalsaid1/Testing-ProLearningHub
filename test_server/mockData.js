@@ -3,6 +3,7 @@ const mockComments = [
     id: 'comment-1',
     announcementId: 'testId',
     user: {
+      id: 'testId',
       name: 'John Doe',
       pictureThumbnail: 'https://picsum.photos/100',
     },
@@ -15,6 +16,7 @@ const mockComments = [
     id: 'comment-2',
     announcementId: 'testId',
     user: {
+      id: 'testId',
       name: 'Jane Doe',
       pictureThumbnail: 'https://picsum.photos/101',
     },
@@ -27,6 +29,7 @@ const mockComments = [
     id: 'comment-3',
     announcementId: 'testId',
     user: {
+      id: 'testId',
       name: 'John Doe',
       pictureThumbnail: 'https://picsum.photos/102',
     },
@@ -92,6 +95,7 @@ const mockReplies = [
   {
     id: 'reply-1',
     user: {
+      id: 'testId',
       name: 'Jane Doe',
       pictureThumbnail: 'https://picsum.photos/100',
     },
@@ -103,6 +107,7 @@ const mockReplies = [
   {
     id: 'reply-2',
     user: {
+      id: 'testId',
       name: 'John Doe',
       pictureThumbnail: 'https://picsum.photos/100',
     },
@@ -114,6 +119,7 @@ const mockReplies = [
   {
     id: 'reply-3',
     user: {
+      id: 'testId',
       name: 'Jane Doe',
       pictureThumbnail: 'https://picsum.photos/100',
     },
@@ -164,6 +170,7 @@ const mockDiscussion = [
     title: 'How does react work?',
     body: '<p>What is react and how does it work?</p>',
     user: {
+      id: 'testId',
       name: 'John Doe',
       pictureThumbnail: 'https://picsum.photos/200/300',
     },
@@ -177,6 +184,7 @@ const mockDiscussion = [
     title: 'How does react state work?',
     body: '<p>What is react state and how does it work?</p>',
     user: {
+      id: 'testId',
       name: 'Jane Doe',
       pictureThumbnail: 'https://picsum.photos/200/301',
     },
@@ -190,6 +198,7 @@ const mockDiscussion = [
     title: 'How does react context work?',
     body: '<p>What is react context and how does it work?</p>',
     user: {
+      id: 'testId',
       name: 'John Doe',
       pictureThumbnail: 'https://picsum.photos/200/302',
     },
@@ -203,6 +212,7 @@ const mockDiscussion = [
     title: 'How does react hooks work?',
     body: '<p>What is react hooks and how does it work?</p>',
     user: {
+      id: 'testId',
       name: 'Jane Doe',
       pictureThumbnail: 'https://picsum.photos/200/303',
     },
@@ -216,6 +226,7 @@ const mockDiscussion = [
     title: 'What is the difference between react and angular?',
     body: '<p>What is the difference between react and angular?</p>',
     user: {
+      id: 'testId',
       name: 'John Doe',
       pictureThumbnail: 'https://picsum.photos/200/304',
     },
@@ -229,6 +240,7 @@ const mockDiscussion = [
     title: 'How does react router work?',
     body: '<p>What is react router and how does it work?</p>',
     user: {
+      id: 'testId',
       name: 'Jane Doe',
       pictureThumbnail: 'https://picsum.photos/200/305',
     },
@@ -535,6 +547,7 @@ const repliesList = [
   {
     id: 'reply-1',
     user: {
+      id: 'testId',
       name: 'Jane Doe',
       pictureThumbnail: 'https://picsum.photos/100',
     },
@@ -546,6 +559,7 @@ const repliesList = [
   {
     id: 'reply-2',
     user: {
+      id: 'testId',
       name: 'John Doe',
       pictureThumbnail: 'https://picsum.photos/100',
     },
@@ -557,6 +571,7 @@ const repliesList = [
   {
     id: 'reply-3',
     user: {
+      id: 'testId',
       name: 'Jane Doe',
       pictureThumbnail: 'https://picsum.photos/100',
     },
