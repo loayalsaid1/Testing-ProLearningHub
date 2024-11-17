@@ -224,3 +224,24 @@ export const deleteQuestionSuccess = (questionId, lectureId='') => ({
     lectureId,
   }
 });
+
+
+export const deleteReplyRequest = () => ({
+  type: actions.DELETE_REPLY_REQUEST,
+});
+
+export const deleteReplyFailure = (errorMessage) => ({
+  type: actions.DELETE_REPLY_FAILURE,
+  payload: {
+    errorMessage,
+  },
+});
+
+
+export const deleteReplySuccess = (questionId, replyId) => ({
+  type: actions.DELETE_REPLY_SUCCESS,
+  payload: {
+    questionId,
+    replyId
+  },
+});
