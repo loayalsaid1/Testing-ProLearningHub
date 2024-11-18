@@ -50,6 +50,10 @@ urlpatterns = [
     path('courses/create', views.CoursesCreateView.as_view(),
          name='api_create_courses'),
 
+    # Chapter
+    path("course/<int:course_id>/chapter",
+         views.create_chapter, name="create_course_chapter"),
+
     # Lectures
     path("course/<int:course_id>/chapter/<int:chapter_id>/lecture",
          views.create_lecture, name="create_course_lectures"),
@@ -63,6 +67,10 @@ urlpatterns = [
     path('courses/<int:course_id>/edit',
          views.CoursesEditDeleteView.as_view(), name='api_create_courses'),
 
+    # Chapter
+    path("course/<int:course_id>/chapter/<int:chapter_id>",  # ✅
+         views.edit_chapter, name="edit_course_chapter"),
+
     # Lectures
     path("course/<int:course_id>/chapter/<int:chapter_id>/lecture/<int:lecture_id>",  # ✅
          views.edit_lecture, name="edit_course_lectures"),
@@ -75,6 +83,11 @@ urlpatterns = [
     # Course
     path('courses/<int:course_id>',
          views.CoursesEditDeleteView.as_view(), name='api_create_courses'),
+
+    # Chapter
+    path("course/<int:course_id>/chapter/<int:chapter_id>",  # ✅
+         views.delete_chapter, name="delete_course_chapter"),
+
 
     # Lectures
     path("course/<int:course_id>/chapter/<int:chapter_id>/lecture/<int:lecture_id>",  # ✅
@@ -97,9 +110,9 @@ urlpatterns = [
     path('enrollment/lecturer/<int:course_id>/<int:student_id>',
          views.EnrollmentForLecturerView.as_view(), name='api_lecturer_enrollments'),  # ✅
 
-    path("course/details/<int:course_id>",
-         # GET: View details for a particular course
-         views.course_detail_view, name="course_detail_view"),
+    #     path("course/details/<int:course_id>",
+    #          # GET: View details for a particular course
+    #          views.course_detail_view, name="course_detail_view"),
 
     # CHATS, THREADS AND FORUMS ENDPOINTS. CREATE GET, OR DELETE THEM
 
@@ -144,13 +157,11 @@ urlpatterns = [
          views.comment_by_id, name="comment_by_id"),
 
     # Upvotes for Threads and Chats
-    path("thread/<int:thread_id>/upvote",
-         views.thread_upvote, name="thread_upvote"),
-    path("chat/<int:chat_id>/upvote", views.chat_upvote, name="chat_upvote"),
+    path("thread/<int:thread_id>/vote",
+         views.thread_vote, name="thread_vote"),  # ✅
+    path("thread/<int:thread_id>/chat/<int:chat_id>/vote",
+         views.chat_vote, name="chat_vote"),  # ✅
 
-    path("thread/<int:thread_id>/unvote",
-         views.thread_unvote, name="thread_unvote"),
-    path("chat/<int:chat_id>/unvote", views.chat_unvote, name="chat_unvote"),
 
     # -------------------------------------POST-----------------------------------------------
     # Forum

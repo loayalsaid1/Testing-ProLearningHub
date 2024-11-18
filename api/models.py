@@ -24,7 +24,7 @@ class UserPostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Users
-        exclude = ['reset_token', 'pictureId', 'password_hash']
+        exclude = ['reset_token', 'pictureId']  # , 'password_hash']
 
 
 class UserLoginSerializer(serializers.ModelSerializer):
@@ -171,6 +171,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         # Use custom authentication backend
         user = authenticate(email=email, password=password)
+        print(f"User: {user}")
 
         if user is None:
             raise serializers.ValidationError(
@@ -198,6 +199,9 @@ class CustomAuthenticationBackend(BaseBackend):
     def authenticate(self, request, email=None, password=None, **kwargs):
         try:
             user = Users.objects.get(email=email)
+            print(f"User: {user}")
+            print(f"Password: {password}")
+
             # Validate the password with password_hash
             if check_password(password, user.password_hash):
                 return user
