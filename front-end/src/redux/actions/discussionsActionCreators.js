@@ -204,3 +204,44 @@ export const toggleQuestionUpvoteSuccess = (id, isUpvoted) => ({
     isUpvoted,
   },
 });
+
+export const deleteQuestionRequest = () => ({
+  type: actions.DELETE_QUESTION_REQUEST,
+});
+
+export const deleteQuestionFailure = (errorMessage) => ({
+  type: actions.DELETE_QUESTION_FAILURE,
+  payload: {
+    errorMessage,
+  },
+});
+
+// if the queiston belongs to a lecture
+export const deleteQuestionSuccess = (questionId, lectureId='') => ({
+  type: actions.DELETE_QUESTION_SUCCESS,
+  payload: {
+    questionId,
+    lectureId,
+  }
+});
+
+
+export const deleteReplyRequest = () => ({
+  type: actions.DELETE_REPLY_REQUEST,
+});
+
+export const deleteReplyFailure = (errorMessage) => ({
+  type: actions.DELETE_REPLY_FAILURE,
+  payload: {
+    errorMessage,
+  },
+});
+
+
+export const deleteReplySuccess = (questionId, replyId) => ({
+  type: actions.DELETE_REPLY_SUCCESS,
+  payload: {
+    questionId,
+    replyId
+  },
+});

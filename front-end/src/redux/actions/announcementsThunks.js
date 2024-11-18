@@ -108,3 +108,55 @@ export const addNewAnnouncement =
       dispatch(creators.addAnnouncementFailure(error.message));
     }
   };
+
+export const deleteAnnouncementComment =
+  (announcementId, commentId) => async (dispatch) => {
+    try {
+      await toast.promise(
+        fetch(`${DOMAIN}/comments/${commentId}`, {
+          method: 'DELETE',
+        }).then((response) => {
+          if (!response.ok) {
+            throw new Error('Failed to delete comment');
+          }
+        }),
+        {
+          loading: 'Deleting comment...',
+          success: 'Comment deleted successfully',
+          error: 'Failed to delete the comment',
+        }
+      );
+      dispatch(creators.deleteAnnouncementCommentSuccess(announcementId, commentId));
+    } catch (error) {
+      console.error(error.message);
+      dispatch(creators.deleteAnnouncementCommentFailure(error.message));
+    }
+  };
+
+export const deleteAnnouncementEntry = (announcementId) => async (dispatch) => {
+  try {
+    await toast.promise(
+      fetch(`${DOMAIN}/announcements/${announcementId}`,{
+        method: 'DELETE',
+      })
+      .then(response => {
+        const data = response.json();
+        if (!response.ok) {
+          throw new Error(data.message);
+        }
+        
+        return data;
+      }),
+      {
+        loading: 'Deleting announcement...',
+        success: 'Announcement deleted successfully',
+        error: 'Failed to delete the announcement',
+      }
+    )
+
+    dispatch(creators.deleteAnnouncementSuccess(announcementId));
+  } catch (error) {
+    console.error(error);
+    dispatch(creators.deleteAnnouncementFailure(error.message))
+  }
+}

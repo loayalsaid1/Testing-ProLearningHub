@@ -112,6 +112,62 @@ export default function announcementsReducer(
         });
     }
 
+    case actions.DELETE_ANNOUNCEMENT_COMMENT_REQUEST:
+      return state.merge({
+        isCommentsLoading: true,
+      });
+
+    case actions.DELETE_ANNOUNCEMENT_COMMENT_FAILURE: {
+      const { errorMessage } = action.payload;
+      return state.merge({
+        isCommentsLoading: false,
+        announcementsError: errorMessage,
+      });
+    }
+    
+    case actions.DELETE_ANNOUNCEMENT_COMMENT_SUCCESS: {
+      const { announcementId, commentId } = action.payload;
+      return state
+        .updateIn(['comments', announcementId], (commentsList) =>
+          commentsList.filter((comment) => comment.get('id') !== commentId)
+        )
+        .update(
+          'announcements',
+          (announcements) =>
+            announcements.map((announcement) =>
+              announcement.get('id') === announcementId
+                ? announcement.update('commentsCount', (count) => count - 1)
+                : announcement
+            )
+        );
+    }
+
+    case actions.DELETE_ANNOUNCEMENT_REQUEST:
+      return state.merge({
+        isLoading: true,
+      });
+
+    case actions.DELETE_ANNOUNCEMENT_FAILURE: {
+      const { errorMessage } = action.payload;
+      return state.merge({
+        isLoading: false,
+        announcementsError: errorMessage,
+      });
+    }
+    
+    case actions.DELETE_ANNOUNCEMENT_SUCCESS: {
+      const { announcementId } = action.payload;
+      
+      return state
+        .update('announcements', (announcements) =>
+          announcements.filter((announcement) => announcement.get('id') !== announcementId)
+        )
+        .deleteIn(['comments', announcementId])
+        .merge({
+          isLoading: false,
+          announcementsError: null,
+        });
+    }
     default:
       return state;
   }

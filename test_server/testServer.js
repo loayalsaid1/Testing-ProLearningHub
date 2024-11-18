@@ -10,7 +10,7 @@ const {
   mockReplies,
   question,
   mockDiscussion,
-  
+
   mockSections,
   repliesList,
 } = require('./mockData');
@@ -458,6 +458,7 @@ app.post('/courses/:id/announcements', (req, res) => {
     id: `announcement-${Date.now()}`,
     courseId,
     user: {
+      id: 'testId',
       name: 'John Doe',
       pictureThumbnail: `https://picsum.photos/200/${Math.floor(Math.random() * 100) + 300}`,
     },
@@ -493,16 +494,17 @@ app.post('/replies/:id/vote', (req, res) => {
   } else if (action === 'downvote') {
     mockReplies[index].upvotes -= 1;
   }
-  console.log(mockReplies)
   res.status(200).json(mockReplies[index]);
 });
 
 app.get('/announcements/:id/comments', (req, res) => {
   const announcementId = req.params.id;
   const ids = mockAnnouncements.map((announcement) => announcement.id);
-  ids.push('testId');
+  // This is stupid.. I dont' know what I was thingking when i was creating this
+  // at first.. may be i wanted to test erro rmesages or
+  ids.push(announcementId);
   if (ids.includes(announcementId)) {
-    res.json(mockComments);
+    res.json(mockComments.map(com => ({...com, announcementId})));
   } else {
     res.status(404).send({ message: 'Announcement not found' });
   }
@@ -533,6 +535,53 @@ app.post('/announcements/:id/comments', (req, res) => {
 
   res.status(201).json(newComment);
 });
+
+app.delete('/questions/:id', (req, res) => {
+  const questionId = req.params.id;
+  const index = mockDiscussion.findIndex((question) => question.id === questionId);
+
+  if (index === -1) {
+    return res.status(404).send({ message: 'Question not found' });
+  }
+  mockDiscussion.splice(index, 1);
+  res.status(200).json({ message: 'Question deleted successfully' });
+});
+
+app.delete('/replies/:id', (req, res) => {
+  const replyId = req.params.id;
+  const index = mockReplies.findIndex((reply) => reply.id === replyId);
+
+  if (index === -1) {
+    return res.status(404).send({ message: 'Reply not found' });
+  }
+  
+  mockReplies.splice(index, 1);
+  res.status(200).json({ message: 'Reply deleted successfully' });
+});
+
+app.delete('/comments/:commentId', (req, res) => {
+  const { announcementId, commentId } = req.params;
+  const index = mockComments.findIndex((comment) => comment.id === commentId);
+
+  if (index === -1) {
+    return res.status(404).send({ message: 'Comment not found' });
+  }
+  
+  mockComments.splice(index, 1);
+  res.status(200).json({ message: 'Comment deleted successfully' });
+});
+
+app.delete('/announcements/:id', (req, res) => {
+  const announcementId = req.params.id;
+  const index = mockAnnouncements.findIndex((announcement) => announcement.id === announcementId);
+
+  if (index === -1) {
+    return res.status(404).send({ message: 'Announcement not found' });
+  }
+  mockAnnouncements.splice(index, 1);
+  res.status(200).json({ message: 'Announcement deleted successfully' });
+});
+
 app.use((req, res, next) => {
   res.status(404).send({ message: 'Not found' });
 });
