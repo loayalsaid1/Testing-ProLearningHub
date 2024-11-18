@@ -190,19 +190,6 @@ class CoursesListView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class CoursesListByLecturerView(APIView):
-    permission_classes = (IsAuthenticated,)
-    authentication_classes = [CustomJWTAuthentication]
-
-    def get(self, request, user_id):
-        user = request.user
-        if user.role == 'tutor':
-            lecturer = Lecturer.objects.filter(user=user).first()
-            courses = Courses.objects.filter(lecturer=lecturer)
-        serializer = CoursesSerializer(courses, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
 class CoursesCreateView(APIView):
     permission_classes = (IsAuthenticated,)
     authentication_classes = [CustomJWTAuthentication]

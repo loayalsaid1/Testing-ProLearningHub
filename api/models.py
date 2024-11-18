@@ -90,6 +90,13 @@ class CoursesSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class ChapterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Chapter
+        fields = '__all__'
+        read_only_fields = ['course']
+
+
 class CoursesResourcesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course_Resources
@@ -101,7 +108,7 @@ class LectureSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lecture
         fields = '__all__'
-        read_only_fields = ['course']
+        read_only_fields = ['chapter']
 
 
 class FacialRecognitionsSerializer(serializers.ModelSerializer):
@@ -128,14 +135,14 @@ class ForumSerializer(serializers.ModelSerializer):
     class Meta:
         model = Forum
         fields = '__all__'
-        read_only_fields = ['course', 'creator']
+        read_only_fields = ['lecture', 'creator']
 
 
 class ThreadSerializer(serializers.ModelSerializer):
     class Meta:
         model = Thread
         fields = '__all__'
-        read_only_fields = ['forum', 'user']
+        read_only_fields = ['forum', 'user', 'chat_counts']
 
 
 class AnnouncementSerializer(serializers.ModelSerializer):

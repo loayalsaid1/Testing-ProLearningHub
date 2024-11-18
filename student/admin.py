@@ -17,7 +17,7 @@ class CourseResourcesAdmin(admin.ModelAdmin):
 
 
 class ForumAdmin(admin.ModelAdmin):
-    list_display = ('forum_id', 'title', 'course')
+    list_display = ('forum_id', 'title', 'lecture')
 
 
 class ThreadAdmin(admin.ModelAdmin):
