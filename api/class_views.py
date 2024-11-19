@@ -30,12 +30,16 @@ class CustomJWTAuthentication(JWTAuthentication):
         # Get token from request header (Authorization: Bearer <token>)
         token = self.get_header(request)
         print(f"Auth Access Token: {token}")
+        # Decodes the token from bytes format to string format
         if isinstance(token, bytes):
             token = token.decode('utf-8')
         print(f"Decoded Auth Access Token: {token}")
         if not token:
             raise AuthenticationFailed("No token provided")
 
+        # Removes the "Bearer " prefix from the token
+        token = token.split(' ')[-1]
+        print(f"New Token: {token}")
         # Check if token is blacklisted
         if BlacklistedToken.objects.filter(token=token).exists():
             raise AuthenticationFailed("Token is blacklisted")
