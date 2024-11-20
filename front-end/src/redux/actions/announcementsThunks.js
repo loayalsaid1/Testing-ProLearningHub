@@ -72,3 +72,91 @@ export const addComment =
       dispatch(creators.addCommentFailure(error.message));
     }
   };
+
+export const addNewAnnouncement =
+  (title, details) => async (dispatch, getState) => {
+    const courseId = getState().ui.getIn(['course', 'id']) || 'testId';
+    const userId = getState().ui.getIn(['user', 'id']) || 'testId';
+
+    try {
+      const data = await toast.promise(
+        fetch(`${DOMAIN}/courses/${courseId}/announcements`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId,
+            title,
+            details,
+          }),
+        }).then((response) => {
+          if (!response.ok) {
+            throw new Error('Failed to add announcement');
+          }
+          return response.json();
+        }),
+        {
+          loading: 'Adding announcement...',
+          success: 'Announcement added successfully',
+          error: 'Failed to add the announcement',
+        }
+      );
+      dispatch(creators.addAnnouncementSuccess(data));
+    } catch (error) {
+      console.error(error.message);
+      dispatch(creators.addAnnouncementFailure(error.message));
+    }
+  };
+
+export const deleteAnnouncementComment =
+  (announcementId, commentId) => async (dispatch) => {
+    try {
+      await toast.promise(
+        fetch(`${DOMAIN}/comments/${commentId}`, {
+          method: 'DELETE',
+        }).then((response) => {
+          if (!response.ok) {
+            throw new Error('Failed to delete comment');
+          }
+        }),
+        {
+          loading: 'Deleting comment...',
+          success: 'Comment deleted successfully',
+          error: 'Failed to delete the comment',
+        }
+      );
+      dispatch(creators.deleteAnnouncementCommentSuccess(announcementId, commentId));
+    } catch (error) {
+      console.error(error.message);
+      dispatch(creators.deleteAnnouncementCommentFailure(error.message));
+    }
+  };
+
+export const deleteAnnouncementEntry = (announcementId) => async (dispatch) => {
+  try {
+    await toast.promise(
+      fetch(`${DOMAIN}/announcements/${announcementId}`,{
+        method: 'DELETE',
+      })
+      .then(response => {
+        const data = response.json();
+        if (!response.ok) {
+          throw new Error(data.message);
+        }
+        
+        return data;
+      }),
+      {
+        loading: 'Deleting announcement...',
+        success: 'Announcement deleted successfully',
+        error: 'Failed to delete the announcement',
+      }
+    )
+
+    dispatch(creators.deleteAnnouncementSuccess(announcementId));
+  } catch (error) {
+    console.error(error);
+    dispatch(creators.deleteAnnouncementFailure(error.message))
+  }
+}

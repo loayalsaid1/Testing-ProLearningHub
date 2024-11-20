@@ -1,9 +1,9 @@
 import ImageKit from 'imagekit-javascript';
 import { setError } from '../redux/actions/uiActionCreators';
 
-const DOMAIN = 'http://localhost:3000';
+import { DOMAIN } from './constants';
 
-const imagekit = new ImageKit({
+export const imagekit = new ImageKit({
   publicKey: 'public_tTc9vCi5O7L8WVAQquK6vQWNx08=',
   urlEndpoint: 'https://ik.imagekit.io/loayalsaid1/proLearningHub',
 });
@@ -72,4 +72,20 @@ export async function replaceTempImageUrls(content, files, dispatch) {
   }
 
   return newContent;
+}
+
+export async function uploadFile(file, dispatch, name='') {
+  try {
+    const authParamsResponse = await fetch(`${DOMAIN}/auth/imagekit`);
+    const authParams = await authParamsResponse.json();
+    const uploadResponse = await imagekit.upload({
+      file,
+      fileName: name ? name : `UploadedFile_${Date.now()}`,
+      ...authParams,
+    })
+    return uploadResponse.url;
+  } catch (error) {
+    dispatch(setError('upload', `Error uploading file: ${error.message}`));
+    return null;
+  }
 }

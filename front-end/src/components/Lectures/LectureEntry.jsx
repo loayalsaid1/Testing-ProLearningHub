@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Presentation, EllipsisVertical, SquarePen, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Tag from './Tag';
+import { Link } from 'react-router-dom';
 
 export default function LectureEntry({
   title = '',
@@ -21,7 +22,7 @@ export default function LectureEntry({
       <div>
         {/* That title will be a link to the lecture page.. */}
         {/* for now.. just toast the lecture ID */}
-        <h4 onClick={() => toast(`Lecture ID: ${id}`)}>{title}</h4>
+        <h4><Link to={`/lectures/${id}`}>{title}</Link></h4>
         <p>{description}</p>
         <div>
           {tags.map((tag, index) => (
