@@ -1,1 +1,1 @@
-export const DOMAIN = 'http://localhost:3000';
+export const DOMAIN = 'https://172.31.130.241:3000';
