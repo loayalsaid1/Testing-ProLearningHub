@@ -1,4 +1,6 @@
 const express = require('express');
+const https = require('https');
+const fs = require('fs');
 const ImageKit = require('imagekit');
 const app = express();
 const cors = require('cors');
@@ -15,6 +17,9 @@ const {
   repliesList,
 } = require('./mockData');
 
+const key = fs.readFileSync('./key.pem');
+const cert = fs.readFileSync('./cert.pem');
+
 app.use(express.json());
 app.use(cors({origin: '*'}));
 app.use((req, res, next) => {
@@ -22,6 +27,8 @@ app.use((req, res, next) => {
   res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
   next();
 });
+
+
 const ytdl = require('ytdl-core');
 const { getTranscript } = require('youtube-transcript');
 
@@ -201,6 +208,7 @@ app.get('/courses/:courseId/lectures/:lectureId', (req, res) => {
     res.json({lectureData: {
       id: lectureId,
       title: 'Week 4',
+      section: 'Low Level Programming',
       videoLink: 'https://youtu.be/F9-yqoS7b8w',
       notes: 'https://cs50.harvard.edu/x/2024/notes/4/',
       audioLink: 'https://cs50.harvard.edu/college/2022/spring/lectures/4/wav/lecture4.wav',
@@ -208,6 +216,7 @@ app.get('/courses/:courseId/lectures/:lectureId', (req, res) => {
       subtitles: 'https://cs50.harvard.edu/college/2022/spring/lectures/4/subtitles/lecture4.srt',
       transcript: 'https://cs50.harvard.edu/college/2022/spring/lectures/4/transcript',
       description: 'Pointers. Segmentation Faults. Dynamic Memory Allocation. Stack. Heap. Buffer Overflow. File I/O. Images.',
+      tags: ['pointers', 'segmentation faults', 'dynamic memory allocation', 'stack', 'heap', 'buffer overflow', 'file i/o', 'images'],
       demos: [
         {
           title: 'Demo: HTML/CSS',
@@ -253,6 +262,11 @@ app.get('/courses/:id/lectures', (req, res) => {
   }
 });
 
+app.get('/sections_titles', (req, res) => {
+  const sectionTitles = mockSections?.map(section => section.title) || [];
+  res.json(sectionTitles);
+});
+
 app.post('/courses/:id/lectures', (req, res) => {
   const courseId = req.params.id;
   const { demos, description, extras, name, notesLink, section, slidesLink, tags, youtubeLink } = req.body;
@@ -268,8 +282,9 @@ app.post('/courses/:id/lectures', (req, res) => {
       transcript: '', // Add actual transcript link if available
       description,
       demos,
-      shorts: [], // Add actual shorts if available
+      shorts: extras, // Add actual shorts if available
       quizzez: [], // Add actual quizzes if available
+      tags,
     };
 
     const existingSection = mockSections.find(sec => sec.title === section);
@@ -314,6 +329,7 @@ app.post('/lectures/:id/discussion', (req, res) => {
     id: `entry-${Date.now()}`,
     title,
     user: {
+      id: 'testId',
       name: 'John Doe',
       pictureThumbnail: `https://picsum.photos/200/${Math.floor(Math.random() * 100) + 300}`,
     },
@@ -354,6 +370,7 @@ app.post('/courses/:id/general_discussion', (req, res) => {
     id: `entry-${Date.now()}`,
     title,
     user: {
+      id: 'testId',
       name: 'John Doe',
       pictureThumbnail: `https://picsum.photos/200/${Math.floor(Math.random() * 100) + 300}`,
     },
@@ -395,6 +412,7 @@ app.post('/questions/:id/replies', (req, res) => {
     questionId,
     id: `reply-${Date.now()}`,
     user: {
+      id: 'testId',
       name: 'Anonymous',
       pictureThumbnail: `https://picsum.photos/100`,
     },
@@ -644,11 +662,51 @@ app.put('/questions/:id', (req, res) => {
   res.status(200).json(mockDiscussion[index]);
 });
 
+app.put('/replies/:id', (req, res) => {
+  const { id } = req.params;
+  const { body } = req.body;
+
+  const index = mockReplies.findIndex((reply) => reply.id === id);
+
+  if (index === -1) {
+    return res.status(404).send({ message: 'Reply not found' });
+  }
+
+  mockReplies[index].body = body;
+
+  res.status(200).json(mockReplies[index]);
+});
+
+app.put('/lectures/:id', (req, res) => {
+  const { id } = req.params;
+  const { name, description, youtubeLink, notesLink, slidesLink, section, extras, tags, demos } = req.body;
+
+  const index = mockSections.flatMap(section => section.lectures).findIndex(lecture => lecture.id === id);
+
+  if (index === -1) {
+    return res.status(404).send({ message: 'Lecture not found' });
+  }
+
+  const lecture = mockSections.flatMap(section => section.lectures)[index];
+  lecture.title = name;
+  lecture.description = description;
+  lecture.videoLink = youtubeLink;
+  lecture.notes = notesLink;
+  lecture.slides = slidesLink;
+  lecture.section = section;
+  lecture.shorts = extras;
+  lecture.demos = demos;
+  lecture.tags = tags;
+
+  res.status(200).json(lecture);
+});
 
 app.use((req, res, next) => {
   res.status(404).send({ message: 'Not found' });
 });
 
-app.listen(port, () => {
-  console.log(`Server started on port ${port}`);
+const httpsServer = https.createServer({ key, cert }, app);
+httpsServer.listen(port, () => {
+  console.log(`Server started on https://localhost:${port}`);
 });
+
